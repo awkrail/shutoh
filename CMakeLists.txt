@@ -16,7 +16,9 @@ find_package(OpenCV REQUIRED)
 
 add_executable(scene_detector 
     src/main.cpp
-    src/video_stream.cpp    
+    src/video_stream.cpp
+    src/scene_manager.cpp
+    src/frame_timecode.cpp
 )
 
 target_include_directories(scene_detector PRIVATE ${OpenCV_INCLUDE_DIRS})

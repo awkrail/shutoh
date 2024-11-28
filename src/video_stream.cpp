@@ -4,8 +4,7 @@
 #include <stdexcept>
 
 #include "video_stream.hpp"
-
-double MAX_FPS_DELTA = 1.0 / 100000;
+#include "frame_timecode.hpp"
 
 VideoStream::VideoStream(const std::string& input_path)
     : input_path_{input_path}, framerate_{0.0}, cap_{} {
@@ -33,6 +32,11 @@ VideoStream::VideoStream(const std::string& input_path)
 
     framerate_ = framerate;
     cap_ = cap;
+}
+
+FrameTimeCode VideoStream::base_timecode() {
+    int timecode = 0;
+    return FrameTimeCode(timecode, framerate_);
 }
 
 void VideoStream::read() {
