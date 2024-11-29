@@ -18,7 +18,7 @@ VideoStream::VideoStream(const std::string& input_path)
         throw std::runtime_error("Could not open video file.");
     }
 
-    int codec = static_cast<int>(cap.get(cv::CAP_PROP_FOURCC));
+    int8_t codec = static_cast<int8_t>(cap.get(cv::CAP_PROP_FOURCC));
     bool codec_unsupported = (std::abs(codec) == 0);
 
     if(codec_unsupported) {
@@ -35,7 +35,7 @@ VideoStream::VideoStream(const std::string& input_path)
 }
 
 FrameTimeCode VideoStream::base_timecode() {
-    int timecode = 0;
+    int32_t timecode = 0;
     return FrameTimeCode(timecode, framerate_);
 }
 

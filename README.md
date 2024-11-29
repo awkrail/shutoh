@@ -1,5 +1,5 @@
-# Scene detector
-This repo is a fast scene detector implemented in C++.
+# Shutoh
+Shutoh (手刀 in Japanese) is a fast scene detector implemented in C++.
 
 # Build
 Install dependency libraries: openCV.
@@ -18,6 +18,9 @@ cd build
 cmake ..
 cmake --build .
 ```
+
+# Limitations
+The max hour of videos is 10h (120fps).
 
 # Run
 ```
