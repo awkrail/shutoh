@@ -5,10 +5,10 @@
 #include <string>
 #include <cstdint>
 
-extern double MAX_FPS_DELTA = 1.0 / 100000;
-extern double _SECONDS_PER_MINUTE = 60.0;
-extern double _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
-extern double _MINUTES_PER_HOUR = 60.0;
+extern const double MAX_FPS_DELTA;
+extern const double _SECONDS_PER_MINUTE;
+extern const double _SECONDS_PER_HOUR;
+extern const double _MINUTES_PER_HOUR;
 
 struct HourMinSec {
     int32_t hrs;
@@ -29,6 +29,7 @@ class FrameTimeCode {
         const int32_t _parse_timecode_number(const double timecode_num);
 
         const HourMinSec _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
+        const int32_t _seconds_to_frames(const double seconds) const;
 
         double framerate_;
         int32_t frame_num_;

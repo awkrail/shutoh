@@ -6,10 +6,10 @@
 #include <string>
 #include <vector>
 
-double MAX_FPS_DELTA = 1.0 / 100000;
-double _SECONDS_PER_MINUTE = 60.0;
-double _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
-double _MINUTES_PER_HOUR = 60.0;
+const double MAX_FPS_DELTA = 1.0 / 100000;
+const double _SECONDS_PER_MINUTE = 60.0;
+const double _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
+const double _MINUTES_PER_HOUR = 60.0;
 
 FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode) : framerate_{0.0}, frame_num_{0} {
     framerate_ = timecode.framerate_;
@@ -62,16 +62,16 @@ const int32_t FrameTimeCode::_parse_timecode_string(const std::string& timecode_
             throw std::runtime_error("Invalid timecode range (values outside allowed range).");
         }
         int32_t secs = (hr_min_sec.hrs * 60 * 60) + (hr_min_sec.mins * 60) + hr_min_sec.secs;
-        // TODO
-        // return _seconds_to_frames(secs);
-        return secs;
+        return _seconds_to_frames(secs * framerate_);
     }
 }
 
-const int32_t FrameTimeCode::_parse_timecode_number(const int timecode_num) {
+const int32_t FrameTimeCode::_parse_timecode_number(const int32_t timecode_num) {
+    return 0;
 }
 
 const int32_t FrameTimeCode::_parse_timecode_number(const double timecode_num) {
+    return 0;
 }
 
 const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
@@ -109,4 +109,8 @@ const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string
         std::cerr << "Invalid input: out of int32_t range." << std::endl;
     }    
     return hrs_min_sec;
+}
+
+const int32_t FrameTimeCode::_seconds_to_frames(const double seconds) const {
+    return std::round(seconds * framerate_);
 }
