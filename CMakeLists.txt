@@ -23,3 +23,7 @@ add_executable(shutoh
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(shutoh PRIVATE ${OpenCV_LIBS} argparse)
+
+# tests
+enable_testing()
+add_subdirectory(tests)

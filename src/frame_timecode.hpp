@@ -23,10 +23,13 @@ class FrameTimeCode {
         FrameTimeCode(const double timecode_num, const double fps);
         FrameTimeCode(const int32_t timecode_num, const double fps);
 
+        const double get_framerate() const { return framerate_; }
+        const int32_t get_framenum() const { return frame_num_; }
+
     private:
-        const int32_t _parse_timecode_string(const std::string& timecode_str);
-        const int32_t _parse_timecode_number(const int32_t timecode_num);
-        const int32_t _parse_timecode_number(const double timecode_num);
+        const int32_t _parse_timecode_string(const std::string& timecode_str) const;
+        const int32_t _parse_timecode_number(const int32_t timecode_num) const;
+        const int32_t _parse_timecode_number(const double timecode_num) const;
 
         const HourMinSec _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
         const int32_t _seconds_to_frames(const double seconds) const;

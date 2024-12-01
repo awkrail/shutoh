@@ -34,7 +34,7 @@ FrameTimeCode::FrameTimeCode(int32_t timecode_num, double fps) : framerate_{0.0}
     frame_num_ = _parse_timecode_number(timecode_num);
 }
 
-const int32_t FrameTimeCode::_parse_timecode_string(const std::string& timecode_str) {
+const int32_t FrameTimeCode::_parse_timecode_string(const std::string& timecode_str) const {
     /*
     Parse a string into the exact number of frames.
     Valid timestamps:
@@ -64,13 +64,15 @@ const int32_t FrameTimeCode::_parse_timecode_string(const std::string& timecode_
         int32_t secs = (hr_min_sec.hrs * 60 * 60) + (hr_min_sec.mins * 60) + hr_min_sec.secs;
         return _seconds_to_frames(secs * framerate_);
     }
-}
 
-const int32_t FrameTimeCode::_parse_timecode_number(const int32_t timecode_num) {
     return 0;
 }
 
-const int32_t FrameTimeCode::_parse_timecode_number(const double timecode_num) {
+const int32_t FrameTimeCode::_parse_timecode_number(const int32_t timecode_num) const {
+    return 0;
+}
+
+const int32_t FrameTimeCode::_parse_timecode_number(const double timecode_num) const {
     return 0;
 }
 

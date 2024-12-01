@@ -13,10 +13,8 @@ vcpkg install opencv
 ```
 Build with cmake as:
 ```
-mkdir build
-cd build
-cmake ..
-cmake --build .
+cmake -S . -B build
+cmake --build build
 ```
 
 # Limitations
@@ -24,5 +22,10 @@ The max hour of videos is 10h (120fps).
 
 # Run
 ```
-./scene_detector --input_path ../video/input.mp4
+./build/shutoh --input_path video/input.mp4
+```
+
+# Test
+```
+./build/tests/tests
 ```
