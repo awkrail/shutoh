@@ -26,7 +26,7 @@ VideoStream::VideoStream(const std::string& input_path)
     }
 
     double framerate = cap.get(cv::CAP_PROP_FPS);
-    if (framerate < MAX_FPS_DELTA) {
+    if (framerate < frame_timecode::MAX_FPS_DELTA) {
         throw std::runtime_error("Frame rate is over MAX_FPS_DELTA.");
     }
 
@@ -34,9 +34,9 @@ VideoStream::VideoStream(const std::string& input_path)
     cap_ = cap;
 }
 
-FrameTimeCode VideoStream::base_timecode() {
+frame_timecode::FrameTimeCode VideoStream::base_timecode() {
     int32_t timecode = 0;
-    return FrameTimeCode(timecode, framerate_);
+    return frame_timecode::FrameTimeCode(timecode, framerate_);
 }
 
 void VideoStream::read() {

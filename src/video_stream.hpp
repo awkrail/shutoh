@@ -10,7 +10,7 @@ class VideoStream {
     public:
         VideoStream(const std::string& input_path);
         void read();
-        FrameTimeCode base_timecode();
+        frame_timecode::FrameTimeCode base_timecode();
     
     private:
         const std::string input_path_;
