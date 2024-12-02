@@ -7,44 +7,44 @@
 
 namespace frame_timecode {
 
-extern const double MAX_FPS_DELTA;
-extern const double _SECONDS_PER_MINUTE;
-extern const double _SECONDS_PER_HOUR;
-extern const double _MINUTES_PER_HOUR;
+extern const float MAX_FPS_DELTA;
+extern const float _SECONDS_PER_MINUTE;
+extern const float _SECONDS_PER_HOUR;
+extern const float _MINUTES_PER_HOUR;
 
 struct HourMinSec {
     int32_t hrs;
-    int8_t mins;
-    int8_t secs;
+    int32_t mins;
+    float secs;
 };
 
 class FrameTimeCode {
     public:
         FrameTimeCode(const FrameTimeCode& timecode);
-        FrameTimeCode(const int32_t frame_num, const double fps);
+        FrameTimeCode(const int32_t frame_num, const float fps);
 
-        const double get_framerate() const { return framerate_; }
+        const float get_framerate() const { return framerate_; }
         const int32_t get_frame_num() const { return frame_num_; }
 
-        void set_framerate(const double framerate) { framerate_ = framerate; }
+        void set_framerate(const float framerate) { framerate_ = framerate; }
         void set_frame_num(const int32_t frame_num) { frame_num_ = frame_num; }
 
         const int32_t parse_timecode_string(const std::string& timecode_str) const;
-        const int32_t parse_timecode_number(const int32_t timecode_num) const;
-        const int32_t parse_timecode_number(const double timecode_num) const;
+        const int32_t parse_timecode_number(const int32_t seconds) const;
+        const int32_t parse_timecode_number(const float seconds) const;
 
     private:
         const HourMinSec _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
-        const int32_t _seconds_to_frames(const double seconds) const;
+        const int32_t _seconds_to_frames(const float seconds) const;
 
-        double framerate_;
+        float framerate_;
         int32_t frame_num_;
 };
 
-const FrameTimeCode from_timecode_string(const std::string& timecode_str, const double fps);
-const FrameTimeCode from_seconds(const double timecode_num, const double fps);
-const FrameTimeCode from_seconds(const int32_t timecode_num, const double fps);
-const FrameTimeCode from_frame_nums(const int32_t timecode_num, const double fps);
+const FrameTimeCode from_timecode_string(const std::string& timecode_str, const float fps);
+const FrameTimeCode from_frame_nums(const int32_t frame_num, const float fps);
+const FrameTimeCode from_seconds(const float seconds, const float fps);
+const FrameTimeCode from_seconds(const int32_t seconds, const float fps);
 
 }
 

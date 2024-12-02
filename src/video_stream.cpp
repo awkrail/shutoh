@@ -25,7 +25,7 @@ VideoStream::VideoStream(const std::string& input_path)
         throw std::runtime_error("Video codec detection failed. Unsupported video codec.");
     }
 
-    double framerate = cap.get(cv::CAP_PROP_FPS);
+    float framerate = cap.get(cv::CAP_PROP_FPS);
     if (framerate < frame_timecode::MAX_FPS_DELTA) {
         throw std::runtime_error("Frame rate is over MAX_FPS_DELTA.");
     }
