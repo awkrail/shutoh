@@ -23,19 +23,25 @@ class FrameTimeCode {
         FrameTimeCode(const FrameTimeCode& timecode);
         FrameTimeCode(const int32_t frame_num, const float fps);
 
-        const float get_framerate() const { return framerate_; }
-        const int32_t get_frame_num() const { return frame_num_; }
+        float get_framerate() const { return framerate_; }
+        int32_t get_frame_num() const { return frame_num_; }
 
         void set_framerate(const float framerate) { framerate_ = framerate; }
         void set_frame_num(const int32_t frame_num) { frame_num_ = frame_num; }
 
-        const int32_t parse_timecode_string(const std::string& timecode_str) const;
-        const int32_t parse_timecode_number(const int32_t seconds) const;
-        const int32_t parse_timecode_number(const float seconds) const;
+        int32_t parse_timecode_string(const std::string& timecode_str) const;
+        int32_t parse_timecode_number(const int32_t seconds) const;
+        int32_t parse_timecode_number(const float seconds) const;
+
+        bool operator==(const FrameTimeCode& other) const;
+        bool operator!=(const FrameTimeCode& other) const;
+
+        const FrameTimeCode operator+(const FrameTimeCode& other) const;
+        const FrameTimeCode operator-(const FrameTimeCode& other) const;
 
     private:
         const HourMinSec _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
-        const int32_t _seconds_to_frames(const float seconds) const;
+        int32_t _seconds_to_frames(const float seconds) const;
 
         float framerate_;
         int32_t frame_num_;

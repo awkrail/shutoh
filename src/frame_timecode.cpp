@@ -23,7 +23,7 @@ FrameTimeCode::FrameTimeCode(const int32_t frame_num, const float fps) : framera
     frame_num_ = frame_num;
 }
 
-const int32_t FrameTimeCode::parse_timecode_string(const std::string& timecode_str) const {
+int32_t FrameTimeCode::parse_timecode_string(const std::string& timecode_str) const {
     /*
     Parse a string into the exact number of frames.
     framerate should be set before calling this method.
@@ -54,14 +54,14 @@ const int32_t FrameTimeCode::parse_timecode_string(const std::string& timecode_s
     throw std::invalid_argument("Invalid argument: " + timecode_str);
 }
 
-const int32_t FrameTimeCode::parse_timecode_number(const int32_t seconds) const {
+int32_t FrameTimeCode::parse_timecode_number(const int32_t seconds) const {
     if (seconds < 0) {
         throw std::invalid_argument("Timecode frame number must be greater than 0.");
     }
     return _seconds_to_frames(seconds);
 }
 
-const int32_t FrameTimeCode::parse_timecode_number(const float seconds) const {
+int32_t FrameTimeCode::parse_timecode_number(const float seconds) const {
     if (seconds < 0.0) {
         throw std::invalid_argument("Timecode frame number must be greater than 0.");
     }
@@ -105,8 +105,31 @@ const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string
     return hrs_min_sec;
 }
 
-const int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
+int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
     return std::round(seconds * framerate_);
+}
+
+bool FrameTimeCode::operator==(const FrameTimeCode& other) const {
+    return framerate_ == other.get_framerate() && frame_num_ == other.get_frame_num();
+}
+
+bool FrameTimeCode::operator!=(const FrameTimeCode& other) const {
+    return !(framerate_ == other.get_framerate() && frame_num_ == other.get_frame_num());
+}
+
+const FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
+    if(framerate_ != other.framerate_) {
+        throw std::runtime_error("Framerate should be same between operands.");
+    }
+    return FrameTimeCode(frame_num_ + other.frame_num_, framerate_);
+}
+
+const FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
+    if(framerate_ != other.framerate_) {
+        throw std::runtime_error("Framerate should be same between operands.");
+    }
+    const int32_t new_frame_num = std::max(frame_num_ - other.frame_num_, 0);
+    return FrameTimeCode(new_frame_num, framerate_);
 }
 
 const FrameTimeCode from_timecode_string(const std::string& timecode_str, float fps) {
@@ -151,5 +174,6 @@ const FrameTimeCode from_seconds(int32_t seconds, float fps) {
     const int32_t frame_num = frame_timecode.parse_timecode_number(seconds);
     return FrameTimeCode(frame_num, fps);
 }
+
 
 }

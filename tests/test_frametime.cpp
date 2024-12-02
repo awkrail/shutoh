@@ -3,6 +3,7 @@
 
 using namespace frame_timecode;
 
+// Initialization
 TEST_CASE("FrameTime initialization - FrameTimeCode", "[Frametime init]") {
     FrameTimeCode frametime = FrameTimeCode(0, 0.5);
     FrameTimeCode frametime2 = FrameTimeCode(frametime);
@@ -29,4 +30,37 @@ TEST_CASE("FrameTime initialization - HH:MM:SS[.nnn]", "[Frametime init]") {
     REQUIRE(from_timecode_string("00:00:00", 1.0).get_frame_num() == 0);
     REQUIRE(from_timecode_string("23:59:59", 1.0).get_frame_num() == 86399);
     REQUIRE_THROWS_AS(from_timecode_string("invalid", 1.0), std::invalid_argument); // Invalid case
+}
+
+// Compare, Add, and substract
+TEST_CASE("FrameTime comparison - equal", "[FrameTime comparison]") {
+    FrameTimeCode frametime = FrameTimeCode(0, 0.5);
+    FrameTimeCode frametime2 = FrameTimeCode(0, 0.5);
+    FrameTimeCode frametime3 = FrameTimeCode(5, 0.5);
+    REQUIRE(frametime == frametime2);
+    REQUIRE(frametime != frametime3);
+}
+
+TEST_CASE("FrameTime comparison - Add and substract", "[FrameTime comparison]") {
+    std::vector<FrameTimeCode> list_a;
+    list_a.push_back(FrameTimeCode(10, 1.0));
+    list_a.push_back(from_timecode_string("00:00:10", 1.0));
+    list_a.push_back(from_frame_nums(10, 1.0));
+    list_a.push_back(from_seconds(10.0f, 1.0));
+    list_a.push_back(from_seconds(10, 1.0));
+
+    std::vector<FrameTimeCode> list_b;
+    list_b.push_back(FrameTimeCode(5, 1.0));
+    list_b.push_back(from_timecode_string("00:00:05", 1.0));
+    list_b.push_back(from_frame_nums(5, 1.0));
+    list_b.push_back(from_seconds(5.0f, 1.0));
+    list_b.push_back(from_seconds(5, 1.0));
+
+    for(const FrameTimeCode& a : list_a) {
+        for(const FrameTimeCode& b : list_b) {
+            REQUIRE(a + b == FrameTimeCode(15, 1.0));
+            REQUIRE(a - b == FrameTimeCode(5, 1.0));
+            REQUIRE(b - a == FrameTimeCode(0, 1.0));
+        }
+    }
 }
