@@ -103,7 +103,7 @@ const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string
         std::cerr << "Invalid input: not a number." << std::endl;
     } catch (const std::out_of_range& e) {
         std::cerr << "Invalid input: out of int32_t range." << std::endl;
-    }    
+    }
     return hrs_min_sec;
 }
 
