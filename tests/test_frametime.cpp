@@ -58,6 +58,12 @@ TEST_CASE("FrameTime comparison - Add and substract", "[FrameTime comparison]") 
 
     for(const FrameTimeCode& a : list_a) {
         for(const FrameTimeCode& b : list_b) {
+            REQUIRE(a > b);
+            REQUIRE(b < a);
+            REQUIRE(a >= b);
+            REQUIRE(b <= a);
+            REQUIRE(b >= b);
+            REQUIRE(b <= b);
             REQUIRE(a + b == FrameTimeCode(15, 1.0));
             REQUIRE(a - b == FrameTimeCode(5, 1.0));
             REQUIRE(b - a == FrameTimeCode(0, 1.0));

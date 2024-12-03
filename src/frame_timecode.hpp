@@ -35,6 +35,10 @@ class FrameTimeCode {
 
         bool operator==(const FrameTimeCode& other) const;
         bool operator!=(const FrameTimeCode& other) const;
+        bool operator<(const FrameTimeCode& other) const;
+        bool operator>(const FrameTimeCode& other) const;
+        bool operator<=(const FrameTimeCode& other) const;
+        bool operator>=(const FrameTimeCode& other) const;
 
         const FrameTimeCode operator+(const FrameTimeCode& other) const;
         const FrameTimeCode operator-(const FrameTimeCode& other) const;

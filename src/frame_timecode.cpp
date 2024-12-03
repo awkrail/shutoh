@@ -117,6 +117,22 @@ bool FrameTimeCode::operator!=(const FrameTimeCode& other) const {
     return !(framerate_ == other.get_framerate() && frame_num_ == other.get_frame_num());
 }
 
+bool FrameTimeCode::operator<(const FrameTimeCode& other) const {
+    return frame_num_ < other.frame_num_;
+}
+
+bool FrameTimeCode::operator>(const FrameTimeCode& other) const {
+    return frame_num_ > other.frame_num_;
+}
+
+bool FrameTimeCode::operator<=(const FrameTimeCode& other) const {
+    return frame_num_ <= other.frame_num_;
+}
+
+bool FrameTimeCode::operator>=(const FrameTimeCode& other) const {
+    return frame_num_ >= other.frame_num_;
+}
+
 const FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
     if(framerate_ != other.framerate_) {
         throw std::runtime_error("Framerate should be same between operands.");
