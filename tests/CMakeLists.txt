@@ -12,7 +12,10 @@ list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
 find_package(OpenCV REQUIRED)
 
-add_executable(tests test_frametime.cpp ${SOURCES})
+add_executable(tests 
+    test_frametime.cpp
+    test_scene_manager.cpp
+    ${SOURCES})
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/src)

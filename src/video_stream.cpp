@@ -1,8 +1,9 @@
-#include "opencv2/opencv.hpp"
 #include <string>
 #include <filesystem>
 #include <stdexcept>
+#include <cmath>
 
+#include "opencv2/opencv.hpp"
 #include "video_stream.hpp"
 #include "frame_timecode.hpp"
 
@@ -34,10 +35,23 @@ VideoStream::VideoStream(const std::string& input_path)
     cap_ = cap;
 }
 
-frame_timecode::FrameTimeCode VideoStream::base_timecode() {
+void VideoStream::read() {
+}
+
+const frame_timecode::FrameTimeCode VideoStream::base_timecode() const {
     int32_t timecode = 0;
     return frame_timecode::FrameTimeCode(timecode, framerate_);
 }
 
-void VideoStream::read() {
+const frame_timecode::FrameTimeCode VideoStream::duration() const {
+    int32_t frame_num = static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_COUNT));
+    return base_timecode() + frame_timecode::from_frame_nums(frame_num, framerate_);
+}
+
+int32_t VideoStream::width() const {
+    return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_WIDTH));
+}
+
+int32_t VideoStream::height() const {
+    return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_HEIGHT));
 }

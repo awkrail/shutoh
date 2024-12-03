@@ -1,20 +1,23 @@
 #ifndef VIDEO_STREAM_H
 #define VIDEO_STREAM_H
 
+#include "frame_timecode.hpp"
 #include "opencv2/opencv.hpp"
 #include <string>
-
-#include "frame_timecode.hpp"
 
 class VideoStream {
     public:
         VideoStream(const std::string& input_path);
         void read();
-        frame_timecode::FrameTimeCode base_timecode();
-    
+        const frame_timecode::FrameTimeCode base_timecode() const;
+        const frame_timecode::FrameTimeCode duration() const;
+        int32_t width() const;
+        int32_t height() const;
+        cv::VideoCapture& get_cap() { return cap_; }
+
     private:
         const std::string input_path_;
-        double framerate_;
+        float framerate_;
         cv::VideoCapture cap_;
 };
 

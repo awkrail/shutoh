@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     auto input_path = program.get<std::string>("--input_path");
     auto video = open_video(input_path);
-    auto scene_manager = SceneManager();
+    auto scene_manager = scene_manager::SceneManager();
     scene_manager.detect_scenes(video);
     // auto scene_list = scene_manager.get_scene_list();
     // std::cout << scene_list << std::endl;
