@@ -5,6 +5,8 @@
 #include <cctype>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 
 namespace frame_timecode {
 
