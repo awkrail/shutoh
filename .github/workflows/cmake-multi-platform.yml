@@ -55,9 +55,10 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Install dendency libraries
+      if: matrix.os == 'ubuntu-latest'
       run: |
-        sudo apt -y update
-        sudo apt -y upgrade
+        sudo apt update
+        sudo apt upgrade
         sudo apt install -y libopencv-dev g++ clang
 
     - name: Configure CMake
