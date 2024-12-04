@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <cmath>
+#include <filesystem>
 #include "video_stream.hpp"
 
 using namespace video_stream;

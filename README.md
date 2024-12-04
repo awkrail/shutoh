@@ -22,10 +22,12 @@ The max hour of videos is 10h (120fps).
 
 # Run
 ```
-./build/shutoh --input_path video/input.mp4
+cd build
+./shutoh --input_path ../video/input.mp4
 ```
 
 # Test
 ```
-./build/tests/tests
+cd build
+ctest
 ```
