@@ -42,6 +42,8 @@ jobs:
       id: strings
       shell: bash
       run: |
+        echo "Print github.workspace"
+        echo ${{ github.workspace }}
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Install dendency libraries
