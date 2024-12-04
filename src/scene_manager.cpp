@@ -53,13 +53,13 @@ void SceneManager::_decode_thread(video_stream::VideoStream& video,
             break;
         }
 
-        /**
         if (downscale_factor > 1) {
-            cv::resize(frame, frame, cv::Size(),
-                       std::round(width / downscale_factor),
-                       std::round(height / downscale_factor));
+            int32_t new_width = static_cast<int32_t>(round(frame.cols / downscale_factor));
+            int32_t new_height = static_cast<int32_t>(round(frame.rows / downscale_factor));
+            cv::Size new_size(new_width, new_height);
+            cv::resize(frame, frame, new_size, 0, 0, cv::INTER_LINEAR);
         }
-        */
+        
         VideoFrame video_frame;
         video_frame.frame = frame;
         video_frame.position = video.position();
