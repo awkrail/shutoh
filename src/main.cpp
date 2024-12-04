@@ -3,8 +3,8 @@
 #include "video_stream.hpp"
 #include "scene_manager.hpp"
 
-VideoStream open_video(const std::string& input_path) {
-  VideoStream video_stream = VideoStream(input_path);
+video_stream::VideoStream open_video(const std::string& input_path) {
+  video_stream::VideoStream video_stream = video_stream::VideoStream(input_path);
   return video_stream;
 }
 

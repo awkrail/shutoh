@@ -7,6 +7,8 @@
 #include "video_stream.hpp"
 #include "frame_timecode.hpp"
 
+namespace video_stream {
+
 VideoStream::VideoStream(const std::string& input_path)
     : input_path_{input_path}, framerate_{0.0}, cap_{} {
 
@@ -28,7 +30,7 @@ VideoStream::VideoStream(const std::string& input_path)
 
     float framerate = cap.get(cv::CAP_PROP_FPS);
     if (framerate < frame_timecode::MAX_FPS_DELTA) {
-        throw std::runtime_error("Frame rate is over MAX_FPS_DELTA.");
+        throw std::runtime_error("Frame rate should be larger than MAX_FPS_DELTA.");
     }
 
     framerate_ = framerate;
@@ -38,9 +40,9 @@ VideoStream::VideoStream(const std::string& input_path)
 void VideoStream::read() {
 }
 
+
 const frame_timecode::FrameTimeCode VideoStream::base_timecode() const {
-    int32_t timecode = 0;
-    return frame_timecode::FrameTimeCode(timecode, framerate_);
+    return frame_timecode::FrameTimeCode(0, framerate_);
 }
 
 const frame_timecode::FrameTimeCode VideoStream::duration() const {
@@ -49,7 +51,7 @@ const frame_timecode::FrameTimeCode VideoStream::duration() const {
 }
 
 const int32_t VideoStream::frame_number() const {
-    return static_caast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
+    return static_cast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
 
 }
 
@@ -57,7 +59,7 @@ const frame_timecode::FrameTimeCode VideoStream::position() const {
     if (frame_number() < 1) {
         return base_timecode();
     }
-    return base_timecode() + (frame_timecode::from_frame_nums(frame_number()) - 1);
+    return base_timecode() + (frame_timecode::from_frame_nums(frame_number() - 1, framerate_));
 }
 
 int32_t VideoStream::width() const {
@@ -66,4 +68,6 @@ int32_t VideoStream::width() const {
 
 int32_t VideoStream::height() const {
     return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_HEIGHT));
+}
+
 }

@@ -15,6 +15,7 @@ find_package(OpenCV REQUIRED)
 add_executable(tests 
     test_frametime.cpp
     test_scene_manager.cpp
+    test_video_stream.cpp
     ${SOURCES})
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})

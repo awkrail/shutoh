@@ -2,11 +2,15 @@
 #include "video_stream.hpp"
 #include "scene_manager.hpp"
 #include "frame_timecode.hpp"
+#include "blocking_queue.hpp"
 
 #include <stdexcept>
 #include <thread>
 #include <queue>
 #include <functional>
+
+// debug
+#include <chrono>
 
 namespace scene_manager {
 
@@ -15,29 +19,29 @@ const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
 
 SceneManager::SceneManager() {}
 
-void SceneManager::detect_scenes(VideoStream& video) {
+void SceneManager::detect_scenes(video_stream::VideoStream& video) {
     frame_timecode::FrameTimeCode base_timecode_ = video.base_timecode();
     int32_t total_frames = video.duration().get_frame_num();
     int32_t downscale_factor = compute_downscale_factor(video.width());
 
-    std::queue<cv::Mat> frame_queue;
+    BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
     std::thread thread(&SceneManager::_decode_thread,
-                       this, 
+                       this,
                        std::ref(video),
                        downscale_factor,
                        std::ref(frame_queue));
-    thread.join();
-
-    while (!frame_queue.empty()) {
-        std::cout << frame_queue.front() << " ";
-        frame_queue.pop();
+    
+    int counter = 10;
+    while (counter > 0) {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        VideoFrame video_frame = frame_queue.get();
     }
-
+    thread.join();
 }
 
-void SceneManager::_decode_thread(VideoStream& video,
+void SceneManager::_decode_thread(video_stream::VideoStream& video,
                                   int32_t downscale_factor, 
-                                  std::queue<cv::Mat>& frame_queue) {
+                                  BlockingQueue<VideoFrame>& frame_queue) {
     
     const int32_t width = video.width();
     const int32_t height = video.height();
@@ -49,20 +53,19 @@ void SceneManager::_decode_thread(VideoStream& video,
             break;
         }
 
+        /**
         if (downscale_factor > 1) {
-            frame = cv::resize(frame, frame, cv::Size(),
-                               std::round(width / downscale_factor),
-                               std::round(height / downscale_factor));
+            cv::resize(frame, frame, cv::Size(),
+                       std::round(width / downscale_factor),
+                       std::round(height / downscale_factor));
         }
-        
-
-
-        std::cout << frame << std::endl;
-        break;
+        */
+        VideoFrame video_frame;
+        video_frame.frame = frame;
+        video_frame.position = video.position();
+        frame_queue.push(video_frame);
+        std::cout << "Size: " << frame_queue.size() << " Position: " << video_frame.position.get_frame_num() << std::endl;
     }
-    frame_queue.push(3);
-    frame_queue.push(4);
-    frame_queue.push(5);
 }
 
 const int32_t compute_downscale_factor(const int32_t frame_width) {

@@ -5,6 +5,8 @@
 #include "opencv2/opencv.hpp"
 #include <string>
 
+namespace video_stream {
+
 class VideoStream {
     public:
         VideoStream(const std::string& input_path);
@@ -17,11 +19,14 @@ class VideoStream {
         int32_t width() const;
         int32_t height() const;
         cv::VideoCapture& get_cap() { return cap_; }
+        const float get_framerate() const { return framerate_; }
 
     private:
         const std::string input_path_;
         float framerate_;
         cv::VideoCapture cap_;
 };
+
+}
 
 #endif
