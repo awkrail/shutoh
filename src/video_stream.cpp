@@ -48,6 +48,18 @@ const frame_timecode::FrameTimeCode VideoStream::duration() const {
     return base_timecode() + frame_timecode::from_frame_nums(frame_num, framerate_);
 }
 
+const int32_t VideoStream::frame_number() const {
+    return static_caast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
+
+}
+
+const frame_timecode::FrameTimeCode VideoStream::position() const {
+    if (frame_number() < 1) {
+        return base_timecode();
+    }
+    return base_timecode() + (frame_timecode::from_frame_nums(frame_number()) - 1);
+}
+
 int32_t VideoStream::width() const {
     return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_WIDTH));
 }

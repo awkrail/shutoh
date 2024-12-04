@@ -3,6 +3,7 @@
 
 #include <queue>
 
+#include "opencv2/opencv.hpp"
 #include "frame_timecode.hpp"
 #include "video_stream.hpp"
 
@@ -10,6 +11,10 @@ namespace scene_manager {
 
 extern const int32_t DEFAULT_MIN_WIDTH;
 extern const int32_t MAX_FRAME_QUEUE_LENGTH;
+
+struct VideoFrame {
+    cv::Mat frame;
+}
 
 class SceneManager {
     public:

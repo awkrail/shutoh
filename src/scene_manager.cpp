@@ -20,7 +20,7 @@ void SceneManager::detect_scenes(VideoStream& video) {
     int32_t total_frames = video.duration().get_frame_num();
     int32_t downscale_factor = compute_downscale_factor(video.width());
 
-    std::queue<int32_t> frame_queue;
+    std::queue<cv::Mat> frame_queue;
     std::thread thread(&SceneManager::_decode_thread,
                        this, 
                        std::ref(video),
@@ -37,12 +37,26 @@ void SceneManager::detect_scenes(VideoStream& video) {
 
 void SceneManager::_decode_thread(VideoStream& video,
                                   int32_t downscale_factor, 
-                                  std::queue<int32_t>& frame_queue) {
+                                  std::queue<cv::Mat>& frame_queue) {
+    
+    const int32_t width = video.width();
+    const int32_t height = video.height();
+
     while (true) {
         cv::Mat frame;
+
         if(!video.get_cap().read(frame)) {
             break;
         }
+
+        if (downscale_factor > 1) {
+            frame = cv::resize(frame, frame, cv::Size(),
+                               std::round(width / downscale_factor),
+                               std::round(height / downscale_factor));
+        }
+        
+
+
         std::cout << frame << std::endl;
         break;
     }
