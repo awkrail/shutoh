@@ -15,6 +15,7 @@ class VideoStream {
         const frame_timecode::FrameTimeCode duration() const;
         const frame_timecode::FrameTimeCode position() const;
         const int32_t frame_number() const;
+        const bool is_end_frame() const;
 
         int32_t width() const;
         int32_t height() const;

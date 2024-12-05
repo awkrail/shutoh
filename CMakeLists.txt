@@ -16,9 +16,10 @@ find_package(OpenCV REQUIRED)
 
 add_executable(shutoh
     src/main.cpp
+    src/frame_timecode.cpp
+    src/content_detector.cpp
     src/video_stream.cpp
     src/scene_manager.cpp
-    src/frame_timecode.cpp
 )
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})

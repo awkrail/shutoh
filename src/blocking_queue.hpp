@@ -32,7 +32,13 @@ class BlockingQueue {
     }
 
     size_t size() {
+        std::lock_guard<std::mutex> lock(mutex);
         return queue.size();
+    }
+
+    bool empty() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return queue.empty();
     }
 
     private:

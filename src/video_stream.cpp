@@ -62,6 +62,11 @@ const frame_timecode::FrameTimeCode VideoStream::position() const {
     return base_timecode() + (frame_timecode::from_frame_nums(frame_number() - 1, framerate_));
 }
 
+const bool VideoStream::is_end_frame() const {
+    return position().get_frame_num() == duration().get_frame_num() - 1;
+}
+
+
 int32_t VideoStream::width() const {
     return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_WIDTH));
 }

@@ -1,47 +1,53 @@
 #include "opencv2/opencv.hpp"
-#include "video_stream.hpp"
 #include "scene_manager.hpp"
 #include "frame_timecode.hpp"
+#include "video_frame.hpp"
+#include "video_stream.hpp"
 #include "blocking_queue.hpp"
+#include "content_detector.hpp"
 
 #include <stdexcept>
 #include <thread>
 #include <queue>
 #include <functional>
-
-// debug
-#include <chrono>
+#include <optional>
 
 namespace scene_manager {
 
 const int32_t DEFAULT_MIN_WIDTH = 256;
-const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
+const int32_t MAX_FRAME_QUEUE_LENGTH = 100;
 
-SceneManager::SceneManager() {}
+SceneManager::SceneManager(content_detector::ContentDetector& detector) : detector_(detector) {}
 
 void SceneManager::detect_scenes(video_stream::VideoStream& video) {
     frame_timecode::FrameTimeCode base_timecode_ = video.base_timecode();
     int32_t total_frames = video.duration().get_frame_num();
     int32_t downscale_factor = compute_downscale_factor(video.width());
 
-    BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
+    BlockingQueue<video_frame::VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
     std::thread thread(&SceneManager::_decode_thread,
                        this,
                        std::ref(video),
                        downscale_factor,
                        std::ref(frame_queue));
     
-    int counter = 10;
-    while (counter > 0) {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-        VideoFrame video_frame = frame_queue.get();
+    while (true) {
+        video_frame::VideoFrame next_frame = frame_queue.get();
+        if (next_frame.is_end_frame) {
+            break;
+        }
+        _process_frame(next_frame);
     }
     thread.join();
 }
 
+void SceneManager::_process_frame(video_frame::VideoFrame& next_frame) {
+    frame_timecode::FrameTimeCode cuts = detector_.process_frame(next_frame);
+}
+
 void SceneManager::_decode_thread(video_stream::VideoStream& video,
                                   int32_t downscale_factor, 
-                                  BlockingQueue<VideoFrame>& frame_queue) {
+                                  BlockingQueue<video_frame::VideoFrame>& frame_queue) {
     
     const int32_t width = video.width();
     const int32_t height = video.height();
@@ -60,11 +66,8 @@ void SceneManager::_decode_thread(video_stream::VideoStream& video,
             cv::resize(frame, frame, new_size, 0, 0, cv::INTER_LINEAR);
         }
         
-        VideoFrame video_frame;
-        video_frame.frame = frame;
-        video_frame.position = video.position();
+        video_frame::VideoFrame video_frame {frame, video.position(), video.is_end_frame()};
         frame_queue.push(video_frame);
-        std::cout << "Size: " << frame_queue.size() << " Position: " << video_frame.position.get_frame_num() << std::endl;
     }
 }
 

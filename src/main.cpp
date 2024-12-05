@@ -2,6 +2,7 @@
 #include <argparse/argparse.hpp>
 #include "video_stream.hpp"
 #include "scene_manager.hpp"
+#include "content_detector.hpp"
 
 video_stream::VideoStream open_video(const std::string& input_path) {
   video_stream::VideoStream video_stream = video_stream::VideoStream(input_path);
@@ -24,9 +25,10 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    auto input_path = program.get<std::string>("--input_path");
-    auto video = open_video(input_path);
-    auto scene_manager = scene_manager::SceneManager();
+    std::string input_path = program.get<std::string>("--input_path");
+    video_stream::VideoStream video = open_video(input_path);
+    content_detector::ContentDetector detector = content_detector::ContentDetector();
+    scene_manager::SceneManager scene_manager = scene_manager::SceneManager(detector);
     scene_manager.detect_scenes(video);
     // auto scene_list = scene_manager.get_scene_list();
     // std::cout << scene_list << std::endl;
