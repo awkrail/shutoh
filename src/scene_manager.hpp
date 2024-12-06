@@ -28,7 +28,7 @@ class SceneManager {
                             BlockingQueue<video_frame::VideoFrame>& frame_queue);
 
         cv::Mat previous_frame_;
-        std::vector<frame_timecode::FrameTimeCode> cut_list_;
+        std::vector<std::vector<frame_timecode::FrameTimeCode>> cut_list_;
         content_detector::ContentDetector detector_;
         // FrameTimeCode start_pos_;
         // FrameTimeCode end_pos_;
