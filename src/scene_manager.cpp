@@ -31,6 +31,8 @@ void SceneManager::detect_scenes(video_stream::VideoStream& video) {
                        downscale_factor,
                        std::ref(frame_queue));
     
+    bool flg = false;
+
     while (true) {
         video_frame::VideoFrame next_frame = frame_queue.get();
         if (next_frame.is_end_frame) {
@@ -69,7 +71,7 @@ void SceneManager::_decode_thread(video_stream::VideoStream& video,
             cv::resize(frame, frame, new_size, 0, 0, cv::INTER_LINEAR);
         }
         
-        const int32_t num_pixels = video.width() * video.height();
+        const int32_t num_pixels = frame.rows * frame.cols;
         video_frame::VideoFrame video_frame {frame, video.position(), video.is_end_frame(), num_pixels};
         frame_queue.push(video_frame);
     }

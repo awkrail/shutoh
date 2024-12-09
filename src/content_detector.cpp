@@ -29,16 +29,16 @@ namespace content_detector {
             return 0.0f;
         }
         const float delta = _mean_pixel_distance(next_frame);
-        //std::cout << delta << std::endl;
+        std::cout << delta << std::endl;
         return delta;
     }
 
     float ContentDetector::_mean_pixel_distance(video_frame::VideoFrame& next_frame) const {
-        const int32_t num_pixels = next_frame.num_pixels;
+        const int32_t num_pixels = next_frame.num_pixels;        
         cv::Mat pixel_diff;
         cv::absdiff(last_frame_.value(), next_frame.frame, pixel_diff);
         cv::Scalar pixel_diff_channel_sum = cv::sum(pixel_diff);
-        const float pixel_diff_sum = static_cast<float>((pixel_diff_channel_sum[0] + pixel_diff_channel_sum[1] + pixel_diff_channel_sum[2]) / num_pixels);
+        const float pixel_diff_sum = static_cast<float>((pixel_diff_channel_sum[0] + pixel_diff_channel_sum[1] + pixel_diff_channel_sum[2]) / num_pixels / 3.0);
         return pixel_diff_sum;
     }
 }
