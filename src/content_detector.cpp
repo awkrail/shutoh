@@ -29,7 +29,7 @@ namespace content_detector {
             return 0.0f;
         }
         const float delta = _mean_pixel_distance(next_frame);
-        std::cout << delta << std::endl;
+        last_frame_ = next_frame.frame;
         return delta;
     }
 
