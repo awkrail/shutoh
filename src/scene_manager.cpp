@@ -11,8 +11,11 @@
 #include <queue>
 #include <functional>
 #include <optional>
+#include <tuple>
 
 namespace scene_manager {
+
+using FrameTimeCodePair = std::tuple<frame_timecode::FrameTimeCode, frame_timecode::FrameTimeCode>;
 
 const int32_t DEFAULT_MIN_WIDTH = 256;
 const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
@@ -48,17 +51,30 @@ void SceneManager::detect_scenes(video_stream::VideoStream& video) {
     }
 }
 
-std::vector<frame_timecode::FrameTimeCode> SceneManager::get_scene_list() const {
+std::vector<FrameTimeCodePair> SceneManager::get_scene_list() const {
     if (!base_timecode_.has_value()) {
-        std::vector<frame_timecode::FrameTimeCode> empty;
+        std::vector<FrameTimeCodePair> empty;
         return empty;
     }
     std::vector<frame_timecode::FrameTimeCode> timecode_cut_list = _get_cutting_list();
-    for(auto& cut : timecode_cut_list) {
-        std::cout << cut.to_string() << std::endl;
+
+    std::vector<FrameTimeCodePair> scenes;
+    if (timecode_cut_list.size() == 0) {
+        FrameTimeCodePair scene{ start_pos_.value(), last_pos_.value() }; 
+        scenes.push_back(scene);
     }
 
-    return timecode_cut_list;
+    frame_timecode::FrameTimeCode last_cut = start_pos_.value();
+    for (auto& cut : timecode_cut_list) {
+        FrameTimeCodePair scene{ last_cut, cut };
+        scenes.push_back(scene);
+        last_cut = cut;
+    }
+
+    FrameTimeCodePair scene{ last_cut, last_pos_.value() };
+    scenes.push_back(scene);
+    
+    return scenes;
 }
 
 std::vector<frame_timecode::FrameTimeCode> SceneManager::_get_cutting_list() const {

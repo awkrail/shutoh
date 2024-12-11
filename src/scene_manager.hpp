@@ -22,7 +22,7 @@ class SceneManager {
     public:
         SceneManager(content_detector::ContentDetector& detector);
         void detect_scenes(video_stream::VideoStream& video);
-        std::vector<frame_timecode::FrameTimeCode> get_scene_list() const;
+        std::vector<std::tuple<frame_timecode::FrameTimeCode, frame_timecode::FrameTimeCode>> get_scene_list() const;
 
     private:
         void _process_frame(video_frame::VideoFrame& next_frame);

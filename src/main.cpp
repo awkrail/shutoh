@@ -1,5 +1,6 @@
 #include <iostream>
 #include <argparse/argparse.hpp>
+#include <tuple>
 #include "video_stream.hpp"
 #include "scene_manager.hpp"
 #include "content_detector.hpp"
@@ -30,7 +31,14 @@ int main(int argc, char *argv[]) {
     content_detector::ContentDetector detector = content_detector::ContentDetector();
     scene_manager::SceneManager scene_manager = scene_manager::SceneManager(detector);
     scene_manager.detect_scenes(video);
-    std::vector<frame_timecode::FrameTimeCode> scene_list = scene_manager.get_scene_list();
+    std::vector<std::tuple<frame_timecode::FrameTimeCode, frame_timecode::FrameTimeCode>> scene_list = scene_manager.get_scene_list();
+
+    /*
+    for(auto& scene : scene_list) {
+      std::cout << std::get<0>(scene).to_string() << " " << std::get<1>(scene).to_string() << std::endl;
+    }
+    */
+
     // std::cout << scene_list << std::endl;
 
     return 0;
