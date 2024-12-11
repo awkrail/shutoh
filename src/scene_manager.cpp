@@ -20,7 +20,8 @@ const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
 SceneManager::SceneManager(content_detector::ContentDetector& detector) : detector_{detector} {}
 
 void SceneManager::detect_scenes(video_stream::VideoStream& video) {
-    frame_timecode::FrameTimeCode base_timecode_ = video.base_timecode();
+    base_timecode_ = video.base_timecode();
+    framerate_ = video.get_framerate();
     int32_t total_frames = video.duration().get_frame_num();
     int32_t downscale_factor = compute_downscale_factor(video.width());
 
@@ -41,6 +42,32 @@ void SceneManager::detect_scenes(video_stream::VideoStream& video) {
         _process_frame(next_frame);
     }
     thread.join();
+
+    if(!last_pos_.has_value()) {
+        last_pos_ = video.position();
+    }
+}
+
+std::vector<frame_timecode::FrameTimeCode> SceneManager::get_scene_list() const {
+    if (!base_timecode_.has_value()) {
+        std::vector<frame_timecode::FrameTimeCode> empty;
+        return empty;
+    }
+    std::vector<frame_timecode::FrameTimeCode> timecode_cut_list = _get_cutting_list();
+    for(auto& cut : timecode_cut_list) {
+        std::cout << cut.to_string() << std::endl;
+    }
+
+    return timecode_cut_list;
+}
+
+std::vector<frame_timecode::FrameTimeCode> SceneManager::_get_cutting_list() const {
+    std::vector<frame_timecode::FrameTimeCode> timecode_list;
+    for(auto& cut : cutting_list_) {
+        const frame_timecode::FrameTimeCode timecode = base_timecode_.value() + frame_timecode::from_frame_nums(cut, framerate_);
+        timecode_list.push_back(timecode);
+    }
+    return timecode_list;
 }
 
 void SceneManager::_process_frame(video_frame::VideoFrame& next_frame) {
@@ -71,6 +98,10 @@ void SceneManager::_decode_thread(video_stream::VideoStream& video,
             cv::resize(frame, frame, new_size, 0, 0, cv::INTER_LINEAR);
         }
         
+        if(!start_pos_.has_value()) {
+            start_pos_ = video.position();
+        }
+
         const int32_t num_pixels = frame.rows * frame.cols;
         video_frame::VideoFrame video_frame {frame, video.position(), video.is_end_frame(), num_pixels};
         frame_queue.push(video_frame);

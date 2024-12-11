@@ -10,7 +10,6 @@ namespace video_stream {
 class VideoStream {
     public:
         VideoStream(const std::string& input_path);
-        void read();
         const frame_timecode::FrameTimeCode base_timecode() const;
         const frame_timecode::FrameTimeCode duration() const;
         const frame_timecode::FrameTimeCode position() const;

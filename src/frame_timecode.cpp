@@ -7,6 +7,8 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include <iomanip>
 
 namespace frame_timecode {
 
@@ -70,6 +72,13 @@ int32_t FrameTimeCode::parse_timecode_number(const float seconds) const {
     return _seconds_to_frames(seconds);
 }
 
+std::string FrameTimeCode::to_string() const {
+    std::ostringstream oss;
+    oss << _show_timecode() << " [frame=" << std::to_string(frame_num_)
+        << ", fps=" << std::fixed << std::setprecision(3) << framerate_ << "]";
+    return oss.str();
+}
+
 const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
     HourMinSec hrs_min_sec;
     std::vector<std::string> tokens;
@@ -109,6 +118,35 @@ const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string
 
 int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
     return std::round(seconds * framerate_);
+}
+
+std::string FrameTimeCode::_show_timecode() const {
+    float secs = static_cast<float>(frame_num_ / framerate_);
+    int32_t hrs = static_cast<int32_t>(secs / _SECONDS_PER_HOUR);
+    secs -= (hrs * _SECONDS_PER_HOUR);
+    int32_t mins = static_cast<int32_t>(secs / _SECONDS_PER_MINUTE);
+    secs = std::max(0.0f, secs - (mins * _SECONDS_PER_MINUTE));
+    secs = std::round(secs * 1000) / 1000; // equivalent to round(secs, precison=3) in Python
+    secs = std::min(_SECONDS_PER_MINUTE, secs);
+    if (static_cast<int32_t>(secs) == _SECONDS_PER_MINUTE) {
+        secs = 0.0f;
+        mins += 1;
+        if (mins >= _MINUTES_PER_HOUR) {
+            mins = 0;
+            hrs += 1;
+        }
+    }
+
+    int32_t int_sec = static_cast<int32_t>(secs);
+    float frac_part = secs - int_sec;
+    
+    // return string as HH:MM:SS[.nnn] format
+    std::ostringstream oss;
+    std::string frac_part_str = std::to_string(frac_part).substr(2, 3);
+    oss << std::setw(2) << std::setfill('0') << hrs << ":"
+        << std::setw(2) << std::setfill('0') << mins << ":"
+        << std::setw(2) << std::setfill('0') << int_sec << "." << frac_part_str;
+    return oss.str();
 }
 
 bool FrameTimeCode::operator==(const FrameTimeCode& other) const {

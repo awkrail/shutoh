@@ -33,6 +33,7 @@ class FrameTimeCode {
         int32_t parse_timecode_string(const std::string& timecode_str) const;
         int32_t parse_timecode_number(const int32_t seconds) const;
         int32_t parse_timecode_number(const float seconds) const;
+        std::string to_string() const;
 
         bool operator==(const FrameTimeCode& other) const;
         bool operator!=(const FrameTimeCode& other) const;
@@ -47,6 +48,7 @@ class FrameTimeCode {
     private:
         const HourMinSec _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
         int32_t _seconds_to_frames(const float seconds) const;
+        std::string _show_timecode() const;
 
         float framerate_;
         int32_t frame_num_;

@@ -37,10 +37,6 @@ VideoStream::VideoStream(const std::string& input_path)
     cap_ = cap;
 }
 
-void VideoStream::read() {
-}
-
-
 const frame_timecode::FrameTimeCode VideoStream::base_timecode() const {
     return frame_timecode::FrameTimeCode(0, framerate_);
 }

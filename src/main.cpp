@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     content_detector::ContentDetector detector = content_detector::ContentDetector();
     scene_manager::SceneManager scene_manager = scene_manager::SceneManager(detector);
     scene_manager.detect_scenes(video);
-    // auto scene_list = scene_manager.get_scene_list();
+    std::vector<frame_timecode::FrameTimeCode> scene_list = scene_manager.get_scene_list();
     // std::cout << scene_list << std::endl;
 
     return 0;
