@@ -20,7 +20,7 @@ struct HourMinSec {
 
 class FrameTimeCode {
     public:
-        FrameTimeCode() : frame_num_(0), framerate_(1.0) {}
+        FrameTimeCode() : frame_num_{0}, framerate_{1.0} {}
         FrameTimeCode(const FrameTimeCode& timecode);
         FrameTimeCode(const int32_t frame_num, const float fps);
 

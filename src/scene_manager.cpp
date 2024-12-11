@@ -17,7 +17,7 @@ namespace scene_manager {
 const int32_t DEFAULT_MIN_WIDTH = 256;
 const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
 
-SceneManager::SceneManager(content_detector::ContentDetector& detector) : detector_(detector) {}
+SceneManager::SceneManager(content_detector::ContentDetector& detector) : detector_{detector} {}
 
 void SceneManager::detect_scenes(video_stream::VideoStream& video) {
     frame_timecode::FrameTimeCode base_timecode_ = video.base_timecode();
@@ -44,9 +44,9 @@ void SceneManager::detect_scenes(video_stream::VideoStream& video) {
 }
 
 void SceneManager::_process_frame(video_frame::VideoFrame& next_frame) {
-    std::vector<frame_timecode::FrameTimeCode> cuts = detector_.process_frame(next_frame);
-    if (cuts.size() != 0) {
-        cut_list_.push_back(cuts);
+    std::optional<int32_t> cuts = detector_.process_frame(next_frame);
+    if (cuts.has_value()) {
+        cutting_list_.push_back(cuts.value());
     }
 }
 

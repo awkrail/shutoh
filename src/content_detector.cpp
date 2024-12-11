@@ -7,18 +7,11 @@
 
 namespace content_detector {
 
-    std::vector<frame_timecode::FrameTimeCode> ContentDetector::process_frame(video_frame::VideoFrame& next_frame) {
+    std::optional<int32_t> ContentDetector::process_frame(video_frame::VideoFrame& next_frame) {
         frame_score_ = _calculate_frame_score(next_frame);
-        /**
-        if (!frame_score_) {
-            std::vector<frame_timecode::FrameTimeCode> cut;
-            return cut;
-        }
-        //const bool is_above_threshold = (frame_score_ > threshold_);
-        std::vector<frame_timecode::FrameTimeCode> cut;
-        return cut;
-        */
-        std::vector<frame_timecode::FrameTimeCode> cut;
+        const bool is_above_threshold = (frame_score_ > threshold_);
+        const int32_t frame_num = next_frame.position.get_frame_num();
+        std::optional<int32_t> cut = flash_filter_.filter(frame_num, is_above_threshold);
         return cut;
     }
 

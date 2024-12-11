@@ -3,6 +3,7 @@
 
 #include <queue>
 #include <vector>
+#include <cstdint>
 
 #include "opencv2/opencv.hpp"
 #include "frame_timecode.hpp"
@@ -28,7 +29,7 @@ class SceneManager {
                             BlockingQueue<video_frame::VideoFrame>& frame_queue);
 
         cv::Mat previous_frame_;
-        std::vector<std::vector<frame_timecode::FrameTimeCode>> cut_list_;
+        std::vector<int32_t> cutting_list_;
         content_detector::ContentDetector detector_;
         // FrameTimeCode start_pos_;
         // FrameTimeCode end_pos_;

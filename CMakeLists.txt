@@ -18,6 +18,7 @@ add_executable(shutoh
     src/main.cpp
     src/frame_timecode.cpp
     src/content_detector.cpp
+    src/flash_filter.cpp
     src/video_stream.cpp
     src/scene_manager.cpp
 )
