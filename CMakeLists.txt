@@ -21,6 +21,7 @@ add_executable(shutoh
     src/flash_filter.cpp
     src/video_stream.cpp
     src/scene_manager.cpp
+    src/command_runner.cpp
 )
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})

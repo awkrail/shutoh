@@ -22,7 +22,7 @@ const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
 
 SceneManager::SceneManager(content_detector::ContentDetector& detector) : detector_{detector} {}
 
-void SceneManager::detect_scenes(video_stream::VideoStream& video) {
+int32_t SceneManager::detect_scenes(video_stream::VideoStream& video) {
     base_timecode_ = video.base_timecode();
     framerate_ = video.get_framerate();
     int32_t total_frames = video.duration().get_frame_num();
@@ -49,6 +49,7 @@ void SceneManager::detect_scenes(video_stream::VideoStream& video) {
     if(!last_pos_.has_value()) {
         last_pos_ = video.position();
     }
+    return 0;
 }
 
 std::vector<FrameTimeCodePair> SceneManager::get_scene_list() const {
