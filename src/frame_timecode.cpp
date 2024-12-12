@@ -137,16 +137,8 @@ std::string FrameTimeCode::_show_timecode() const {
         }
     }
 
-    int32_t int_sec = static_cast<int32_t>(secs);
-    float frac_part = secs - int_sec;
-    
-    // return string as HH:MM:SS[.nnn] format
-    std::ostringstream oss;
-    std::string frac_part_str = std::to_string(frac_part).substr(2, 3);
-    oss << std::setw(2) << std::setfill('0') << hrs << ":"
-        << std::setw(2) << std::setfill('0') << mins << ":"
-        << std::setw(2) << std::setfill('0') << int_sec << "." << frac_part_str;
-    return oss.str();
+    std::string datetime_str = convert_timecode_to_datetime(hrs, mins, secs);
+    return datetime_str;
 }
 
 bool FrameTimeCode::operator==(const FrameTimeCode& other) const {
@@ -188,7 +180,7 @@ const FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
     return FrameTimeCode(new_frame_num, framerate_);
 }
 
-const FrameTimeCode from_timecode_string(const std::string& timecode_str, float fps) {
+const FrameTimeCode from_timecode_string(const std::string& timecode_str, const float fps) {
     if (fps < MAX_FPS_DELTA) {
         throw std::invalid_argument("Framerate must be positive and greater than MAX_FPS_DELTA = 1.0 / 100000.");
     }
@@ -197,7 +189,7 @@ const FrameTimeCode from_timecode_string(const std::string& timecode_str, float 
     return FrameTimeCode(frame_num, fps);
 }
 
-const FrameTimeCode from_frame_nums(int32_t frame_num, float fps) {
+const FrameTimeCode from_frame_nums(const int32_t frame_num, const float fps) {
     /*
         Process the timecode value as an exact number of frames.
     */
@@ -207,7 +199,7 @@ const FrameTimeCode from_frame_nums(int32_t frame_num, float fps) {
    return FrameTimeCode(frame_num, fps);
 }
 
-const FrameTimeCode from_seconds(float seconds, float fps) {
+const FrameTimeCode from_seconds(const float seconds, const float fps) {
     /*
         Conver the tumber of seconds S into the number of frames.
     */
@@ -219,7 +211,7 @@ const FrameTimeCode from_seconds(float seconds, float fps) {
     return FrameTimeCode(frame_num, fps);
 }
 
-const FrameTimeCode from_seconds(int32_t seconds, float fps) {
+const FrameTimeCode from_seconds(const int32_t seconds, const float fps) {
     /*
         Conver the tumber of seconds S into the number of frames.
     */
@@ -231,5 +223,17 @@ const FrameTimeCode from_seconds(int32_t seconds, float fps) {
     return FrameTimeCode(frame_num, fps);
 }
 
+const std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs) {
+    int32_t int_sec = static_cast<int32_t>(secs);
+    float frac_part = secs - int_sec;
+    
+    // return string as HH:MM:SS[.nnn] format
+    std::ostringstream oss;
+    std::string frac_part_str = std::to_string(frac_part).substr(2, 3);
+    oss << std::setw(2) << std::setfill('0') << hrs << ":"
+        << std::setw(2) << std::setfill('0') << mins << ":"
+        << std::setw(2) << std::setfill('0') << int_sec << "." << frac_part_str;
+    return oss.str();
+}
 
 }

@@ -58,6 +58,7 @@ const FrameTimeCode from_timecode_string(const std::string& timecode_str, const 
 const FrameTimeCode from_frame_nums(const int32_t frame_num, const float fps);
 const FrameTimeCode from_seconds(const float seconds, const float fps);
 const FrameTimeCode from_seconds(const int32_t seconds, const float fps);
+const std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs);
 
 }
 
