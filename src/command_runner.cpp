@@ -1,4 +1,5 @@
 #include "command_runner.hpp"
+#include "frame_timecode.hpp"
 
 #include <string>
 #include <vector>
@@ -38,12 +39,19 @@ int8_t CommandRunner::_list_scenes() const {
         return 1;
     }
 
-    csv_file << "scene_number,start_time,end_time\n";
+    csv_file << "scene_number,start_frame,start_time,end_frame,end_time\n";
     
     for(int scene_number = 0; scene_number < scene_list_.size(); scene_number++) {
-        const std::string start_time = std::get<0>(scene_list_[scene_number]).to_string();
-        const std::string end_time = std::get<1>(scene_list_[scene_number]).to_string();
-        csv_file << scene_number << "," << start_time << "," << end_time << "\n";
+        const frame_timecode::FrameTimeCode start_time = std::get<0>(scene_list_[scene_number]);
+        const frame_timecode::FrameTimeCode end_time = std::get<1>(scene_list_[scene_number]);
+
+        const int32_t start_index = start_time.get_frame_num();
+        const int32_t end_index = end_time.get_frame_num();
+
+        const std::string start_time_str = start_time.to_string();
+        const std::string end_time_str = end_time.to_string();
+
+        csv_file << scene_number << "," << start_index << "," << start_time_str << "," << end_index << "," << end_time_str << "\n";
     }
 
     return 0;

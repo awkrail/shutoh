@@ -48,7 +48,6 @@ class FrameTimeCode {
     private:
         const HourMinSec _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
         int32_t _seconds_to_frames(const float seconds) const;
-        std::string _show_timecode() const;
 
         float framerate_;
         int32_t frame_num_;

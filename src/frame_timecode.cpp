@@ -73,10 +73,24 @@ int32_t FrameTimeCode::parse_timecode_number(const float seconds) const {
 }
 
 std::string FrameTimeCode::to_string() const {
-    std::ostringstream oss;
-    oss << _show_timecode() << " [frame=" << std::to_string(frame_num_)
-        << ", fps=" << std::fixed << std::setprecision(3) << framerate_ << "]";
-    return oss.str();
+    float secs = static_cast<float>(frame_num_ / framerate_);
+    int32_t hrs = static_cast<int32_t>(secs / _SECONDS_PER_HOUR);
+    secs -= (hrs * _SECONDS_PER_HOUR);
+    int32_t mins = static_cast<int32_t>(secs / _SECONDS_PER_MINUTE);
+    secs = std::max(0.0f, secs - (mins * _SECONDS_PER_MINUTE));
+    secs = std::round(secs * 1000) / 1000; // equivalent to round(secs, precison=3) in Python
+    secs = std::min(_SECONDS_PER_MINUTE, secs);
+    if (static_cast<int32_t>(secs) == _SECONDS_PER_MINUTE) {
+        secs = 0.0f;
+        mins += 1;
+        if (mins >= _MINUTES_PER_HOUR) {
+            mins = 0;
+            hrs += 1;
+        }
+    }
+
+    std::string datetime_str = convert_timecode_to_datetime(hrs, mins, secs);
+    return datetime_str;
 }
 
 const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
@@ -118,27 +132,6 @@ const HourMinSec FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string
 
 int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
     return std::round(seconds * framerate_);
-}
-
-std::string FrameTimeCode::_show_timecode() const {
-    float secs = static_cast<float>(frame_num_ / framerate_);
-    int32_t hrs = static_cast<int32_t>(secs / _SECONDS_PER_HOUR);
-    secs -= (hrs * _SECONDS_PER_HOUR);
-    int32_t mins = static_cast<int32_t>(secs / _SECONDS_PER_MINUTE);
-    secs = std::max(0.0f, secs - (mins * _SECONDS_PER_MINUTE));
-    secs = std::round(secs * 1000) / 1000; // equivalent to round(secs, precison=3) in Python
-    secs = std::min(_SECONDS_PER_MINUTE, secs);
-    if (static_cast<int32_t>(secs) == _SECONDS_PER_MINUTE) {
-        secs = 0.0f;
-        mins += 1;
-        if (mins >= _MINUTES_PER_HOUR) {
-            mins = 0;
-            hrs += 1;
-        }
-    }
-
-    std::string datetime_str = convert_timecode_to_datetime(hrs, mins, secs);
-    return datetime_str;
 }
 
 bool FrameTimeCode::operator==(const FrameTimeCode& other) const {
