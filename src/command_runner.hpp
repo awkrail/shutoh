@@ -21,6 +21,7 @@ class CommandRunner {
     private:
         // _split_video();
         int8_t _list_scenes() const;
+        std::string _splitext() const;
 
         const std::string& input_path_;
         const std::string& command_;

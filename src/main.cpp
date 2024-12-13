@@ -17,16 +17,16 @@ int main(int argc, char *argv[]) {
     argparse::ArgumentParser program("shutoh");
 
     program.add_argument("-i", "--input")
-        .help("[REQUIRED] input video file.")
+        .help("Input video file.")
         .required();
     
     program.add_argument("-c", "--command")
-        .help("[REQUIRED] command name. Choose one from [list-scenes, split-videos, save-images]")
+        .help("Command name. Choose one from [list-scenes, split-videos, save-images]")
         .required();
 
     program.add_argument("-o", "--output")
         .default_value(std::string("."))
-        .help("output directory for created files. If unset, working directory will be used.");
+        .help("Output directory for created files. If unset, working directory will be used.");
 
     try {
         program.parse_args(argc, argv);
