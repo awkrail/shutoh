@@ -22,7 +22,7 @@ const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
 
 SceneManager::SceneManager(content_detector::ContentDetector& detector) : detector_{detector} {}
 
-int32_t SceneManager::detect_scenes(video_stream::VideoStream& video) {
+void SceneManager::detect_scenes(video_stream::VideoStream& video) {
     base_timecode_ = video.base_timecode();
     framerate_ = video.get_framerate();
     int32_t total_frames = video.duration().get_frame_num();
@@ -45,17 +45,14 @@ int32_t SceneManager::detect_scenes(video_stream::VideoStream& video) {
         _process_frame(next_frame);
     }
     thread.join();
-
     if(!last_pos_.has_value()) {
         last_pos_ = video.position();
     }
-    return 0;
 }
 
 std::vector<FrameTimeCodePair> SceneManager::get_scene_list() const {
     if (!base_timecode_.has_value()) {
-        std::vector<FrameTimeCodePair> empty;
-        return empty;
+        std::runtime_error("Base Timecode is not set. Run detect_scenes() before running get_scene_list().");
     }
     std::vector<frame_timecode::FrameTimeCode> timecode_cut_list = _get_cutting_list();
 

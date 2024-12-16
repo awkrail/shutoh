@@ -21,7 +21,7 @@ extern const int32_t MAX_FRAME_QUEUE_LENGTH;
 class SceneManager {
     public:
         SceneManager(content_detector::ContentDetector& detector);
-        int32_t detect_scenes(video_stream::VideoStream& video);
+        void detect_scenes(video_stream::VideoStream& video);
         std::vector<std::tuple<frame_timecode::FrameTimeCode, frame_timecode::FrameTimeCode>> get_scene_list() const;
 
     private:

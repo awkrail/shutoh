@@ -6,6 +6,7 @@
 #include <tuple>
 #include <iostream>
 #include <fstream>
+#include <string_view>
 
 namespace command_runner {
 
@@ -13,30 +14,44 @@ CommandRunner::CommandRunner(const std::string& input_path, const std::string& c
                                 const std::string& output_path, const std::vector<FrameTimeCodePair>& scene_list) :
                             input_path_{input_path}, command_{command}, output_path_{output_path}, scene_list_{scene_list} {}
 
-int8_t CommandRunner::execute() const {
-    int8_t ret;
+void CommandRunner::execute() const {
     if (command_ == "list-scenes") {
-        ret = _list_scenes();
-    } else {
-        return 0;
+        _list_scenes();
+    } else if (command_ == "save-images") {
+        _save_images();
+    } else if (command_ == "split-video") {
+        _split_video();
     }
-    return ret;
 }
 
 std::string CommandRunner::_splitext() const {
+    const std::string error_msg = "Invalid input filename. The input file should have [filename].[ext] or [directory]/[filename].[ext] format.";
     const size_t dot_pos = input_path_.find_last_of('.');
+
+    if (dot_pos == std::string_view::npos) {
+        throw std::runtime_error(error_msg);
+    }
     const size_t slash_pos = input_path_.find_last_of('/');
-    return input_path_.substr(slash_pos + 1, dot_pos - slash_pos - 1);
+    if (slash_pos == std::string_view::npos) {
+        return input_path_.substr(0, dot_pos - 1);
+    }
+    else {
+        const size_t length = dot_pos - slash_pos - 1;
+        if (length > 0) {
+            return input_path_.substr(slash_pos + 1, dot_pos - slash_pos - 1);
+        } else {
+            throw std::runtime_error(error_msg);
+        }
+    }
 }
 
-int8_t CommandRunner::_list_scenes() const {
+void CommandRunner::_list_scenes() const {
     const std::string filename = _splitext();
     const std::string output_filename = output_path_ + "/" + filename + "-scenes.csv";
     std::ofstream csv_file(output_filename);
 
     if(!csv_file.is_open()) {
-        std::cerr << "Failed to open file for writing." << std::endl;
-        return 1;
+        std::runtime_error("Failed to open file for writing: " + output_filename);
     }
 
     csv_file << "scene_number,start_frame,start_time,end_frame,end_time\n";
@@ -53,8 +68,12 @@ int8_t CommandRunner::_list_scenes() const {
 
         csv_file << scene_number << "," << start_index << "," << start_time_str << "," << end_index << "," << end_time_str << "\n";
     }
+}
 
-    return 0;
+void CommandRunner::_save_images() const {
+}
+
+void CommandRunner::_split_video() const {
 }
 
 }

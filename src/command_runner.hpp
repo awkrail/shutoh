@@ -16,11 +16,12 @@ class CommandRunner {
     public:
         CommandRunner(const std::string& input_path, const std::string& command,
                       const std::string& output_path, const std::vector<FrameTimeCodePair>& scene_list);
-        int8_t execute() const;
+        void execute() const;
 
     private:
-        // _split_video();
-        int8_t _list_scenes() const;
+        void _list_scenes() const;
+        void _save_images() const;
+        void _split_video() const;
         std::string _splitext() const;
 
         const std::string& input_path_;
