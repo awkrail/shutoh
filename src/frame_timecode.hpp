@@ -7,7 +7,7 @@
 
 namespace frame_timecode {
 
-extern const float MAX_FPS_DELTA;
+extern const float MIN_FPS_DELTA;
 extern const float _SECONDS_PER_MINUTE;
 extern const float _SECONDS_PER_HOUR;
 extern const float _MINUTES_PER_HOUR;

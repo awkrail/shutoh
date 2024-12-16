@@ -12,7 +12,7 @@
 
 namespace frame_timecode {
 
-const float MAX_FPS_DELTA = 1.0 / 100000;
+const float MIN_FPS_DELTA = 1.0 / 100000;
 const float _SECONDS_PER_MINUTE = 60.0;
 const float _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
 const float _MINUTES_PER_HOUR = 60.0;
@@ -174,8 +174,8 @@ const FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
 }
 
 const FrameTimeCode from_timecode_string(const std::string& timecode_str, const float fps) {
-    if (fps < MAX_FPS_DELTA) {
-        throw std::invalid_argument("Framerate must be positive and greater than MAX_FPS_DELTA = 1.0 / 100000.");
+    if (fps < MIN_FPS_DELTA) {
+        throw std::invalid_argument("Framerate must be positive and greater than MIN_FPS_DELTA = 1.0 / 100000.");
     }
     FrameTimeCode frame_timecode = FrameTimeCode(0, fps);
     const int32_t frame_num = frame_timecode.parse_timecode_string(timecode_str);
@@ -186,7 +186,7 @@ const FrameTimeCode from_frame_nums(const int32_t frame_num, const float fps) {
     /*
         Process the timecode value as an exact number of frames.
     */
-    if (fps < MAX_FPS_DELTA || frame_num < 0) {
+    if (fps < MIN_FPS_DELTA || frame_num < 0) {
         throw std::invalid_argument("Framerate and frame_num must be positive and greater than 0.");
     }
    return FrameTimeCode(frame_num, fps);
@@ -196,7 +196,7 @@ const FrameTimeCode from_seconds(const float seconds, const float fps) {
     /*
         Conver the tumber of seconds S into the number of frames.
     */
-    if (fps < MAX_FPS_DELTA || seconds < 0) {
+    if (fps < MIN_FPS_DELTA || seconds < 0) {
         throw std::invalid_argument("Framerate and seconds and seconds must be positive and greater than 0.");
     }
     FrameTimeCode frame_timecode = FrameTimeCode(0, fps);
@@ -208,7 +208,7 @@ const FrameTimeCode from_seconds(const int32_t seconds, const float fps) {
     /*
         Conver the tumber of seconds S into the number of frames.
     */
-    if (fps < MAX_FPS_DELTA || seconds < 0) {
+    if (fps < MIN_FPS_DELTA || seconds < 0) {
         throw std::invalid_argument("Framerate and seconds must be positive and greater than 0.");
     }
     FrameTimeCode frame_timecode = FrameTimeCode(0, fps);

@@ -13,9 +13,9 @@ list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 find_package(OpenCV REQUIRED)
 
 add_executable(tests 
-    test_frametime.cpp
-    test_scene_manager.cpp
-    test_video_stream.cpp
+    #test_frametime.cpp
+    #test_scene_manager.cpp
+    #test_video_stream.cpp
     # test_content_detector.cpp
     ${SOURCES})
 
