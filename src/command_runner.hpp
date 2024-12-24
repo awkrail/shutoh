@@ -8,9 +8,7 @@
 #include <tuple>
 #include <cstdint>
 
-namespace command_runner {
-
-using FrameTimeCodePair = std::tuple<frame_timecode::FrameTimeCode, frame_timecode::FrameTimeCode>;
+using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
 class CommandRunner {
     public:
@@ -28,9 +26,6 @@ class CommandRunner {
         const std::string& command_;
         const std::string& output_path_;
         const std::vector<FrameTimeCodePair>& scene_list_;
-
 };
-
-}
 
 #endif

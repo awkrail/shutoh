@@ -1,5 +1,5 @@
 # Shutoh
-Shutoh (手刀 in Japanese) is a fast scene detector implemented in C++.
+Shutoh (手刀 in Japanese) is a fast scene detector implemented in C++20.
 
 # Build
 Install dependency libraries: openCV.
@@ -8,8 +8,6 @@ Install dependency libraries: openCV.
 apt install libopencv-dev
 # Mac OS
 brew install opencv
-# Windows
-vcpkg install opencv
 ```
 Build with cmake as:
 ```
@@ -22,8 +20,7 @@ The max hour of videos is 10h (120fps).
 
 # Run
 ```
-cd build
-./shutoh --input_path ../video/input.mp4
+./build/shutoh -i video/input.mp4 -c list-scenes
 ```
 
 # Test

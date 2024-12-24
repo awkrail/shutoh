@@ -4,8 +4,6 @@
 #include <cstdint>
 #include <optional>
 
-namespace flash_filter {
-
 enum class FilterMode {
     MERGE,
     SUPRESS,   
@@ -25,8 +23,5 @@ class FlashFilter {
         bool merge_enabled = false;
         bool merge_triggered = false;
 };
-
-
-}
 
 #endif

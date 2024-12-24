@@ -5,15 +5,11 @@
 #include "frame_timecode.hpp"
 #include <cstdint>
 
-namespace video_frame {
-
 struct VideoFrame {
     cv::Mat frame;
-    frame_timecode::FrameTimeCode position;
+    FrameTimeCode position;
     const bool is_end_frame = false;
     const int32_t num_pixels;
 };
-
-}
 
 #endif

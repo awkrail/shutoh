@@ -3,14 +3,14 @@
 #include <tuple>
 #include "video_stream.hpp"
 #include "frame_timecode.hpp"
-// #include "scene_manager.hpp"
-// #include "content_detector.hpp"
+#include "scene_manager.hpp"
+#include "content_detector.hpp"
 // #include "command_runner.hpp"
 
-using FrameTimeCodePair = std::tuple<frame_timecode::FrameTimeCode, frame_timecode::FrameTimeCode>;
+using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
-WithError<video_stream::VideoStream> open_video(const std::string& input_path) {
-    WithError<video_stream::VideoStream> video_stream = video_stream::initialize_video_stream(input_path);
+WithError<VideoStream> open_video(const std::string& input_path) {
+    WithError<VideoStream> video_stream = VideoStream::initialize_video_stream(input_path);
     return video_stream;
 }
 
@@ -42,11 +42,16 @@ int main(int argc, char *argv[]) {
     std::string command = program.get<std::string>("--command");
     std::string output_path = program.get<std::string>("--output");
 
-    WithError<video_stream::VideoStream> video = open_video(input_path);
-    if (video.error.has_error()) {
-        std::cerr << video.error.get_error_msg() << std::endl;
+    WithError<VideoStream> opt_video = open_video(input_path);
+    if (opt_video.has_error()) {
+        std::cerr << opt_video.error.get_error_msg() << std::endl;
         return 1;
     }
+
+    VideoStream video = opt_video.value();
+    ContentDetector detector = ContentDetector();
+    SceneManager scene_manager = SceneManager(detector);
+    scene_manager.detect_scenes(video);
 
     /*
     content_detector::ContentDetector detector = content_detector::ContentDetector();

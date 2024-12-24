@@ -7,14 +7,12 @@
 #include <string>
 #include <optional>
 
-namespace video_stream {
-
 class VideoStream {
     public:
         VideoStream(const std::string& input_path, float framerate, cv::VideoCapture cap);
-        const frame_timecode::FrameTimeCode base_timecode() const;
-        const frame_timecode::FrameTimeCode duration() const;
-        const frame_timecode::FrameTimeCode position() const;
+        const FrameTimeCode base_timecode() const;
+        const FrameTimeCode duration() const;
+        const FrameTimeCode position() const;
         const int32_t frame_number() const;
         const bool is_end_frame() const;
 
@@ -23,15 +21,13 @@ class VideoStream {
         cv::VideoCapture& get_cap() { return cap_.value(); }
         const float get_framerate() const { return framerate_; }
 
+        static WithError<VideoStream> initialize_video_stream(const std::string& input_path);
+
     private:
         const std::string input_path_;
         float framerate_;
         std::optional<cv::VideoCapture> cap_ = std::nullopt;
         std::optional<Error> error_ = std::nullopt;
 };
-
-WithError<VideoStream> initialize_video_stream(const std::string& input_path);
-
-}
 
 #endif

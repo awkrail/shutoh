@@ -2,8 +2,6 @@
 #include <optional>
 #include "flash_filter.hpp"
 
-namespace flash_filter {
-
 FlashFilter::FlashFilter(const FilterMode mode, const int32_t length) : mode_{mode}, filter_length_{length} {}
 
 std::optional<int32_t> FlashFilter::filter(const int32_t frame_num, const bool is_above_threshold) {
@@ -46,6 +44,4 @@ std::optional<int32_t> FlashFilter::_filter_merge(const int32_t frame_num, const
     }
 
     return std::nullopt;
-}
-
 }

@@ -8,8 +8,6 @@
 #include <fstream>
 #include <string_view>
 
-namespace command_runner {
-
 CommandRunner::CommandRunner(const std::string& input_path, const std::string& command,
                                 const std::string& output_path, const std::vector<FrameTimeCodePair>& scene_list) :
                             input_path_{input_path}, command_{command}, output_path_{output_path}, scene_list_{scene_list} {}
@@ -57,8 +55,8 @@ void CommandRunner::_list_scenes() const {
     csv_file << "scene_number,start_frame,start_time,end_frame,end_time\n";
     
     for(int scene_number = 0; scene_number < scene_list_.size(); scene_number++) {
-        const frame_timecode::FrameTimeCode start_time = std::get<0>(scene_list_[scene_number]);
-        const frame_timecode::FrameTimeCode end_time = std::get<1>(scene_list_[scene_number]);
+        const FrameTimeCode start_time = std::get<0>(scene_list_[scene_number]);
+        const FrameTimeCode end_time = std::get<1>(scene_list_[scene_number]);
 
         const int32_t start_index = start_time.get_frame_num();
         const int32_t end_index = end_time.get_frame_num();
@@ -74,6 +72,4 @@ void CommandRunner::_save_images() const {
 }
 
 void CommandRunner::_split_video() const {
-}
-
 }
