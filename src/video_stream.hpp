@@ -27,7 +27,6 @@ class VideoStream {
         const std::string input_path_;
         float framerate_;
         std::optional<cv::VideoCapture> cap_ = std::nullopt;
-        std::optional<Error> error_ = std::nullopt;
 };
 
 #endif
