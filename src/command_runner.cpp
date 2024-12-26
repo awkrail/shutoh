@@ -22,7 +22,7 @@ void CommandRunner::execute() const {
     }
 }
 
-std::string CommandRunner::_splitext() const {
+WithError<std::string> CommandRunner::_splitext() const {
     const std::string error_msg = "Invalid input filename. The input file should have [filename].[ext] or [directory]/[filename].[ext] format.";
     const size_t dot_pos = input_path_.find_last_of('.');
 

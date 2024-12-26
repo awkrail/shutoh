@@ -9,11 +9,6 @@
 
 using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
-WithError<VideoStream> open_video(const std::string& input_path) {
-    WithError<VideoStream> video_stream = VideoStream::initialize_video_stream(input_path);
-    return video_stream;
-}
-
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser program("shutoh");
 
@@ -42,7 +37,7 @@ int main(int argc, char *argv[]) {
     std::string command = program.get<std::string>("--command");
     std::string output_path = program.get<std::string>("--output");
 
-    WithError<VideoStream> opt_video = open_video(input_path);
+    WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(input_path);
     if (opt_video.has_error()) {
         std::cerr << opt_video.error.get_error_msg() << std::endl;
         return 1;
