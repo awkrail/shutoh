@@ -12,15 +12,18 @@
 #include "video_stream.hpp"
 #include "blocking_queue.hpp"
 #include "content_detector.hpp"
+#include "error.hpp"
 
 extern const int32_t DEFAULT_MIN_WIDTH;
 extern const int32_t MAX_FRAME_QUEUE_LENGTH;
+
+using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
 class SceneManager {
     public:
         SceneManager(ContentDetector& detector);
         void detect_scenes(VideoStream& video);
-        std::vector<std::tuple<FrameTimeCode, FrameTimeCode>> get_scene_list() const;
+        WithError<std::vector<FrameTimeCodePair>> get_scene_list() const;
 
     private:
         void _process_frame(VideoFrame& next_frame);

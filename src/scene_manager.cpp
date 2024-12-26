@@ -5,6 +5,7 @@
 #include "video_stream.hpp"
 #include "blocking_queue.hpp"
 #include "content_detector.hpp"
+#include "error.hpp"
 
 #include <stdexcept>
 #include <thread>
@@ -23,8 +24,9 @@ SceneManager::SceneManager(ContentDetector& detector) : detector_{detector} {}
 void SceneManager::detect_scenes(VideoStream& video) {
     base_timecode_ = video.get_base_timecode();
     framerate_ = video.get_framerate();
-    int32_t total_frames = video.get_duration().get_frame_num();
-    int32_t downscale_factor = compute_downscale_factor(video.width());
+    
+    const int32_t total_frames = video.get_duration().get_frame_num();
+    const int32_t downscale_factor = compute_downscale_factor(video.width());
 
     BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
     std::thread thread(&SceneManager::_decode_thread,
@@ -32,8 +34,6 @@ void SceneManager::detect_scenes(VideoStream& video) {
                        std::ref(video),
                        downscale_factor,
                        std::ref(frame_queue));
-    
-    bool flg = false;
 
     while (true) {
         VideoFrame next_frame = frame_queue.get();
@@ -48,29 +48,33 @@ void SceneManager::detect_scenes(VideoStream& video) {
     }
 }
 
-std::vector<FrameTimeCodePair> SceneManager::get_scene_list() const {
-    if (!base_timecode_.has_value()) {
-        std::runtime_error("Base Timecode is not set. Run detect_scenes() before running get_scene_list().");
+WithError<std::vector<FrameTimeCodePair>> SceneManager::get_scene_list() const {
+    if (!base_timecode_.has_value() || !start_pos_.has_value() || !last_pos_.has_value()) {
+        std::string error_msg = "Run detect_scenes() before get_scene_list().";
+        return WithError<std::vector<FrameTimeCodePair>> { std::nullopt, Error(ErrorCode::FunctionIsNotCalled, error_msg) };
     }
+
+    const FrameTimeCode start_pos = start_pos_.value();
+    const FrameTimeCode last_pos = last_pos_.value();
     std::vector<FrameTimeCode> timecode_cut_list = _get_cutting_list();
-
     std::vector<FrameTimeCodePair> scenes;
+
     if (timecode_cut_list.size() == 0) {
-        FrameTimeCodePair scene{ start_pos_.value(), last_pos_.value() }; 
+        FrameTimeCodePair scene{ start_pos, last_pos }; 
         scenes.push_back(scene);
+        return WithError<std::vector<FrameTimeCodePair>> { scenes, Error(ErrorCode::Success, "") };
     }
 
-    FrameTimeCode last_cut = start_pos_.value();
+    FrameTimeCode last_cut = start_pos;
     for (auto& cut : timecode_cut_list) {
         FrameTimeCodePair scene{ last_cut, cut };
         scenes.push_back(scene);
         last_cut = cut;
     }
 
-    FrameTimeCodePair scene{ last_cut, last_pos_.value() };
-    scenes.push_back(scene);
-    
-    return scenes;
+    FrameTimeCodePair scene{ last_cut, last_pos };
+    scenes.push_back(scene);    
+    return WithError<std::vector<FrameTimeCodePair>> { scenes, Error(ErrorCode::Success, "") };
 }
 
 std::vector<FrameTimeCode> SceneManager::_get_cutting_list() const {
@@ -92,9 +96,6 @@ void SceneManager::_process_frame(VideoFrame& next_frame) {
 void SceneManager::_decode_thread(VideoStream& video,
                                   int32_t downscale_factor, 
                                   BlockingQueue<VideoFrame>& frame_queue) {
-    
-    const int32_t width = video.width();
-    const int32_t height = video.height();
 
     while (true) {
         cv::Mat frame;
@@ -121,9 +122,6 @@ void SceneManager::_decode_thread(VideoStream& video,
 }
 
 const int32_t compute_downscale_factor(const int32_t frame_width) {
-    if (frame_width < 0) {
-        throw std::invalid_argument("frame_width should be larger than 0.");
-    }
     if (frame_width < DEFAULT_MIN_WIDTH) {
         return 1;
     }

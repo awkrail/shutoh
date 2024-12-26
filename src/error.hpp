@@ -14,6 +14,7 @@ enum class ErrorCode {
     NegativeFrameNum,
     InvalidTimestamp,
     TimeOutOfRange,
+    FunctionIsNotCalled,
 };
 
 class Error {

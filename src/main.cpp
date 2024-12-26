@@ -5,7 +5,7 @@
 #include "frame_timecode.hpp"
 #include "scene_manager.hpp"
 #include "content_detector.hpp"
-// #include "command_runner.hpp"
+#include "command_runner.hpp"
 
 using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
@@ -52,16 +52,14 @@ int main(int argc, char *argv[]) {
     ContentDetector detector = ContentDetector();
     SceneManager scene_manager = SceneManager(detector);
     scene_manager.detect_scenes(video);
+    
+    WithError<std::vector<FrameTimeCodePair>> scene_list = scene_manager.get_scene_list();
+    if (scene_list.has_error()) {
+        std::cerr << scene_list.error.get_error_msg() << std::endl;
+        return 1;
+    }
 
-    /*
-    content_detector::ContentDetector detector = content_detector::ContentDetector();
-    scene_manager::SceneManager scene_manager = scene_manager::SceneManager(detector);
-    scene_manager.detect_scenes(video);
-    std::vector<FrameTimeCodePair> scene_list = scene_manager.get_scene_list();
-
-    command_runner::CommandRunner command_runner = command_runner::CommandRunner(input_path, command, 
-                                                                                 output_path, scene_list);
+    CommandRunner command_runner = CommandRunner(input_path, command, output_path, scene_list);
     command_runner.execute();
-    */
     return 0;
 }
