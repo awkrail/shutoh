@@ -7,49 +7,31 @@
 #include <iostream>
 #include <fstream>
 #include <string_view>
+#include <filesystem>
+#include <fmt/core.h>
 
-CommandRunner::CommandRunner(const std::string& input_path, const std::string& command,
-                                const std::string& output_path, const std::vector<FrameTimeCodePair>& scene_list) :
-                            input_path_{input_path}, command_{command}, output_path_{output_path}, scene_list_{scene_list} {}
+CommandRunner::CommandRunner(const std::string& command, const std::filesystem::path& input_path,
+                             const std::filesystem::path& output_dir, const std::vector<FrameTimeCodePair>& scene_list) 
+                            : command_{command}, input_path_{input_path}, output_dir_{output_dir}, scene_list_{scene_list} {}
 
-void CommandRunner::execute() const {
+WithError<void> CommandRunner::execute() const {
     if (command_ == "list-scenes") {
-        _list_scenes();
+        return _list_scenes();
     } else if (command_ == "save-images") {
-        _save_images();
-    } else if (command_ == "split-video") {
-        _split_video();
+        return _save_images();
+    } else {
+        return _split_video();
     }
 }
 
-WithError<std::string> CommandRunner::_splitext() const {
-    const std::string error_msg = "Invalid input filename. The input file should have [filename].[ext] or [directory]/[filename].[ext] format.";
-    const size_t dot_pos = input_path_.find_last_of('.');
-
-    if (dot_pos == std::string_view::npos) {
-        throw std::runtime_error(error_msg);
-    }
-    const size_t slash_pos = input_path_.find_last_of('/');
-    if (slash_pos == std::string_view::npos) {
-        return input_path_.substr(0, dot_pos - 1);
-    }
-    else {
-        const size_t length = dot_pos - slash_pos - 1;
-        if (length > 0) {
-            return input_path_.substr(slash_pos + 1, dot_pos - slash_pos - 1);
-        } else {
-            throw std::runtime_error(error_msg);
-        }
-    }
-}
-
-void CommandRunner::_list_scenes() const {
-    const std::string filename = _splitext();
-    const std::string output_filename = output_path_ + "/" + filename + "-scenes.csv";
+WithError<void> CommandRunner::_list_scenes() const {
+    const std::string filename = input_path_.stem().string();
+    const std::string output_filename = fmt::format("{}/{}-scenes.csv", output_dir_.string(), filename);
     std::ofstream csv_file(output_filename);
 
     if(!csv_file.is_open()) {
-        std::runtime_error("Failed to open file for writing: " + output_filename);
+        const std::string error_msg = "Failed to open csv file for writing: " + output_filename;
+        return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
     }
 
     csv_file << "scene_number,start_frame,start_time,end_frame,end_time\n";
@@ -66,10 +48,29 @@ void CommandRunner::_list_scenes() const {
 
         csv_file << scene_number << "," << start_index << "," << start_time_str << "," << end_index << "," << end_time_str << "\n";
     }
+
+    csv_file.close();
+    return WithError<void> { Error(ErrorCode::Success, "") };
 }
 
-void CommandRunner::_save_images() const {
+WithError<void> CommandRunner::_save_images() const {
+    return WithError<void> { Error(ErrorCode::Success, "") };
 }
 
-void CommandRunner::_split_video() const {
+WithError<void> CommandRunner::_split_video() const {
+    return WithError<void> { Error(ErrorCode::Success, "") };
+}
+
+WithError<CommandRunner> CommandRunner::initialize_command_runner(const std::filesystem::path& input_path,
+                                                                  const std::string& command,
+                                                                  const std::filesystem::path& output_dir,
+                                                                  const std::vector<FrameTimeCodePair>& scene_list) 
+{
+    if (!(command == "list-scenes" || command == "split-video" || command == "save-images")) {
+        std::string error_msg = "Invalid command. Command should be list-scenes, split-video, or save-images.";
+        return WithError<CommandRunner> { std::nullopt, Error(ErrorCode::InvalidCommand, error_msg) };
+    }
+
+    CommandRunner command_runner = CommandRunner(command, input_path, output_dir, scene_list);
+    return WithError<CommandRunner> { command_runner, Error(ErrorCode::Success, "") };
 }

@@ -7,8 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
-#include <sstream>
-#include <iomanip>
+#include <fmt/core.h>
 
 FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode) : framerate_{0.0}, frame_num_{0} {
     framerate_ = timecode.framerate_;
@@ -73,7 +72,6 @@ std::string FrameTimeCode::to_string() const {
             hrs += 1;
         }
     }
-
     std::string datetime_str = convert_timecode_to_datetime(hrs, mins, secs);
     return datetime_str;
 }
@@ -241,17 +239,12 @@ const WithError<FrameTimeCode> from_seconds(Numeric auto seconds, const float fp
 }
 
 const std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs) {
-    int32_t int_sec = static_cast<int32_t>(secs);
-    float frac_part = secs - int_sec;
+    const int32_t int_sec = static_cast<int32_t>(secs);
+    const float frac_part = secs - int_sec;
     
-    // return string as HH:MM:SS[.nnn] format
-    // TODO: Use std::format in C++20.
-    std::ostringstream oss;
-    std::string frac_part_str = std::to_string(frac_part).substr(2, 3);
-    oss << std::setw(2) << std::setfill('0') << hrs << ":"
-        << std::setw(2) << std::setfill('0') << mins << ":"
-        << std::setw(2) << std::setfill('0') << int_sec << "." << frac_part_str;
-    return oss.str();
+    const std::string frac_part_str = std::to_string(frac_part).substr(2, 3);
+    const std::string hh_mm_ss_nnn = fmt::format("{:02}:{:02}:{:02}.{}", hrs, mins, int_sec, frac_part_str);
+    return hh_mm_ss_nnn;
 }
 
 const float calculate_total_seconds(const TimeStamp& timestamp) {

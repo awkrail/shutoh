@@ -1,10 +1,12 @@
 #ifndef VIDEO_STREAM_H
 #define VIDEO_STREAM_H
 
+#include <string>
+#include <filesystem>
+
 #include "frame_timecode.hpp"
 #include "error.hpp"
 #include "opencv2/opencv.hpp"
-#include <string>
 
 class VideoStream {
     public:
@@ -21,7 +23,7 @@ class VideoStream {
         const FrameTimeCode& get_base_timecode() const { return base_timecode_; }
         const FrameTimeCode& get_duration() const { return duration_; }
 
-        static WithError<VideoStream> initialize_video_stream(const std::string& input_path);
+        static WithError<VideoStream> initialize_video_stream(const std::filesystem::path& input_path);
 
     private:
         const std::string input_path_;

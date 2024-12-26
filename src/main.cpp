@@ -1,6 +1,8 @@
 #include <iostream>
 #include <argparse/argparse.hpp>
 #include <tuple>
+#include <filesystem>
+
 #include "video_stream.hpp"
 #include "frame_timecode.hpp"
 #include "scene_manager.hpp"
@@ -28,18 +30,20 @@ int main(int argc, char *argv[]) {
         program.parse_args(argc, argv);
     }
     catch (const std::exception& err) {
-        std::cerr << err.what() << std::endl;
-        std::cerr << program;
+        std::cerr << "Error: " << err.what() << std::endl;
         return 1;
     }
 
-    std::string input_path = program.get<std::string>("--input");
+    std::string input_path_str = program.get<std::string>("--input");
     std::string command = program.get<std::string>("--command");
-    std::string output_path = program.get<std::string>("--output");
+    std::string output_path_str = program.get<std::string>("--output");
+
+    std::filesystem::path input_path(input_path_str);
+    std::filesystem::path output_path(output_path_str);
 
     WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(input_path);
     if (opt_video.has_error()) {
-        std::cerr << opt_video.error.get_error_msg() << std::endl;
+        opt_video.error.show_error_msg();
         return 1;
     }
 
@@ -48,13 +52,25 @@ int main(int argc, char *argv[]) {
     SceneManager scene_manager = SceneManager(detector);
     scene_manager.detect_scenes(video);
     
-    WithError<std::vector<FrameTimeCodePair>> scene_list = scene_manager.get_scene_list();
-    if (scene_list.has_error()) {
-        std::cerr << scene_list.error.get_error_msg() << std::endl;
+    WithError<std::vector<FrameTimeCodePair>> opt_scene_list = scene_manager.get_scene_list();
+    if (opt_scene_list.has_error()) {
+        opt_scene_list.error.show_error_msg();
         return 1;
     }
 
-    CommandRunner command_runner = CommandRunner(input_path, command, output_path, scene_list);
-    command_runner.execute();
+    std::vector<FrameTimeCodePair> scene_list = opt_scene_list.value();
+    WithError<CommandRunner> opt_command_runner = CommandRunner::initialize_command_runner(input_path, command, output_path, scene_list);
+    if (opt_command_runner.has_error()) {
+        opt_command_runner.error.show_error_msg();
+        return 1;
+    }
+
+    CommandRunner command_runner = opt_command_runner.value();
+    WithError<void> err = command_runner.execute();
+    if (err.has_error()) {
+        err.error.show_error_msg();
+        return 1;
+    }
+
     return 0;
 }

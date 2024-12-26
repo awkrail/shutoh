@@ -12,6 +12,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(argparse)
 
+include(FetchContent)
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt
+  GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
+FetchContent_MakeAvailable(fmt)
+
 find_package(OpenCV REQUIRED)
 
 add_executable(shutoh
@@ -25,7 +32,7 @@ add_executable(shutoh
 )
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(shutoh PRIVATE ${OpenCV_LIBS} argparse)
+target_link_libraries(shutoh PRIVATE ${OpenCV_LIBS} argparse fmt::fmt)
 
 # tests
 enable_testing()

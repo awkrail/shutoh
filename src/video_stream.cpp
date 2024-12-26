@@ -35,15 +35,15 @@ int32_t VideoStream::height() const {
     return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_HEIGHT));
 }
 
-WithError<VideoStream> VideoStream::initialize_video_stream(const std::string& input_path) {
+WithError<VideoStream> VideoStream::initialize_video_stream(const std::filesystem::path& input_path) {
     if (!std::filesystem::exists(input_path)) {
-        const std::string error_msg = "No such file: " + input_path;    
+        const std::string error_msg = "No such file: " + input_path.string();
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::NoSuchFile, error_msg) };
     }
 
     cv::VideoCapture cap(input_path);
     if (!cap.isOpened()) {
-        const std::string error_msg = "Failed to open the video: " + input_path;
+        const std::string error_msg = "Failed to open the video: " + input_path.string();
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::FailedToOpenFile, error_msg) };
     }
 
@@ -65,5 +65,5 @@ WithError<VideoStream> VideoStream::initialize_video_stream(const std::string& i
     WithError<FrameTimeCode> end_timecode = frame_timecode::from_frame_nums(total_frame_num, framerate);
     const FrameTimeCode duration = base_timecode + end_timecode.value();
 
-    return WithError<VideoStream> { VideoStream(input_path, framerate, cap, base_timecode, duration), Error(ErrorCode::Success, "") };
+    return WithError<VideoStream> { VideoStream(input_path.string(), framerate, cap, base_timecode, duration), Error(ErrorCode::Success, "") };
 }

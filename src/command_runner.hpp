@@ -8,14 +8,19 @@
 #include <vector>
 #include <tuple>
 #include <cstdint>
+#include <filesystem>
 
 using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
 class CommandRunner {
     public:
-        CommandRunner(const std::string& input_path, const std::string& command,
-                      const std::string& output_path, const std::vector<FrameTimeCodePair>& scene_list);
+        CommandRunner(const std::string& command, const std::filesystem::path& input_path,
+                      const std::filesystem::path& output_dir, const std::vector<FrameTimeCodePair>& scene_list);
         WithError<void> execute() const;
+        static WithError<CommandRunner> initialize_command_runner(const std::filesystem::path& input_path,
+                                                                  const std::string& command,
+                                                                  const std::filesystem::path& output_dir,
+                                                                  const std::vector<FrameTimeCodePair>& scene_list);
 
     private:
         WithError<void> _list_scenes() const;
@@ -23,9 +28,9 @@ class CommandRunner {
         WithError<void> _split_video() const;
         WithError<std::string> _splitext() const;
 
-        const std::string& input_path_;
         const std::string& command_;
-        const std::string& output_path_;
+        const std::filesystem::path& input_path_;
+        const std::filesystem::path& output_dir_;
         const std::vector<FrameTimeCodePair>& scene_list_;
 };
 
