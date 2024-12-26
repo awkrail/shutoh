@@ -8,41 +8,31 @@
 #include "frame_timecode.hpp"
 #include "error.hpp"
 
-VideoStream::VideoStream(const std::string& input_path, float framerate, cv::VideoCapture cap) 
-    : input_path_{input_path}, framerate_{framerate}, cap_{cap} {}
-
-const FrameTimeCode VideoStream::base_timecode() const {
-    return FrameTimeCode(0, framerate_);
-}
-
-const FrameTimeCode VideoStream::duration() const {
-    int32_t frame_num = static_cast<int32_t>(cap_.value().get(cv::CAP_PROP_FRAME_COUNT));
-    WithError<FrameTimeCode> end_timecode = frame_timecode::from_frame_nums(frame_num, framerate_);
-    return base_timecode() + end_timecode.value();
-}
-
-const int32_t VideoStream::frame_number() const {
-    return static_cast<int32_t>(cap_.value().get(cv::CAP_PROP_POS_FRAMES));
-}
+VideoStream::VideoStream(const std::string& input_path, const float framerate,
+                         cv::VideoCapture& cap, const FrameTimeCode& base_timecode,
+                         const FrameTimeCode& duration) 
+                         : input_path_{input_path}, framerate_{framerate}, cap_{cap},
+                         base_timecode_{base_timecode}, duration_{duration} {}
 
 const FrameTimeCode VideoStream::position() const {
-    if (frame_number() < 1) {
-        return base_timecode();
+    const int32_t frame_num = static_cast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
+    if (frame_num < 1) {
+        return base_timecode_;
     }
-    WithError<FrameTimeCode> cur_timecode = frame_timecode::from_frame_nums(frame_number() - 1, framerate_);
-    return base_timecode() + cur_timecode.value();
+    WithError<FrameTimeCode> cur_timecode = frame_timecode::from_frame_nums(frame_num - 1, framerate_);
+    return base_timecode_ + cur_timecode.value();
 }
 
 const bool VideoStream::is_end_frame() const {
-    return position().get_frame_num() == duration().get_frame_num() - 1;
+    return position().get_frame_num() == duration_.get_frame_num() - 1;
 }
 
 int32_t VideoStream::width() const {
-    return static_cast<int32_t>(cap_.value().get(cv::CAP_PROP_FRAME_WIDTH));
+    return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_WIDTH));
 }
 
 int32_t VideoStream::height() const {
-    return static_cast<int32_t>(cap_.value().get(cv::CAP_PROP_FRAME_HEIGHT));
+    return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_HEIGHT));
 }
 
 WithError<VideoStream> VideoStream::initialize_video_stream(const std::string& input_path) {
@@ -70,5 +60,10 @@ WithError<VideoStream> VideoStream::initialize_video_stream(const std::string& i
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
     }
 
-    return WithError<VideoStream> { VideoStream(input_path, framerate, cap), Error(ErrorCode::Success, "") };
+    const FrameTimeCode base_timecode = FrameTimeCode(0, framerate);
+    const int32_t total_frame_num = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_COUNT));
+    WithError<FrameTimeCode> end_timecode = frame_timecode::from_frame_nums(total_frame_num, framerate);
+    const FrameTimeCode duration = base_timecode + end_timecode.value();
+
+    return WithError<VideoStream> { VideoStream(input_path, framerate, cap, base_timecode, duration), Error(ErrorCode::Success, "") };
 }

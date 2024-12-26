@@ -16,14 +16,14 @@
 using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
 const int32_t DEFAULT_MIN_WIDTH = 256;
-const int32_t MAX_FRAME_QUEUE_LENGTH = 4;
+const int32_t MAX_FRAME_QUEUE_LENGTH = 100;
 
 SceneManager::SceneManager(ContentDetector& detector) : detector_{detector} {}
 
 void SceneManager::detect_scenes(VideoStream& video) {
-    base_timecode_ = video.base_timecode();
+    base_timecode_ = video.get_base_timecode();
     framerate_ = video.get_framerate();
-    int32_t total_frames = video.duration().get_frame_num();
+    int32_t total_frames = video.get_duration().get_frame_num();
     int32_t downscale_factor = compute_downscale_factor(video.width());
 
     BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
