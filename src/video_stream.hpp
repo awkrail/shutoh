@@ -11,8 +11,8 @@
 class VideoStream {
     public:
         VideoStream(const std::string& input_path, const float framerate, 
-                    cv::VideoCapture& cap, const FrameTimeCode& base_timecode_,
-                    const FrameTimeCode& duration);
+                    const FrameTimeCode& base_timecode_, const FrameTimeCode& duration,
+                    cv::VideoCapture& cap);
         const FrameTimeCode position() const;
         const bool is_end_frame() const;
 

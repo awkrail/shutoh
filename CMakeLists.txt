@@ -31,6 +31,7 @@ add_executable(shutoh
     src/command_runner.cpp
 )
 
+target_compile_options(shutoh PRIVATE -O2 -Wall)
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(shutoh PRIVATE ${OpenCV_LIBS} argparse fmt::fmt)
 

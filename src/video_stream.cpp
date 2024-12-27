@@ -9,10 +9,9 @@
 #include "error.hpp"
 
 VideoStream::VideoStream(const std::string& input_path, const float framerate,
-                         cv::VideoCapture& cap, const FrameTimeCode& base_timecode,
-                         const FrameTimeCode& duration) 
-                         : input_path_{input_path}, framerate_{framerate}, cap_{cap},
-                         base_timecode_{base_timecode}, duration_{duration} {}
+                        const FrameTimeCode& base_timecode, const FrameTimeCode& duration,
+                        cv::VideoCapture& cap) : input_path_{input_path}, framerate_{framerate}, 
+                        base_timecode_{base_timecode}, duration_{duration}, cap_{cap} {}
 
 const FrameTimeCode VideoStream::position() const {
     const int32_t frame_num = static_cast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
@@ -64,6 +63,5 @@ WithError<VideoStream> VideoStream::initialize_video_stream(const std::filesyste
     const int32_t total_frame_num = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_COUNT));
     WithError<FrameTimeCode> end_timecode = frame_timecode::from_frame_nums(total_frame_num, framerate);
     const FrameTimeCode duration = base_timecode + end_timecode.value();
-
-    return WithError<VideoStream> { VideoStream(input_path.string(), framerate, cap, base_timecode, duration), Error(ErrorCode::Success, "") };
+    return WithError<VideoStream> { VideoStream(input_path.string(), framerate, base_timecode, duration, cap), Error(ErrorCode::Success, "") };
 }

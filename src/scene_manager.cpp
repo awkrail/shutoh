@@ -24,8 +24,6 @@ SceneManager::SceneManager(ContentDetector& detector) : detector_{detector} {}
 void SceneManager::detect_scenes(VideoStream& video) {
     base_timecode_ = video.get_base_timecode();
     framerate_ = video.get_framerate();
-    
-    const int32_t total_frames = video.get_duration().get_frame_num();
     const int32_t downscale_factor = compute_downscale_factor(video.width());
 
     BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);

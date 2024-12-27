@@ -9,15 +9,11 @@
 #include <cmath>
 #include <fmt/core.h>
 
-FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode) : framerate_{0.0}, frame_num_{0} {
-    framerate_ = timecode.framerate_;
-    frame_num_ = timecode.frame_num_;
-}
+FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode)
+    : framerate_{timecode.framerate_}, frame_num_{timecode.frame_num_} {}
 
-FrameTimeCode::FrameTimeCode(const int32_t frame_num, const float fps) : framerate_{0.0}, frame_num_{0} {
-    framerate_ = fps;
-    frame_num_ = frame_num;
-}
+FrameTimeCode::FrameTimeCode(const int32_t frame_num, const float fps) 
+    : framerate_{fps}, frame_num_{frame_num} {}
 
 const WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timecode_str) const {
     /*

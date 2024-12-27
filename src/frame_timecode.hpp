@@ -68,15 +68,11 @@ struct TimeStamp {
 
 class FrameTimeCode {
     public:
-        FrameTimeCode() : frame_num_{0}, framerate_{1.0} {}
         FrameTimeCode(const FrameTimeCode& timecode);
         FrameTimeCode(const int32_t frame_num, const float fps);
 
         float get_framerate() const { return framerate_; }
         int32_t get_frame_num() const { return frame_num_; }
-
-        void set_framerate(const float framerate) { framerate_ = framerate; }
-        void set_frame_num(const int32_t frame_num) { frame_num_ = frame_num; }
 
         const WithError<int32_t> parse_timecode_string(const std::string& timecode_str) const;
         int32_t parse_timecode_number(const Numeric auto seconds) const;
