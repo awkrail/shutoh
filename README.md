@@ -41,8 +41,6 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 MIT License
 
 ## Contact
-Taichi Nishimura ([taichitary@gmail.com](taichitary@gmail.com))
-
-----------------------------------------------------------
+Taichi Nishimura ([taichitary@gmail.com](taichitary@gmail.com))  
 Copyright (C) 2024-2025 Taichi Nishimura.
 All rights reserved.
