@@ -70,7 +70,8 @@ WithError<void> CommandRunner::_split_video() const {
         const std::string& start_time_str = start_time.to_string_second();
         const std::string& duration_str = (end_time - start_time).to_string_second();
 
-        const std::string command = fmt::format("ffmpeg -nostdin -ss {} -i {} -t {} -c copy -y -loglevel quiet {}",
+        const std::string command = fmt::format("ffmpeg -nostdin -y -ss {} -i {} -t {} -v quiet "
+            "-map 0:v:0 -map 0:a? -map 0:s? -c:v libx264 -preset veryfast -crf 22 -c:a aac -sn {}",
             start_time_str, input_path_.string(), duration_str, output_filename);
 
         commands.push_back(command);
