@@ -8,6 +8,7 @@
 #include <fstream>
 #include <string_view>
 #include <filesystem>
+#include <future>
 #include <fmt/core.h>
 
 CommandRunner::CommandRunner(const std::string& command, const std::filesystem::path& input_path,
@@ -36,7 +37,7 @@ WithError<void> CommandRunner::_list_scenes() const {
 
     csv_file << "scene_number,start_frame,start_time,end_frame,end_time\n";
     
-    for(int scene_number = 0; scene_number < scene_list_.size(); scene_number++) {
+    for(size_t scene_number = 0; scene_number < scene_list_.size(); scene_number++) {
         const FrameTimeCode start_time = std::get<0>(scene_list_[scene_number]);
         const FrameTimeCode end_time = std::get<1>(scene_list_[scene_number]);
 
@@ -58,6 +59,38 @@ WithError<void> CommandRunner::_save_images() const {
 }
 
 WithError<void> CommandRunner::_split_video() const {
+    std::vector<std::string> commands;
+    
+    for (size_t scene_number = 0; scene_number < scene_list_.size(); scene_number++) {
+        const std::string output_filename = fmt::format("{}/{}-{}.mp4", output_dir_.string(), input_path_.stem().string(), scene_number);
+        const FrameTimeCode start_time = std::get<0>(scene_list_[scene_number]);
+        const FrameTimeCode end_time = std::get<1>(scene_list_[scene_number]);
+
+        const std::string start_time_str = start_time.to_string_second();
+        const std::string duration_str = (end_time - start_time).to_string_second();
+
+        const std::string command = fmt::format("ffmpeg -nostdin -ss {} -i {} -t {} -c copy -y -loglevel quiet {}",
+            start_time_str, input_path_.string(), duration_str, output_filename);
+
+        commands.push_back(command);
+    }
+
+    /* save scenes for videos with ffmpeg. */
+    std::vector<std::future<void>> futures;
+    const size_t max_concurrent_tasks = std::thread::hardware_concurrency();
+
+    for (size_t i = 0; i < commands.size(); i++) {
+        futures.emplace_back(std::async(std::launch::async, cut_video_with_ffmpeg, commands[i]));
+        if (futures.size() >= max_concurrent_tasks) {
+            futures.front().get();
+            futures.erase(futures.begin());
+        }
+    }
+
+    for (auto& fut : futures) {
+        fut.get();
+    }
+
     return WithError<void> { Error(ErrorCode::Success, "") };
 }
 
@@ -73,4 +106,11 @@ WithError<CommandRunner> CommandRunner::initialize_command_runner(const std::fil
 
     CommandRunner command_runner = CommandRunner(command, input_path, output_dir, scene_list);
     return WithError<CommandRunner> { command_runner, Error(ErrorCode::Success, "") };
+}
+
+void cut_video_with_ffmpeg(const std::string& command) {
+    const int8_t ret = std::system(command.c_str());
+    if (ret != 0) {
+        std::cerr << "Error: Failed to process a video cut with ffmpeg." << std::endl;
+    }
 }

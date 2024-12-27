@@ -39,7 +39,6 @@ class SceneManager {
         std::optional<FrameTimeCode> base_timecode_ = std::nullopt;
         std::optional<FrameTimeCode> start_pos_ = std::nullopt;
         std::optional<FrameTimeCode> last_pos_ = std::nullopt;
-
 };
 
 const int32_t compute_downscale_factor(const int32_t frame_width);

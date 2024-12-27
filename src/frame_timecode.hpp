@@ -76,7 +76,8 @@ class FrameTimeCode {
 
         const WithError<int32_t> parse_timecode_string(const std::string& timecode_str) const;
         int32_t parse_timecode_number(const Numeric auto seconds) const;
-        std::string to_string() const;
+        const std::string to_string() const;
+        const std::string to_string_second() const;
 
         bool operator==(const FrameTimeCode& other) const;
         bool operator!=(const FrameTimeCode& other) const;

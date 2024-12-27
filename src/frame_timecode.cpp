@@ -52,7 +52,7 @@ int32_t FrameTimeCode::parse_timecode_number(Numeric auto seconds) const {
     return _seconds_to_frames(seconds);
 }
 
-std::string FrameTimeCode::to_string() const {
+const std::string FrameTimeCode::to_string() const {
     float secs = static_cast<float>(frame_num_ / framerate_);
     int32_t hrs = static_cast<int32_t>(secs / frame_timecode::_SECONDS_PER_HOUR);
     secs -= (hrs * frame_timecode::_SECONDS_PER_HOUR);
@@ -68,8 +68,15 @@ std::string FrameTimeCode::to_string() const {
             hrs += 1;
         }
     }
+
     std::string datetime_str = convert_timecode_to_datetime(hrs, mins, secs);
     return datetime_str;
+}
+
+const std::string FrameTimeCode::to_string_second() const {
+    float secs = static_cast<float>(frame_num_ / framerate_);
+    std::string second_str = std::to_string(secs);
+    return second_str;
 }
 
 const WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
