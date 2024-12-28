@@ -4,9 +4,6 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
-#include <thread>
-#include <optional>
-#include <chrono>
 
 template <typename T>
 class BlockingQueue {

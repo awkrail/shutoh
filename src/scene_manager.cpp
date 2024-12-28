@@ -1,20 +1,11 @@
-#include "opencv2/opencv.hpp"
 #include "scene_manager.hpp"
 #include "frame_timecode.hpp"
 #include "video_frame.hpp"
 #include "video_stream.hpp"
 #include "blocking_queue.hpp"
-#include "content_detector.hpp"
 #include "error.hpp"
 
-#include <stdexcept>
 #include <thread>
-#include <queue>
-#include <functional>
-#include <optional>
-#include <tuple>
-
-using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
 const int32_t DEFAULT_MIN_WIDTH = 256;
 const int32_t MAX_FRAME_QUEUE_LENGTH = 100;
@@ -119,7 +110,7 @@ void SceneManager::_decode_thread(VideoStream& video,
     }
 }
 
-const int32_t compute_downscale_factor(const int32_t frame_width) {
+int32_t compute_downscale_factor(const int32_t frame_width) {
     if (frame_width < DEFAULT_MIN_WIDTH) {
         return 1;
     }

@@ -1,19 +1,16 @@
+#include "video_stream.hpp"
+#include "error.hpp"
+
 #include <string>
 #include <filesystem>
-#include <stdexcept>
 #include <cmath>
-
-#include "opencv2/opencv.hpp"
-#include "video_stream.hpp"
-#include "frame_timecode.hpp"
-#include "error.hpp"
 
 VideoStream::VideoStream(const std::string& input_path, const float framerate,
                         const FrameTimeCode& base_timecode, const FrameTimeCode& duration,
                         cv::VideoCapture& cap) : input_path_{input_path}, framerate_{framerate}, 
                         base_timecode_{base_timecode}, duration_{duration}, cap_{cap} {}
 
-const FrameTimeCode VideoStream::position() const {
+FrameTimeCode VideoStream::position() const {
     const int32_t frame_num = static_cast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
     if (frame_num < 1) {
         return base_timecode_;
@@ -22,7 +19,7 @@ const FrameTimeCode VideoStream::position() const {
     return base_timecode_ + cur_timecode.value();
 }
 
-const bool VideoStream::is_end_frame() const {
+bool VideoStream::is_end_frame() const {
     return position().get_frame_num() == duration_.get_frame_num() - 1;
 }
 

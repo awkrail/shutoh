@@ -1,11 +1,8 @@
 #include "frame_timecode.hpp"
-#include <iostream>
-#include <stdexcept>
-#include <cstdint>
+
 #include <cctype>
 #include <string>
 #include <vector>
-#include <algorithm>
 #include <cmath>
 #include <fmt/core.h>
 
@@ -15,7 +12,7 @@ FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode)
 FrameTimeCode::FrameTimeCode(const int32_t frame_num, const float fps) 
     : framerate_{fps}, frame_num_{frame_num} {}
 
-const WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timecode_str) const {
+WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timecode_str) const {
     /*
     Parse a string into the exact number of frames.
     framerate should be set before calling this method.
@@ -52,7 +49,7 @@ int32_t FrameTimeCode::parse_timecode_number(Numeric auto seconds) const {
     return _seconds_to_frames(seconds);
 }
 
-const std::string FrameTimeCode::to_string() const {
+std::string FrameTimeCode::to_string() const {
     float secs = static_cast<float>(frame_num_ / framerate_);
     int32_t hrs = static_cast<int32_t>(secs / frame_timecode::_SECONDS_PER_HOUR);
     secs -= (hrs * frame_timecode::_SECONDS_PER_HOUR);
@@ -73,13 +70,13 @@ const std::string FrameTimeCode::to_string() const {
     return datetime_str;
 }
 
-const std::string FrameTimeCode::to_string_second() const {
+std::string FrameTimeCode::to_string_second() const {
     float secs = static_cast<float>(frame_num_ / framerate_);
     std::string second_str = std::to_string(secs);
     return second_str;
 }
 
-const WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
+WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
     std::vector<std::string> tokens;
     std::string token;
     char delimiter = ':';
@@ -170,14 +167,14 @@ bool FrameTimeCode::operator>=(const FrameTimeCode& other) const {
     return frame_num_ >= other.frame_num_;
 }
 
-const FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
+FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
     if(framerate_ != other.framerate_) {
         throw std::runtime_error("Framerate should be same between operands.");
     }
     return FrameTimeCode(frame_num_ + other.frame_num_, framerate_);
 }
 
-const FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
+FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
     if(framerate_ != other.framerate_) {
         throw std::runtime_error("Framerate should be same between operands.");
     }
@@ -192,7 +189,7 @@ const float _SECONDS_PER_MINUTE = 60.0;
 const float _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
 const float _MINUTES_PER_HOUR = 60.0;
 
-const WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps) {
+WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps) {
     if (fps < MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
@@ -205,7 +202,7 @@ const WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num.value(), fps), Error(ErrorCode::Success, "") };
 }
 
-const WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps) {
+WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps) {
     /*
         Process the timecode value as an exact number of frames.
     */
@@ -221,7 +218,7 @@ const WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const fl
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num, fps), Error(ErrorCode::Success, "") };
 }
 
-const WithError<FrameTimeCode> from_seconds(Numeric auto seconds, const float fps) {
+WithError<FrameTimeCode> from_seconds(Numeric auto seconds, const float fps) {
     /*
         Conver the number of seconds S (float) into the number of frames.
     */
@@ -241,7 +238,7 @@ const WithError<FrameTimeCode> from_seconds(Numeric auto seconds, const float fp
 
 }
 
-const std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs) {
+std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs) {
     const int32_t int_sec = static_cast<int32_t>(secs);
     const float frac_part = secs - int_sec;
     
@@ -250,7 +247,7 @@ const std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t 
     return hh_mm_ss_nnn;
 }
 
-const float calculate_total_seconds(const TimeStamp& timestamp) {
+float calculate_total_seconds(const TimeStamp& timestamp) {
     const int32_t hour = timestamp.hour.get_hour();
     const int32_t minute = timestamp.minute.get_minute();
     const float second = timestamp.second.get_second();

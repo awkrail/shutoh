@@ -1,5 +1,3 @@
-#include <stdexcept>
-#include <optional>
 #include "flash_filter.hpp"
 
 FlashFilter::FlashFilter(const FilterMode mode, const int32_t length) : mode_{mode}, filter_length_{length} {}
@@ -11,7 +9,7 @@ std::optional<int32_t> FlashFilter::filter(const int32_t frame_num, const bool i
     if (mode_ == FilterMode::MERGE) {
         return _filter_merge(frame_num, is_above_threshold);
     } else {
-        throw std::runtime_error("Currently, only mode_ == FilterMode::MERGE is supported.");
+        return std::nullopt;
     }
 }
 

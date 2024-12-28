@@ -1,23 +1,21 @@
 #ifndef SCENE_MANAGER_H
 #define SCENE_MANAGER_H
 
-#include <queue>
+#include "opencv2/opencv.hpp"
+#include "content_detector.hpp"
+#include "video_frame.hpp"
+#include "frame_timecode_pair.hpp"
+
 #include <vector>
 #include <cstdint>
 #include <optional>
 
-#include "opencv2/opencv.hpp"
-#include "frame_timecode.hpp"
-#include "video_frame.hpp"
-#include "video_stream.hpp"
-#include "blocking_queue.hpp"
-#include "content_detector.hpp"
-#include "error.hpp"
+class VideoStream;
+template <typename T> class BlockingQueue;
+template <typename T> struct WithError;
 
 extern const int32_t DEFAULT_MIN_WIDTH;
 extern const int32_t MAX_FRAME_QUEUE_LENGTH;
-
-using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
 
 class SceneManager {
     public:
@@ -41,6 +39,6 @@ class SceneManager {
         std::optional<FrameTimeCode> last_pos_ = std::nullopt;
 };
 
-const int32_t compute_downscale_factor(const int32_t frame_width);
+int32_t compute_downscale_factor(const int32_t frame_width);
 
 #endif

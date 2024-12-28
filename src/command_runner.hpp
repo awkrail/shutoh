@@ -1,16 +1,14 @@
 #ifndef COMMAND_RUNNER_H
 #define COMMAND_RUNNER_H
 
-#include "frame_timecode.hpp"
-#include "error.hpp"
+#include "frame_timecode_pair.hpp"
 
 #include <string>
 #include <vector>
 #include <tuple>
-#include <cstdint>
 #include <filesystem>
 
-using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
+template <typename T> struct WithError;
 
 class CommandRunner {
     public:
@@ -28,10 +26,10 @@ class CommandRunner {
         WithError<void> _split_video() const;
         WithError<std::string> _splitext() const;
 
-        const std::string& command_;
-        const std::filesystem::path& input_path_;
-        const std::filesystem::path& output_dir_;
-        const std::vector<FrameTimeCodePair>& scene_list_;
+        const std::string command_;
+        const std::filesystem::path input_path_;
+        const std::filesystem::path output_dir_;
+        const std::vector<FrameTimeCodePair> scene_list_;
 };
 
 void cut_video_with_ffmpeg(const std::string& command);

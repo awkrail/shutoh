@@ -1,15 +1,13 @@
-#include <iostream>
-#include <argparse/argparse.hpp>
-#include <tuple>
-#include <filesystem>
-
+#include "frame_timecode_pair.hpp"
 #include "video_stream.hpp"
 #include "frame_timecode.hpp"
 #include "scene_manager.hpp"
 #include "content_detector.hpp"
 #include "command_runner.hpp"
 
-using FrameTimeCodePair = std::tuple<FrameTimeCode, FrameTimeCode>;
+#include <iostream>
+#include <argparse/argparse.hpp>
+#include <filesystem>
 
 int main(int argc, char *argv[]) {
     argparse::ArgumentParser program("shutoh");

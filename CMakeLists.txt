@@ -29,6 +29,7 @@ add_executable(shutoh
     src/video_stream.cpp
     src/scene_manager.cpp
     src/command_runner.cpp
+    src/csv_writer.cpp
 )
 
 target_compile_options(shutoh PRIVATE -O2 -Wall)

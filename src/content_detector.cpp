@@ -1,9 +1,5 @@
-#include "opencv2/opencv.hpp"
 #include "content_detector.hpp"
-#include "frame_timecode.hpp"
-
-#include <vector>
-#include <optional>
+#include "video_frame.hpp"
 
 std::optional<int32_t> ContentDetector::process_frame(VideoFrame& next_frame) {
     frame_score_ = _calculate_frame_score(next_frame);

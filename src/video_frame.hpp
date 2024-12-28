@@ -3,6 +3,7 @@
 
 #include "opencv2/opencv.hpp"
 #include "frame_timecode.hpp"
+
 #include <cstdint>
 
 struct VideoFrame {

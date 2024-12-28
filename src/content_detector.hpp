@@ -1,12 +1,13 @@
 #ifndef CONTENT_DETECTOR_H
 #define CONTENT_DETECTOR_H
 
-#include "frame_timecode.hpp"
-#include "video_frame.hpp"
+#include "opencv2/opencv.hpp"
 #include "flash_filter.hpp"
 
 #include <cstdint>
 #include <optional>
+
+struct VideoFrame;
 
 struct Components {
     const float delta_hue = 1.0;

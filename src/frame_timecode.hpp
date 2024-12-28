@@ -1,11 +1,10 @@
 #ifndef FRAME_TIMECODE_H
 #define FRAME_TIMECODE_H
 
-#include <memory>
+#include "error.hpp"
+
 #include <string>
 #include <cstdint>
-
-#include "error.hpp"
 
 const int32_t HOUR_MAX = 10;
 
@@ -74,10 +73,10 @@ class FrameTimeCode {
         float get_framerate() const { return framerate_; }
         int32_t get_frame_num() const { return frame_num_; }
 
-        const WithError<int32_t> parse_timecode_string(const std::string& timecode_str) const;
+        WithError<int32_t> parse_timecode_string(const std::string& timecode_str) const;
         int32_t parse_timecode_number(const Numeric auto seconds) const;
-        const std::string to_string() const;
-        const std::string to_string_second() const;
+        std::string to_string() const;
+        std::string to_string_second() const;
 
         bool operator==(const FrameTimeCode& other) const;
         bool operator!=(const FrameTimeCode& other) const;
@@ -86,11 +85,11 @@ class FrameTimeCode {
         bool operator<=(const FrameTimeCode& other) const;
         bool operator>=(const FrameTimeCode& other) const;
 
-        const FrameTimeCode operator+(const FrameTimeCode& other) const;
-        const FrameTimeCode operator-(const FrameTimeCode& other) const;
+        FrameTimeCode operator+(const FrameTimeCode& other) const;
+        FrameTimeCode operator-(const FrameTimeCode& other) const;
 
     private:
-        const WithError<TimeStamp> _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
+        WithError<TimeStamp> _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
         int32_t _seconds_to_frames(const float seconds) const;
 
         float framerate_;
@@ -104,13 +103,13 @@ extern const float _SECONDS_PER_MINUTE;
 extern const float _SECONDS_PER_HOUR;
 extern const float _MINUTES_PER_HOUR;
 
-const WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps);
-const WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps);
-const WithError<FrameTimeCode> from_seconds(const Numeric auto seconds, const float fps);
+WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps);
+WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps);
+WithError<FrameTimeCode> from_seconds(const Numeric auto seconds, const float fps);
 
 }
 
-const float calculate_total_seconds(const TimeStamp& timestamp);
-const std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs);
+float calculate_total_seconds(const TimeStamp& timestamp);
+std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs);
 
 #endif
