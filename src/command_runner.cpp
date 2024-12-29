@@ -3,6 +3,7 @@
 #include "error.hpp"
 #include "csv_writer.hpp"
 #include "video_splitter.hpp"
+#include "image_extractor.hpp"
 
 CommandRunner::CommandRunner(const std::string& command, const std::filesystem::path& input_path,
                              const std::filesystem::path& output_dir, const std::vector<FrameTimeCodePair>& scene_list) 
@@ -18,7 +19,8 @@ WithError<void> CommandRunner::execute() const {
         return video_splitter.split_video(input_path_, scene_list_);
 
     } else {
-        return WithError<void> { Error(ErrorCode::Success, "") };
+        const ImageExtractor image_extractor = ImageExtractor(output_dir_);
+        return image_extractor.save_images(input_path_, scene_list_);
     }
 }
 

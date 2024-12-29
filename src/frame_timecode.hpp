@@ -6,7 +6,7 @@
 #include <string>
 #include <cstdint>
 
-const int32_t HOUR_MAX = 10;
+constexpr int32_t HOUR_MAX = 10;
 
 template <typename T>
 concept Numeric = std::same_as<T, int32_t> || std::same_as<T, float>;
@@ -98,10 +98,10 @@ class FrameTimeCode {
 
 namespace frame_timecode {
 
-extern const float MIN_FPS_DELTA;
-extern const float _SECONDS_PER_MINUTE;
-extern const float _SECONDS_PER_HOUR;
-extern const float _MINUTES_PER_HOUR;
+constexpr float MIN_FPS_DELTA = 1.0 / 100000;
+constexpr float _SECONDS_PER_MINUTE = 60.0;
+constexpr float _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
+constexpr float _MINUTES_PER_HOUR = 60.0;
 
 WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps);
 WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps);

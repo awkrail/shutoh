@@ -7,8 +7,8 @@
 
 #include <thread>
 
-const int32_t DEFAULT_MIN_WIDTH = 256;
-const int32_t MAX_FRAME_QUEUE_LENGTH = 100;
+constexpr int32_t DEFAULT_MIN_WIDTH = 256;
+constexpr int32_t MAX_FRAME_QUEUE_LENGTH = 100;
 
 SceneManager::SceneManager(ContentDetector& detector) : detector_{detector} {}
 

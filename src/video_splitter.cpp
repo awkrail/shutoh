@@ -8,8 +8,9 @@
 
 VideoSplitter::VideoSplitter(const std::filesystem::path& output_dir) : output_dir_{output_dir} {};
 
-WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_path,
+WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_path, 
                                            const std::vector<FrameTimeCodePair>& scene_list) const {
+    
     const std::string output_dir_str = output_dir_.string();
     const std::string input_path_str = input_path.string();
     const std::string filename = input_path.stem().string();

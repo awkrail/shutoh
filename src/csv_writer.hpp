@@ -13,7 +13,7 @@ class CSVWriter {
     public:
         CSVWriter(const std::filesystem::path& output_dir);
         WithError<void> write_scenes_to_csv(const std::filesystem::path& input_path,
-            const std::vector<FrameTimeCodePair>& scene_list) const;
+                                            const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:
         const std::filesystem::path output_dir_;

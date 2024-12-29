@@ -184,11 +184,6 @@ FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
 
 namespace frame_timecode {
 
-const float MIN_FPS_DELTA = 1.0 / 100000;
-const float _SECONDS_PER_MINUTE = 60.0;
-const float _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
-const float _MINUTES_PER_HOUR = 60.0;
-
 WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps) {
     if (fps < MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);

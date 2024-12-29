@@ -13,7 +13,7 @@ class VideoSplitter {
     public:
         VideoSplitter(const std::filesystem::path& output_dir);
         WithError<void> split_video(const std::filesystem::path& input_path,
-            const std::vector<FrameTimeCodePair>& scene_list) const;
+                                    const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:
         const std::filesystem::path output_dir_;

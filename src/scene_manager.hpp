@@ -14,9 +14,6 @@ class VideoStream;
 template <typename T> class BlockingQueue;
 template <typename T> struct WithError;
 
-extern const int32_t DEFAULT_MIN_WIDTH;
-extern const int32_t MAX_FRAME_QUEUE_LENGTH;
-
 class SceneManager {
     public:
         SceneManager(ContentDetector& detector);
