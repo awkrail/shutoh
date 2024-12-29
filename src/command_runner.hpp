@@ -21,11 +21,6 @@ class CommandRunner {
                                                                   const std::vector<FrameTimeCodePair>& scene_list);
 
     private:
-        WithError<void> _list_scenes() const;
-        WithError<void> _save_images() const;
-        WithError<void> _split_video() const;
-        WithError<std::string> _splitext() const;
-
         const std::string command_;
         const std::filesystem::path input_path_;
         const std::filesystem::path output_dir_;

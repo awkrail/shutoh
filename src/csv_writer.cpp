@@ -8,8 +8,9 @@
 
 CSVWriter::CSVWriter(const std::filesystem::path& output_dir) : output_dir_{output_dir} {};
 
-WithError<void> CSVWriter::write_scenes_to_csv(const std::string& filename, 
+WithError<void> CSVWriter::write_scenes_to_csv(const std::filesystem::path& input_path,
                                                const std::vector<FrameTimeCodePair>& scene_list) const {
+    const std::string filename = input_path.stem().string();
     const std::string output_csv_file = fmt::format("{}/{}-scenes.csv", output_dir_.string(), filename);
     std::ofstream csv_file(output_csv_file);
 
