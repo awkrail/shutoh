@@ -2,8 +2,8 @@
 #define VIDEO_STREAM_H
 
 #include "frame_timecode.hpp"
-#include "opencv2/opencv.hpp"
 
+#include <opencv2/opencv.hpp>
 #include <string>
 #include <filesystem>
 
@@ -23,7 +23,7 @@ class VideoStream {
         float get_framerate() const { return framerate_; }
         const FrameTimeCode& get_base_timecode() const { return base_timecode_; }
         const FrameTimeCode& get_duration() const { return duration_; }
-
+        WithError<void> seek(const int32_t frame_num);
         static WithError<VideoStream> initialize_video_stream(const std::filesystem::path& input_path);
 
     private:

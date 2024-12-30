@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     }
 
     CommandRunner command_runner = opt_command_runner.value();
-    WithError<void> err = command_runner.execute();
+    WithError<void> err = command_runner.execute(video);
     if (err.has_error()) {
         err.error.show_error_msg();
         return 1;

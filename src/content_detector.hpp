@@ -1,9 +1,9 @@
 #ifndef CONTENT_DETECTOR_H
 #define CONTENT_DETECTOR_H
 
-#include "opencv2/opencv.hpp"
 #include "flash_filter.hpp"
 
+#include <opencv2/opencv.hpp>
 #include <cstdint>
 #include <optional>
 

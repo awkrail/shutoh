@@ -7,12 +7,13 @@
 #include <vector>
 #include <filesystem>
 
+class VideoStream;
 template <typename T> struct WithError;
 
 class ImageExtractor {
     public:
         ImageExtractor(const std::filesystem::path& output_dir);
-        WithError<void> save_images(const std::filesystem::path& input_path,
+        WithError<void> save_images(VideoStream& video, const std::filesystem::path& input_path,
                                     const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:

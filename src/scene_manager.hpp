@@ -1,11 +1,11 @@
 #ifndef SCENE_MANAGER_H
 #define SCENE_MANAGER_H
 
-#include "opencv2/opencv.hpp"
 #include "content_detector.hpp"
 #include "video_frame.hpp"
 #include "frame_timecode_pair.hpp"
 
+#include <opencv2/opencv.hpp>
 #include <vector>
 #include <cstdint>
 #include <optional>

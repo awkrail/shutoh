@@ -1,9 +1,9 @@
 #ifndef VIDEO_FRAME_H
 #define VIDEO_FRAME_H
 
-#include "opencv2/opencv.hpp"
 #include "frame_timecode.hpp"
 
+#include <opencv2/opencv.hpp>
 #include <cstdint>
 
 struct VideoFrame {

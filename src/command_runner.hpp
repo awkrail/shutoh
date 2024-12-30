@@ -8,13 +8,14 @@
 #include <tuple>
 #include <filesystem>
 
+class VideoStream;
 template <typename T> struct WithError;
 
 class CommandRunner {
     public:
         CommandRunner(const std::string& command, const std::filesystem::path& input_path,
                       const std::filesystem::path& output_dir, const std::vector<FrameTimeCodePair>& scene_list);
-        WithError<void> execute() const;
+        WithError<void> execute(VideoStream& video) const;
         static WithError<CommandRunner> initialize_command_runner(const std::filesystem::path& input_path,
                                                                   const std::string& command,
                                                                   const std::filesystem::path& output_dir,

@@ -1,14 +1,22 @@
 #include "image_extractor.hpp"
 #include "error.hpp"
 #include "frame_timecode.hpp"
+#include "video_stream.hpp"
 
+#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <numeric>
+#include <fmt/core.h>
 
 ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir) : output_dir_{output_dir} {}
 
-WithError<void> ImageExtractor::save_images(const std::filesystem::path& input_path,
+WithError<void> ImageExtractor::save_images(VideoStream& video,
+                                            const std::filesystem::path& input_path,
                                             const std::vector<FrameTimeCodePair>& scene_list) const {
+    /* reset video seek */
+    // video.reset();
+
+    /* get selected frames comparable to PySceneDetect */
     std::vector<std::vector<int32_t>> frame_inds_list;
     for (auto& scene : scene_list) {
         const FrameTimeCode start = std::get<0>(scene);
@@ -18,13 +26,23 @@ WithError<void> ImageExtractor::save_images(const std::filesystem::path& input_p
         frame_inds_list.push_back(frame_inds);
     }
 
-    for (auto& frame_inds : frame_inds_list) {
-        for (auto& frame_ind : frame_inds) {
-            std::cout << frame_ind << " ";
-        }
-        std::cout << std::endl;
-    }
+    /* save frames based on frame indices */
+    const std::string output_dir = output_dir_.string();
+    const std::string filename = input_path.stem().string();
+    const int32_t frame_inds_list_size = frame_inds_list.size();
 
+    for (int i = 0; i < frame_inds_list_size; i++) {
+        const int32_t frame_inds_size = frame_inds_list[i].size();
+        for (int j = 0; j < frame_inds_size; j++) {
+            video.seek(frame_inds_list[i][j]);
+            cv::Mat frame;
+            if(!video.get_cap().read(frame)) {
+                break;
+            }
+            const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.jpg", output_dir, filename, i, j);
+            cv::imwrite(output_path, frame);
+        }
+    }
     return WithError<void> { Error(ErrorCode::Success, "") };
 }
 

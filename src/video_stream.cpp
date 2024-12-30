@@ -31,6 +31,28 @@ int32_t VideoStream::height() const {
     return static_cast<int32_t>(cap_.get(cv::CAP_PROP_FRAME_HEIGHT));
 }
 
+WithError<void> VideoStream::seek(const int32_t frame_num) {
+    if (frame_num < 0) {
+        std::string error_msg = "";
+        return WithError<void> { Error(ErrorCode::NegativeFrameNum, error_msg) };
+    }
+
+    const int32_t base_frame_num = base_timecode_.get_frame_num();
+    const int32_t target_frame_num = base_frame_num + frame_num;
+
+    if (target_frame_num >= cap_.get(cv::CAP_PROP_FRAME_COUNT)) {
+        std::string error_msg = "Target frame num is over the maximum frame count";
+        return WithError<void> { Error(ErrorCode::OverMaximumFrameNum, error_msg) };
+    }
+
+    if (!cap_.set(cv::CAP_PROP_POS_FRAMES, target_frame_num)) {
+        std::string error_msg = "Failed to set the frame position";
+        return WithError<void> { Error(ErrorCode::FailedToSetFramePosition, error_msg) };
+    }
+
+    return WithError<void> { Error(ErrorCode::Success, "") };
+}
+
 WithError<VideoStream> VideoStream::initialize_video_stream(const std::filesystem::path& input_path) {
     if (!std::filesystem::exists(input_path)) {
         const std::string error_msg = "No such file: " + input_path.string();

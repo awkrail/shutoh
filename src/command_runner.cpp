@@ -4,12 +4,13 @@
 #include "csv_writer.hpp"
 #include "video_splitter.hpp"
 #include "image_extractor.hpp"
+#include "video_stream.hpp"
 
 CommandRunner::CommandRunner(const std::string& command, const std::filesystem::path& input_path,
                              const std::filesystem::path& output_dir, const std::vector<FrameTimeCodePair>& scene_list) 
                             : command_{command}, input_path_{input_path}, output_dir_{output_dir}, scene_list_{scene_list} {}
 
-WithError<void> CommandRunner::execute() const {
+WithError<void> CommandRunner::execute(VideoStream& video) const {
     if (command_ == "list-scenes") {
         const CSVWriter csv_writer = CSVWriter(output_dir_);
         return csv_writer.write_scenes_to_csv(input_path_, scene_list_);
@@ -20,7 +21,7 @@ WithError<void> CommandRunner::execute() const {
 
     } else {
         const ImageExtractor image_extractor = ImageExtractor(output_dir_);
-        return image_extractor.save_images(input_path_, scene_list_);
+        return image_extractor.save_images(video, input_path_, scene_list_);
     }
 }
 
