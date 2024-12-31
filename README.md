@@ -22,6 +22,7 @@ ctest
 ```
 
 ## Quick Start (Command Line)
+I focus on three commands (`split-video`, `list-scenes`, and `save-images`) and remove several options for simplicity.
 Split an input video into cuts:
 ```
 ./build/shutoh -i video/input.mp4 -c split-video

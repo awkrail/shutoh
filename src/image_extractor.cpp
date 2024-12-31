@@ -23,7 +23,8 @@ WithError<void> ImageExtractor::save_images(VideoStream& video,
             scene_frame_list.push_back(SceneFrameIndex { 
                 static_cast<int32_t>(scene_i),
                 static_cast<int32_t>(frame_j),
-                frame_inds[frame_j] });
+                frame_inds[frame_j]
+            });
         }
     }
 
@@ -65,13 +66,10 @@ std::vector<int32_t> ImageExtractor::_get_frame_inds(const FrameTimeCode& start,
     for (int j = 0; j < split_size; j++) {
         int32_t frame_ind;
         if ((j > 0 && j < image_num_ - 1) || image_num_ == 1) {
-            /* splits between first and last (1..n-2) or #images per scene is 1 */
             frame_ind = std::round((splits[j].start + splits[j].end) / 2.0);
         } else if (j == 0) {
-            /* first split */
             frame_ind = std::min(splits[j].start + frame_margin_, splits[j].end);
         } else {
-            /* Last split */
             frame_ind = std::max(splits[j].end - frame_margin_, splits[j].start);
         }
         frame_inds.push_back(frame_ind);

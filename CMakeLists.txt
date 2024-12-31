@@ -21,20 +21,11 @@ FetchContent_MakeAvailable(fmt)
 
 find_package(OpenCV REQUIRED)
 
-add_executable(shutoh
-    src/main.cpp
-    src/frame_timecode.cpp
-    src/content_detector.cpp
-    src/flash_filter.cpp
-    src/video_stream.cpp
-    src/scene_manager.cpp
-    src/command_runner.cpp
-    src/csv_writer.cpp
-    src/video_splitter.cpp
-    src/image_extractor.cpp
-)
+file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
-target_compile_options(shutoh PRIVATE -O2 -Wall)
+add_executable(shutoh ${SOURCES})
+
+target_compile_options(shutoh PRIVATE -O3 -Wall)
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(shutoh PRIVATE ${OpenCV_LIBS} argparse fmt::fmt)
 

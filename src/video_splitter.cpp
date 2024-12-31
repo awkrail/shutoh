@@ -25,7 +25,7 @@ WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_pa
         const std::string& duration_str = (end_time - start_time).to_string_second();
 
         const std::string command = fmt::format("ffmpeg -nostdin -y -ss {} -i {} -t {} -v quiet "
-            "-map 0:v:0 -map 0:a? -map 0:s? -c:v libx264 -preset veryfast -crf 22 -c:a aac -sn {}",
+            "-preset ultrafast -crf 22 -c:a aac -map 0:v:0 -map 0:a? -sn {}",
             start_time_str, input_path_str, duration_str, output_filename);
 
         commands.push_back(command);

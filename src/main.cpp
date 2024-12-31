@@ -4,40 +4,21 @@
 #include "scene_manager.hpp"
 #include "content_detector.hpp"
 #include "command_runner.hpp"
+#include "config.hpp"
 
 #include <iostream>
-#include <argparse/argparse.hpp>
 #include <filesystem>
 
 int main(int argc, char *argv[]) {
-    argparse::ArgumentParser program("shutoh");
-
-    program.add_argument("-i", "--input")
-        .help("Input video file.")
-        .required();
-    
-    program.add_argument("-c", "--command")
-        .help("Command name. Choose one from [list-scenes, split-videos, save-images]")
-        .required();
-
-    program.add_argument("-o", "--output")
-        .default_value(std::string("."))
-        .help("Output directory for created files. If unset, working directory will be used.");
-
-    try {
-        program.parse_args(argc, argv);
-    }
-    catch (const std::exception& err) {
-        std::cerr << "Error: " << err.what() << std::endl;
+    const std::optional<CommonConfig> opt_config = parse_args(argc, argv);
+    if (!opt_config) {
         return 1;
     }
+    const CommonConfig& config = *opt_config;
 
-    std::string input_path_str = program.get<std::string>("--input");
-    std::string command = program.get<std::string>("--command");
-    std::string output_path_str = program.get<std::string>("--output");
-
-    std::filesystem::path input_path(input_path_str);
-    std::filesystem::path output_path(output_path_str);
+    std::filesystem::path input_path = config.input_path;
+    std::filesystem::path output_path = config.output_dir;
+    std::string command = config.command;
 
     WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(input_path);
     if (opt_video.has_error()) {
