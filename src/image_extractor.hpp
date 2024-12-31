@@ -10,6 +10,17 @@
 class VideoStream;
 template <typename T> struct WithError;
 
+struct StartEndSplitIndex {
+    const int32_t start; /* start index of the scene */
+    const int32_t end; /* end index of the scene */
+};
+
+struct SceneFrameIndex {
+    const int32_t scene_ind; /* scene index in the video */
+    const int32_t frame_ind_in_scene; /* frame index in the scene (relative) */
+    const int32_t frame_ind_in_video; /* frame index in the video (absolute) */
+};
+
 class ImageExtractor {
     public:
         ImageExtractor(const std::filesystem::path& output_dir);
@@ -17,10 +28,10 @@ class ImageExtractor {
                                     const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:
-        std::vector<int32_t> _get_frame_range(const FrameTimeCode& start, 
-                                              const FrameTimeCode& end) const;
-        std::vector<int32_t> _get_frame_inds(const std::vector<int32_t>& frame_range) const;
-        std::vector<std::vector<int32_t>> _construct_splits(const std::vector<int32_t>& frame_range) const;
+        std::vector<int32_t> _get_frame_inds(const FrameTimeCode& start, 
+                                             const FrameTimeCode& end) const;
+        std::vector<StartEndSplitIndex> _construct_splits(const FrameTimeCode& start,
+                                                          const FrameTimeCode& end) const;
 
         const int32_t image_num_ = 3;
         const int32_t frame_margin_ = 1;

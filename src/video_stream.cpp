@@ -37,16 +37,17 @@ WithError<void> VideoStream::seek(const int32_t frame_num) {
         return WithError<void> { Error(ErrorCode::NegativeFrameNum, error_msg) };
     }
 
+    // TODO: Buggy if base_frame_num is over 0.
     const int32_t base_frame_num = base_timecode_.get_frame_num();
     const int32_t target_frame_num = base_frame_num + frame_num;
 
     if (target_frame_num >= cap_.get(cv::CAP_PROP_FRAME_COUNT)) {
-        std::string error_msg = "Target frame num is over the maximum frame count";
+        std::string error_msg = "Target frame num is over the maximum frame count.";
         return WithError<void> { Error(ErrorCode::OverMaximumFrameNum, error_msg) };
     }
 
     if (!cap_.set(cv::CAP_PROP_POS_FRAMES, target_frame_num)) {
-        std::string error_msg = "Failed to set the frame position";
+        std::string error_msg = "Failed to set the frame position.";
         return WithError<void> { Error(ErrorCode::FailedToSetFramePosition, error_msg) };
     }
 

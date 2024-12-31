@@ -2,7 +2,7 @@
 Shutoh (手刀 in Japanese) is a fast and efficient scene detection tool implemented in C++20.
 Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shutoh aims to provide a powerful and flexible alternative with enhanced performance. The key features of Shutoh is threefold:
 - **Fast**: Shutoh leverages the speed of C++ for faster processing compared to PySceneDetect.
-- **Compatibility**: Designed to produce outputs comparable to PySceneDetect.
+- **Compatibility**: Designed to produce outputs comparable to PySceneDetect as much as possible.
 - **Flexible**: Supports both rule-based and machine-learning-based approaches.
 
 ## Build
