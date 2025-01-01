@@ -5,6 +5,8 @@ Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shut
 - **Compatibility**: Designed to produce outputs comparable to PySceneDetect as much as possible.
 - **Flexible**: Supports both rule-based and machine-learning-based approaches.
 
+**Note:** This project is work in progress and the current codebase may be changed signficantly.
+
 ## Build
 Install dependency libraries: FFmpeg and openCV. If you are an Ubuntu user, run:
 ```

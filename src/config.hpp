@@ -11,12 +11,20 @@ struct CommonConfig {
     const std::filesystem::path input_path;
     const std::filesystem::path output_dir;
     const std::string command;
+    const std::string filename;
 };
 
 struct ListSceneConfig {
     const CommonConfig common_cfg;
     const bool no_output_file;
-    const std::string filename;
+};
+
+struct SplitVideoConfig {
+    const CommonConfig common_cfg;
+    const bool copy;
+    const int32_t crf;
+    const std::string preset;
+    const std::string ffmpeg_args;
 };
 
 struct SaveImageConfig {
@@ -30,19 +38,10 @@ struct SaveImageConfig {
     const int32_t width;
 };
 
-struct SplitVideoConfig {
-    const CommonConfig common_cfg;
-    const bool copy;
-    const bool high_quality;
-    const int32_t crf;
-    const std::string preset;
-    const std::string ffmpeg_args;
-};
-
 struct TimeConfig {
     const FrameTimeCode start;
-    const FrameTimeCode duration;
     const FrameTimeCode end;
+    const FrameTimeCode duration;
 };
 
 std::optional<CommonConfig> parse_args(int argc, char *argv[]);
