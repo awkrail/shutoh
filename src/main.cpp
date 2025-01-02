@@ -8,13 +8,15 @@
 
 #include <iostream>
 #include <filesystem>
+#include <memory>
 
 int main(int argc, char *argv[]) {
-    const std::optional<CommonConfig> opt_config = parse_args(argc, argv);
-    if (!opt_config) {
+    const WithError<Config> opt_config = parse_args(argc, argv);
+    if (opt_config.has_error()) {
+        opt_config.error.show_error_msg();
         return 1;
     }
-    const CommonConfig& config = *opt_config;
+    const Config config = opt_config.value();
 
     std::filesystem::path input_path = config.input_path;
     std::filesystem::path output_path = config.output_dir;

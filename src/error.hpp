@@ -6,6 +6,8 @@
 
 enum class ErrorCode {
     Success,
+    InvalidArgument,
+    FailedToParseArgs,
     NoSuchFile,
     FailedToOpenFile,
     FailedToSetFramePosition,

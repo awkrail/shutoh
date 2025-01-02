@@ -16,21 +16,10 @@ WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timec
     /*
     Parse a string into the exact number of frames.
     framerate should be set before calling this method.
-    The strings '00:05:00.000', '00:05:00', '300' and '300.0' are all possible valid values,
-    all representing a period of time equal to 5 minutes and 300 seconds.
+    The strings '00:05:00.000' and '00:05:00' are all possible valid values.
+    Note that this function does not accept string-style numeric values, e.g., "300.5" or "300",
+    although PySceneDetect supports these expressions.
     */
-
-    // 300
-    if (std::all_of(timecode_str.cbegin(), timecode_str.cend(), isdigit)) {
-        int32_t timecode = static_cast<int32_t>(std::stoi(timecode_str));
-        if (timecode < 0) {
-            const std::string error_msg = "Seconds should be larger than 0.";
-            return WithError<int32_t> { std::nullopt, Error(ErrorCode::NegativeSecond, error_msg) };
-        }
-        return WithError<int32_t> { timecode, Error(ErrorCode::Success, "") };
-    }
-
-    // "00:05:00.000" or "00:05:00" -> convert them into the number of frames
     auto sep_found = std::find(timecode_str.begin(), timecode_str.end(), ':');
     if (sep_found != timecode_str.end()) {
         const WithError<TimeStamp> timestamp = _parse_hrs_mins_secs_to_second(timecode_str);
@@ -41,7 +30,7 @@ WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timec
         return WithError<int32_t> { _seconds_to_frames(secs * framerate_), Error(ErrorCode::Success, "") };
     }
 
-    const std::string error_msg = "Invalid timestamp format. Accepted format is HH:MM:SS.nnn or HH:MM:SS, but got " + timecode_str;
+    const std::string error_msg = "Invalid timestamp format. Accepted format is HH:MM:SS[.nnn] or numeric format, but got " + timecode_str;
     return WithError<int32_t> { std::nullopt, Error(ErrorCode::InvalidTimestamp, error_msg) };
 }
 
@@ -65,9 +54,7 @@ std::string FrameTimeCode::to_string() const {
             hrs += 1;
         }
     }
-
-    std::string datetime_str = convert_timecode_to_datetime(hrs, mins, secs);
-    return datetime_str;
+    return convert_timecode_to_datetime(hrs, mins, secs);
 }
 
 std::string FrameTimeCode::to_string_second() const {
@@ -135,8 +122,7 @@ WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::st
         return WithError<TimeStamp> { std::nullopt, second.error };
     }
 
-    return WithError<TimeStamp> { TimeStamp(hour.value(), minute.value(), second.value()), 
-        Error(ErrorCode::Success, "") };
+    return WithError<TimeStamp> { TimeStamp(hour.value(), minute.value(), second.value()), Error(ErrorCode::Success, "") };
 }
 
 int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
@@ -167,6 +153,7 @@ bool FrameTimeCode::operator>=(const FrameTimeCode& other) const {
     return frame_num_ >= other.frame_num_;
 }
 
+// TODO: remove std::runtime_error throw
 FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
     if(framerate_ != other.framerate_) {
         throw std::runtime_error("Framerate should be same between operands.");
@@ -174,6 +161,7 @@ FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
     return FrameTimeCode(frame_num_ + other.frame_num_, framerate_);
 }
 
+// TODO: remove std::runtime_error throw
 FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
     if(framerate_ != other.framerate_) {
         throw std::runtime_error("Framerate should be same between operands.");
