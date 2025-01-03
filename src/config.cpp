@@ -138,16 +138,19 @@ WithError<Config> parse_args(int argc, char *argv[]) {
     
     program.add_argument("--verbose")
         .default_value(false)
+        .implicit_value(true)
         .help("Show detailed information.");
 
     /* command: list-scenes */
     program.add_argument("--no_output_file")
         .default_value(false)
+        .implicit_value(true)
         .help("[list-scenes] Print scene list only.");
 
     /* command: split-video */
     program.add_argument("--copy")
         .default_value(false)
+        .implicit_value(true)
         .help("[split-video] Copy instead of re-encode. Faster but less precise.");
 
     program.add_argument("--crf")

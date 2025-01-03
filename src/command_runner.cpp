@@ -6,34 +6,35 @@
 #include "image_extractor.hpp"
 #include "video_stream.hpp"
 
-CommandRunner::CommandRunner(const std::string& command, const std::filesystem::path& input_path,
-                             const std::filesystem::path& output_dir, const std::vector<FrameTimeCodePair>& scene_list) 
-                            : command_{command}, input_path_{input_path}, output_dir_{output_dir}, scene_list_{scene_list} {}
+CommandRunner::CommandRunner(const Config& cfg, const std::vector<FrameTimeCodePair>& scene_list) 
+                            : cfg_{cfg}, scene_list_{scene_list} {}
 
 WithError<void> CommandRunner::execute(VideoStream& video) const {
-    if (command_ == "list-scenes") {
-        const CSVWriter csv_writer = CSVWriter(output_dir_);
-        return csv_writer.write_scenes_to_csv(input_path_, scene_list_);
+    if (cfg_.command == "list-scenes")
+        return _list_scenes();
+    else if (cfg_.command == "split-video")
+        return _split_video();
+    else
+        return _save_images(video);
+}
 
-    } else if (command_ == "split-video") {
-        const VideoSplitter video_splitter = VideoSplitter(output_dir_);
-        return video_splitter.split_video(input_path_, scene_list_);
-
-    } else {
-        const ImageExtractor image_extractor = ImageExtractor(output_dir_);
-        return image_extractor.save_images(video, input_path_, scene_list_);
+WithError<void> CommandRunner::_list_scenes() const {
+    const CSVWriter csv_writer = CSVWriter(cfg_.output_dir);
+    if (cfg_.no_output_file) {
+        csv_writer.print_scenes(scene_list_);
+        return WithError<void> { Error(ErrorCode::Success, "") };
+    }
+    else {
+        return csv_writer.write_scenes_to_csv(cfg_.input_path, scene_list_);
     }
 }
 
-WithError<CommandRunner> CommandRunner::initialize_command_runner(const std::filesystem::path& input_path,
-                                                                  const std::string& command,
-                                                                  const std::filesystem::path& output_dir,
-                                                                  const std::vector<FrameTimeCodePair>& scene_list) {
-    if (!(command == "list-scenes" || command == "split-video" || command == "save-images")) {
-        std::string error_msg = "Invalid command. Command should be list-scenes, split-video, or save-images.";
-        return WithError<CommandRunner> { std::nullopt, Error(ErrorCode::InvalidCommand, error_msg) };
-    }
+WithError<void> CommandRunner::_split_video() const {
+    const VideoSplitter video_splitter = VideoSplitter(cfg_.output_dir);
+    return video_splitter.split_video(cfg_.input_path, scene_list_);
+}
 
-    CommandRunner command_runner = CommandRunner(command, input_path, output_dir, scene_list);
-    return WithError<CommandRunner> { command_runner, Error(ErrorCode::Success, "") };
+WithError<void> CommandRunner::_save_images(VideoStream& video) const {
+    const ImageExtractor image_extractor = ImageExtractor(cfg_.output_dir);
+    return image_extractor.save_images(video, cfg_.input_path, scene_list_);
 }

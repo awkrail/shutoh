@@ -1,6 +1,9 @@
 #include "content_detector.hpp"
 #include "video_frame.hpp"
 
+ContentDetector::ContentDetector(const float threshold, const int32_t min_scene_len)
+    : threshold_{threshold}, min_scene_len_{min_scene_len} {}
+
 std::optional<int32_t> ContentDetector::process_frame(VideoFrame& next_frame) {
     frame_score_ = _calculate_frame_score(next_frame);
     const bool is_above_threshold = (frame_score_ > threshold_);

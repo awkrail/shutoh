@@ -2,11 +2,31 @@
 #include "frame_timecode.hpp"
 #include "error.hpp"
 
+#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <fmt/core.h>
 
 CSVWriter::CSVWriter(const std::filesystem::path& output_dir) : output_dir_{output_dir} {};
+
+void CSVWriter::print_scenes(const std::vector<FrameTimeCodePair>& scene_list) const {
+
+    std::cout << "scene_number,start_frame,start_time,end_frame,end_time" << std::endl;
+
+    for(size_t scene_number = 0; scene_number < scene_list.size(); scene_number++) {
+        const FrameTimeCode start_time = std::get<0>(scene_list[scene_number]);
+        const FrameTimeCode end_time = std::get<1>(scene_list[scene_number]);
+
+        const int32_t start_index = scene_number == 0 ? start_time.get_frame_num() : start_time.get_frame_num() + 1;
+        const int32_t end_index = end_time.get_frame_num();
+
+        const std::string start_time_str = start_time.to_string();
+        const std::string end_time_str = end_time.to_string();
+
+        std::cout << scene_number << "," << start_index << "," << start_time_str 
+            << "," << end_index << "," << end_time_str << std::endl;
+    }
+}
 
 WithError<void> CSVWriter::write_scenes_to_csv(const std::filesystem::path& input_path,
                                                const std::vector<FrameTimeCodePair>& scene_list) const {

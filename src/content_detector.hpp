@@ -18,8 +18,7 @@ struct Components {
 
 class ContentDetector {
     public:
-        ContentDetector(const float threshold = 27.0, const int32_t min_scene_len = 15) 
-        : threshold_{threshold}, min_scene_len_{min_scene_len} {}
+        ContentDetector(const float threshold, const int32_t min_scene_len);
         std::optional<int32_t> process_frame(VideoFrame& next_frame);
 
     private:
