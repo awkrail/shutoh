@@ -13,6 +13,9 @@ class VideoSplitter {
     public:
         VideoSplitter(const std::filesystem::path& output_dir);
         WithError<void> split_video(const std::filesystem::path& input_path,
+                                    const int32_t crf,
+                                    const std::string& preset,
+                                    const std::string& ffmpeg_args,
                                     const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:

@@ -8,14 +8,17 @@
 
 VideoSplitter::VideoSplitter(const std::filesystem::path& output_dir) : output_dir_{output_dir} {};
 
-WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_path, 
+WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_path,
+                                           const int32_t crf,
+                                           const std::string& preset,
+                                           const std::string& ffmpeg_args,
                                            const std::vector<FrameTimeCodePair>& scene_list) const {
     
     const std::string output_dir_str = output_dir_.string();
     const std::string input_path_str = input_path.string();
     const std::string filename = input_path.stem().string();
-    std::vector<std::string> commands;
-    
+
+    std::vector<std::string> commands;    
     for (size_t scene_number = 0; scene_number < scene_list.size(); scene_number++) {
         const std::string output_filename = fmt::format("{}/{}-{}.mp4", output_dir_str, filename, scene_number);
         const FrameTimeCode& start_time = std::get<0>(scene_list[scene_number]);
@@ -24,10 +27,9 @@ WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_pa
         const std::string& start_time_str = start_time.to_string_second();
         const std::string& duration_str = (end_time - start_time).to_string_second();
 
-        const std::string command = fmt::format("ffmpeg -nostdin -y -ss {} -i {} -t {} -v quiet "
-            "-preset ultrafast -crf 22 -c:a aac -map 0:v:0 -map 0:a? -sn {}",
-            start_time_str, input_path_str, duration_str, output_filename);
-
+        const std::string command = fmt::format("ffmpeg -nostdin -y -ss {} -i {} -t {} -v quiet -preset {} -crf {} {} {}",
+                                                start_time_str, input_path_str, duration_str,
+                                                preset, crf, ffmpeg_args, output_filename);
         commands.push_back(command);
     }
 
