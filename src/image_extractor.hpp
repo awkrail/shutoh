@@ -23,7 +23,7 @@ struct SceneFrameIndex {
 
 class ImageExtractor {
     public:
-        ImageExtractor(const std::filesystem::path& output_dir);
+        ImageExtractor(const std::filesystem::path& output_dir, const int32_t num_images, const int32_t frame_margin);
         WithError<void> save_images(VideoStream& video, const std::filesystem::path& input_path,
                                     const std::vector<FrameTimeCodePair>& scene_list) const;
 
@@ -33,9 +33,9 @@ class ImageExtractor {
         std::vector<StartEndSplitIndex> _construct_splits(const FrameTimeCode& start,
                                                           const FrameTimeCode& end) const;
 
-        const int32_t image_num_ = 3;
-        const int32_t frame_margin_ = 1;
         const std::filesystem::path output_dir_;
+        const int32_t num_images_;
+        const int32_t frame_margin_;
 };
 
 #endif

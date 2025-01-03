@@ -38,6 +38,6 @@ WithError<void> CommandRunner::_split_video() const {
 }
 
 WithError<void> CommandRunner::_save_images(VideoStream& video) const {
-    const ImageExtractor image_extractor = ImageExtractor(cfg_.output_dir);
+    const ImageExtractor image_extractor = ImageExtractor(cfg_.output_dir, cfg_.num_images, cfg_.frame_margin);
     return image_extractor.save_images(video, cfg_.input_path, scene_list_);
 }

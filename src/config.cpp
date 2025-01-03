@@ -192,7 +192,7 @@ WithError<Config> parse_args(int argc, char *argv[]) {
               "Higher values produce smaller files but result in longer compression time.");
 
     program.add_argument("--frame_margin")
-        .default_value(3)
+        .default_value(1)
         .scan<'d', int>()
         .help("[save-images] Number of frames to ignore at beginning/end of scenes when saving images."
               "Controls temporal padding on scene boundaries.");

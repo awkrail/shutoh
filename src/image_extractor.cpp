@@ -8,7 +8,8 @@
 #include <numeric>
 #include <fmt/core.h>
 
-ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir) : output_dir_{output_dir} {}
+ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const int32_t num_images, const int32_t frame_margin) 
+    : output_dir_{output_dir}, num_images_{num_images}, frame_margin_{frame_margin} {}
 
 WithError<void> ImageExtractor::save_images(VideoStream& video,
                                             const std::filesystem::path& input_path,
@@ -65,7 +66,7 @@ std::vector<int32_t> ImageExtractor::_get_frame_inds(const FrameTimeCode& start,
     const int32_t split_size = splits.size();
     for (int j = 0; j < split_size; j++) {
         int32_t frame_ind;
-        if ((j > 0 && j < image_num_ - 1) || image_num_ == 1) {
+        if ((j > 0 && j < num_images_ - 1) || num_images_ == 1) {
             frame_ind = std::round((splits[j].start + splits[j].end) / 2.0);
         } else if (j == 0) {
             frame_ind = std::min(splits[j].start + frame_margin_, splits[j].end);
@@ -87,17 +88,17 @@ std::vector<StartEndSplitIndex> ImageExtractor::_construct_splits(const FrameTim
 
     const int32_t total_size = std::max(1, end_ind - start_ind);
     
-    if (image_num_ <= total_size) {
-        const int32_t base_size = total_size / image_num_;
-        const int32_t remainder = total_size % image_num_;
+    if (num_images_ <= total_size) {
+        const int32_t base_size = total_size / num_images_;
+        const int32_t remainder = total_size % num_images_;
 
-        for (int32_t i = 0; i < image_num_; i++) {
+        for (int32_t i = 0; i < num_images_; i++) {
             const int32_t split_size = base_size + (i < remainder ? 1 : 0);
             result.push_back(StartEndSplitIndex { start_ind, start_ind + split_size - 1 });
             start_ind += split_size;
         }
     } else {
-        /* save all of the frames in the scenes if image_num_ is larger than #frames in the scene. */
+        /* save all of the frames in the scenes if num_images_ is larger than #frames in the scene. */
         for (int32_t i = 0; i <= total_size; i++) {
             result.push_back(StartEndSplitIndex { start_ind + i, start_ind + i + 1 });
         }
