@@ -7,7 +7,14 @@
 #include <optional>
 #include <argparse/argparse.hpp>
 
+class VideoStream;
 template <typename T> struct WithError;
+
+enum class ResizeMode {
+    ORIGINAL,
+    RESIZE_TARGET,
+    RESIZE_SCALE,
+};
 
 struct Config {
     /* common */
@@ -31,9 +38,11 @@ struct Config {
     const std::string format;
     const int32_t quality;
     const int32_t frame_margin;
-    const float scale; /* scale is ignored if width and height are set. */
-    const int32_t height;
-    const int32_t width;
+
+    std::optional<float> scale; /* scale is ignored if width and height are set. */
+    std::optional<int32_t> height;
+    std::optional<int32_t> width;
+    ResizeMode resize = ResizeMode::ORIGINAL;
 
     /* time information 
        Time expression is represented as string format,
@@ -52,5 +61,9 @@ struct Config {
 
 WithError<Config> _construct_config(argparse::ArgumentParser& program);
 WithError<Config> parse_args(int argc, char *argv[]);
+void update_config_with_video(Config& cfg, const VideoStream& video);
+std::pair<int32_t, int32_t> _calculate_resized_size(const VideoStream& video, 
+                                                    std::optional<int32_t> width, 
+                                                    std::optional<int32_t> height);
 
 #endif

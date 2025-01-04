@@ -1,5 +1,6 @@
 #include "config.hpp"
 #include "error.hpp"
+#include "video_stream.hpp"
 
 WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::string input_path_str = program.get<std::string>("--input");
@@ -19,9 +20,10 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::string format = program.get<std::string>("--format");
     const int32_t quality = program.get<int32_t>("--quality");
     const int32_t frame_margin = program.get<int32_t>("--frame_margin");
-    const float scale = program.get<float>("--scale");
-    const int32_t height = program.get<int32_t>("--height");
-    const int32_t width = program.get<int32_t>("--width");
+    
+    std::optional<float> scale = program.present<float>("--scale");
+    std::optional<int32_t> height = program.present<int32_t>("--height");
+    std::optional<int32_t> width = program.present<int32_t>("--width");
 
     std::optional<std::string> start = program.present<std::string>("--start");
     std::optional<std::string> end = program.present<std::string>("--end");
@@ -68,17 +70,17 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    if (scale < 0 || scale > 2.0) {
+    if (scale.has_value() && (scale.value() < 0 || scale.value() > 10.0)) {
         std::string error_msg = "--scale should be 0 < scale < 2.0";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    if (height < 0 || height > 10000) {
+    if (height.has_value() && (height.value() < 0 || height.value() > 10000)) {
         std::string error_msg = "--height should be 0 < height < 10000";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    if (width < 0 || width > 10000) {
+    if (width.has_value() && (width.value() < 0 || width.value() > 10000)) {
         std::string error_msg = "--width should be 0 < width < 10000";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
@@ -198,17 +200,14 @@ WithError<Config> parse_args(int argc, char *argv[]) {
               "Controls temporal padding on scene boundaries.");
 
     program.add_argument("--scale")
-        .default_value(1.0f)
         .scan<'g', float>()
         .help("[save-images] Factor to scale images. Ignored if -W/--width or -H/--height is set.");
 
     program.add_argument("-W", "--width")
-        .default_value(0)
         .scan<'d', int>()
         .help("[save-images] Width of images.");
     
     program.add_argument("-H", "--height")
-        .default_value(0)
         .scan<'d', int>()
         .help("[save-images] Height of images.");
 
@@ -242,4 +241,44 @@ WithError<Config> parse_args(int argc, char *argv[]) {
     }
 
     return _construct_config(program);
+}
+
+void update_config_with_video(Config& cfg, const VideoStream& video) {
+    if (cfg.command != "save-images")
+        return;
+    
+    if (cfg.width.has_value() && cfg.height.has_value()) {
+        cfg.resize = ResizeMode::RESIZE_TARGET;
+        return;
+    }
+
+    if (cfg.width.has_value() || cfg.height.has_value()) {
+        auto [resized_width, resized_height] = _calculate_resized_size(video, cfg.width, cfg.height);
+        cfg.resize = ResizeMode::RESIZE_TARGET;
+
+        if (!cfg.width.has_value())
+            cfg.width = resized_width;
+        
+        if (!cfg.height.has_value())
+            cfg.height = resized_height;
+    }
+
+    if (cfg.scale.has_value()) {
+        cfg.resize = ResizeMode::RESIZE_SCALE;
+    }
+}
+
+std::pair<int32_t, int32_t> _calculate_resized_size(const VideoStream& video, 
+                                                    std::optional<int32_t> width, 
+                                                    std::optional<int32_t> height) {
+    if (width.has_value()) {
+        float factor = static_cast<float>(*width) / video.width();
+        return {*width, static_cast<int32_t>(factor * video.height())};
+
+    } else if (height.has_value()) {
+        float factor = static_cast<float>(*height) / video.height();
+        return {static_cast<int32_t>(factor * video.width()), *height};
+    }
+    
+    return {video.width(), video.height()};
 }

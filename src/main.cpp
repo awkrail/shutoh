@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         opt_cfg.error.show_error_msg();
         return 1;
     }
-    const Config cfg = opt_cfg.value();
+    Config cfg = opt_cfg.value();
 
     WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(cfg.input_path);
     if (opt_video.has_error()) {
@@ -23,7 +23,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     VideoStream video = opt_video.value();
-    
+    update_config_with_video(cfg, video);
+
     ContentDetector detector = ContentDetector(cfg.threshold, cfg.min_scene_len);
     SceneManager scene_manager = SceneManager(detector);
     scene_manager.detect_scenes(video);
