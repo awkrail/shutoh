@@ -16,7 +16,7 @@ class CSVWriter {
                                     const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:
-        WithError<void> _print_scenes(const std::vector<FrameTimeCodePair>& scene_list) const;
+        void _print_scenes(const std::vector<FrameTimeCodePair>& scene_list) const;
         WithError<void> _write_scenes_to_csv(const std::filesystem::path& input_path,
                                              const std::vector<FrameTimeCodePair>& scene_list) const;
 
