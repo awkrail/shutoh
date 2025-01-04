@@ -33,14 +33,10 @@ class ImageExtractor {
                                     const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:
+        template <typename ResizeFunc>
         WithError<void> _save_scene_frames(VideoStream& video, const std::filesystem::path& input_path,
-                                           const std::vector<SceneFrameIndex>& scene_frame_list) const;
-        
-        WithError<void> _save_scene_frames_target_size(VideoStream& video, const std::filesystem::path& input_path,
-                                                       const std::vector<SceneFrameIndex>& scene_frame_list) const;
-        
-        WithError<void> _save_scene_frames_scale(VideoStream& video, const std::filesystem::path& input_path,
-                                                 const std::vector<SceneFrameIndex>& scene_frame_list) const;
+                                           const std::vector<SceneFrameIndex>& scene_frame_list,
+                                           ResizeFunc resize_frame) const;
 
         std::vector<SceneFrameIndex> _get_selected_frame_ind_from_scenes(const std::vector<FrameTimeCodePair>& scene_list) const;
 

@@ -30,17 +30,27 @@ WithError<void> ImageExtractor::save_images(VideoStream& video,
     
     std::vector<SceneFrameIndex> scene_frame_list = _get_selected_frame_ind_from_scenes(scene_list);
     
-    if (resize_ == ResizeMode::ORIGINAL)
-        return _save_scene_frames(video, input_path, scene_frame_list);
-    else if (resize_ == ResizeMode::RESIZE_TARGET)
-        return _save_scene_frames_target_size(video, input_path, scene_frame_list);
-    else
-        return _save_scene_frames_scale(video, input_path, scene_frame_list);
+    if (resize_ == ResizeMode::ORIGINAL) {
+        auto resize_frame = [](cv::Mat& frame){}; /* dummy */
+        return _save_scene_frames(video, input_path, scene_frame_list, resize_frame);
+    } else if (resize_ == ResizeMode::RESIZE_TARGET) {
+        const int32_t width = width_.value();
+        const int32_t height = height_.value();
+        cv::Size resized_size(width, height);
+        auto resize_frame = [resized_size](cv::Mat& frame){ cv::resize(frame, frame, resized_size, 0, 0, cv::INTER_LINEAR); };
+        return _save_scene_frames(video, input_path, scene_frame_list, resize_frame);
+    } else {
+        const float scale = scale_.value();
+        auto resize_frame = [scale](cv::Mat& frame) { cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_LINEAR); };
+        return _save_scene_frames(video, input_path, scene_frame_list, resize_frame);
+    }
 }
 
+template <typename ResizeFunc>
 WithError<void> ImageExtractor::_save_scene_frames(VideoStream& video,
                                                    const std::filesystem::path& input_path,
-                                                   const std::vector<SceneFrameIndex>& scene_frame_list) const {
+                                                   const std::vector<SceneFrameIndex>& scene_frame_list,
+                                                   ResizeFunc resize_frame) const {
     const std::string output_dir = output_dir_.string();
     const std::string filename = input_path.stem().string();
 
@@ -51,89 +61,17 @@ WithError<void> ImageExtractor::_save_scene_frames(VideoStream& video,
         const int32_t frame_ind_in_video = scene_frame_index.frame_ind_in_video; 
 
         WithError<void> err = video.seek(frame_ind_in_video);
-        if (err.has_error()) {
+        if (err.has_error())
             return err;
-        }
 
         cv::Mat frame;
-        if(!video.get_cap().read(frame)) {
+        if(!video.get_cap().read(frame))
             break;
-        }
+
+        resize_frame(frame); /* if resize_ == ResizeMode::ORIGINAL, nothing happens. */
 
         const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.{}", 
                                         output_dir, filename, scene_ind, frame_ind_in_scene, format_);
-        if(!cv::imwrite(output_path, frame, params_)) {
-            const std::string error_msg = "Failed to save the frame to " + output_path;
-            return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
-        }
-    }
-
-    return WithError<void> { Error(ErrorCode::Success, "") };
-}
-
-WithError<void> ImageExtractor::_save_scene_frames_target_size(VideoStream& video,
-                                                               const std::filesystem::path& input_path,
-                                                               const std::vector<SceneFrameIndex>& scene_frame_list) const {
-    const std::string output_dir = output_dir_.string();
-    const std::string filename = input_path.stem().string();
-    const int32_t width = width_.value();
-    const int32_t height = height_.value();
-    cv::Size resized_size(width, height);
-
-    for (size_t sf_i = 0; sf_i < scene_frame_list.size(); sf_i++) {
-        const SceneFrameIndex scene_frame_index = scene_frame_list[sf_i];
-        const int32_t scene_ind = scene_frame_index.scene_ind;
-        const int32_t frame_ind_in_scene = scene_frame_index.frame_ind_in_scene;
-        const int32_t frame_ind_in_video = scene_frame_index.frame_ind_in_video; 
-
-        WithError<void> err = video.seek(frame_ind_in_video);
-        if (err.has_error()) {
-            return err;
-        }
-
-        cv::Mat frame;
-        if(!video.get_cap().read(frame)) {
-            break;
-        }
-
-        cv::resize(frame, frame, resized_size, 0, 0, cv::INTER_LINEAR);
-
-        const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.jpg", output_dir, filename, scene_ind, frame_ind_in_scene);
-        if(!cv::imwrite(output_path, frame, params_)) {
-            const std::string error_msg = "Failed to save the frame to " + output_path;
-            return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
-        }
-    }
-
-    return WithError<void> { Error(ErrorCode::Success, "") };
-}
-
-WithError<void> ImageExtractor::_save_scene_frames_scale(VideoStream& video,
-                                                         const std::filesystem::path& input_path,
-                                                         const std::vector<SceneFrameIndex>& scene_frame_list) const {
-    const std::string output_dir = output_dir_.string();
-    const std::string filename = input_path.stem().string();
-    const float scale = scale_.value();
-
-    for (size_t sf_i = 0; sf_i < scene_frame_list.size(); sf_i++) {
-        const SceneFrameIndex scene_frame_index = scene_frame_list[sf_i];
-        const int32_t scene_ind = scene_frame_index.scene_ind;
-        const int32_t frame_ind_in_scene = scene_frame_index.frame_ind_in_scene;
-        const int32_t frame_ind_in_video = scene_frame_index.frame_ind_in_video; 
-
-        WithError<void> err = video.seek(frame_ind_in_video);
-        if (err.has_error()) {
-            return err;
-        }
-
-        cv::Mat frame;
-        if(!video.get_cap().read(frame)) {
-            break;
-        }
-
-        cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_LINEAR);
-
-        const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.jpg", output_dir, filename, scene_ind, frame_ind_in_scene);
         if(!cv::imwrite(output_path, frame, params_)) {
             const std::string error_msg = "Failed to save the frame to " + output_path;
             return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
