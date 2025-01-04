@@ -7,9 +7,18 @@
 #include <filesystem>
 #include <fmt/core.h>
 
-CSVWriter::CSVWriter(const std::filesystem::path& output_dir) : output_dir_{output_dir} {};
+CSVWriter::CSVWriter(const std::filesystem::path& output_dir, const bool no_output_file) 
+    : output_dir_{output_dir}, no_output_file_{no_output_file} {};
 
-void CSVWriter::print_scenes(const std::vector<FrameTimeCodePair>& scene_list) const {
+WithError<void> CSVWriter::list_scenes(const std::filesystem::path& input_path,
+                                       const std::vector<FrameTimeCodePair>& scene_list) const {
+    if (no_output_file_)
+        return _print_scenes(scene_list);
+    else
+        return _write_scenes_to_csv(input_path, scene_list);
+}
+
+WithError<void> CSVWriter::_print_scenes(const std::vector<FrameTimeCodePair>& scene_list) const {
 
     std::cout << "scene_number,start_frame,start_time,end_frame,end_time" << std::endl;
 
@@ -26,10 +35,12 @@ void CSVWriter::print_scenes(const std::vector<FrameTimeCodePair>& scene_list) c
         std::cout << scene_number << "," << start_index << "," << start_time_str 
             << "," << end_index << "," << end_time_str << std::endl;
     }
+
+    return WithError<void> { Error(ErrorCode::Success, "") };
 }
 
-WithError<void> CSVWriter::write_scenes_to_csv(const std::filesystem::path& input_path,
-                                               const std::vector<FrameTimeCodePair>& scene_list) const {
+WithError<void> CSVWriter::_write_scenes_to_csv(const std::filesystem::path& input_path,
+                                                const std::vector<FrameTimeCodePair>& scene_list) const {
     
     const std::string filename = input_path.stem().string();
     const std::string output_csv_file = fmt::format("{}/{}-scenes.csv", output_dir_.string(), filename);

@@ -22,13 +22,12 @@ WithError<void> ImageExtractor::save_images(VideoStream& video,
     
     std::vector<SceneFrameIndex> scene_frame_list = _get_selected_frame_ind_from_scenes(scene_list);
     
-    if (resize_ == ResizeMode::ORIGINAL) {
+    if (resize_ == ResizeMode::ORIGINAL)
         return _save_scene_frames(video, input_path, scene_frame_list);
-    } else if (resize_ == ResizeMode::RESIZE_TARGET) {
+    else if (resize_ == ResizeMode::RESIZE_TARGET)
         return _save_scene_frames_target_size(video, input_path, scene_frame_list);
-    } else {
+    else
         return _save_scene_frames_scale(video, input_path, scene_frame_list);
-    }
 }
 
 WithError<void> ImageExtractor::_save_scene_frames(VideoStream& video,

@@ -6,12 +6,11 @@
 #include <iostream>
 #include <fmt/core.h>
 
-VideoSplitter::VideoSplitter(const std::filesystem::path& output_dir) : output_dir_{output_dir} {};
+VideoSplitter::VideoSplitter(const std::filesystem::path& output_dir, const int32_t crf,
+                             const std::string& preset, const std::string& ffmpeg_args) 
+    : output_dir_{output_dir}, crf_{crf}, preset_{preset}, ffmpeg_args_{ffmpeg_args} {};
 
 WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_path,
-                                           const int32_t crf,
-                                           const std::string& preset,
-                                           const std::string& ffmpeg_args,
                                            const std::vector<FrameTimeCodePair>& scene_list) const {
     
     const std::string output_dir_str = output_dir_.string();
@@ -28,8 +27,7 @@ WithError<void> VideoSplitter::split_video(const std::filesystem::path& input_pa
         const std::string& duration_str = (end_time - start_time).to_string_second();
 
         const std::string command = fmt::format("ffmpeg -nostdin -y -ss {} -i {} -t {} -v quiet -c:v libx264 -preset {} -crf {} {} {}",
-                                                start_time_str, input_path_str, duration_str,
-                                                preset, crf, ffmpeg_args, output_filename);
+                                                start_time_str, input_path_str, duration_str, preset_, crf_, ffmpeg_args_, output_filename);
         commands.push_back(command);
     }
 
