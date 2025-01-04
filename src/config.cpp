@@ -2,11 +2,27 @@
 #include "error.hpp"
 #include "video_stream.hpp"
 
-WithError<Config> _construct_config(argparse::ArgumentParser& program) {
-    const std::string input_path_str = program.get<std::string>("--input");
-    const std::string output_path_str = program.get<std::string>("--output");
+std::string _interpret_filename(const argparse::ArgumentParser& program) {
     const std::string command = program.get<std::string>("--command");
-    const std::string filename = program.get<std::string>("--filename");
+    const std::optional<std::string> output_filename = program.present<std::string>("--filename");
+    if (output_filename.has_value()) {
+        return output_filename.value();
+    } else {
+        if (command == "list-scenes")
+            return "$VIDEO_NAME-scenes";
+        else if (command == "split-video")
+            return "$VIDEO_NAME-scene-$SCENE_NUMBER";
+        else
+            return "$VIDEO_NAME-scene-$SCENE_NUMBER-$IMAGE_NUMBER";
+    }
+}
+
+WithError<Config> _construct_config(argparse::ArgumentParser& program) {
+    const std::filesystem::path input_path(program.get<std::string>("--input"));
+    const std::filesystem::path output_dir(program.get<std::string>("--output"));
+
+    const std::string command = program.get<std::string>("--command");
+    const std::string filename = _interpret_filename(program);
     const bool verbose = program.get<bool>("--verbose");
 
     const bool no_output_file = program.get<bool>("--no_output_file");
@@ -60,9 +76,18 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    if (quality < 0 || quality > 100) {
-        std::string error_msg = "--quality should be 0 < quality < 100.";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+    if (format == "jpg" || format == "webp") {
+        if (quality < 0 || quality > 100) {
+            std::string error_msg = "--quality should be 0 < quality < 100 for jpg and webp.";
+            return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+        }
+    }
+
+    if (format == "png") {
+        if (quality < 0 || quality > 9) {
+            std::string error_msg = "--quality should be 0 < quality < 9 for png.";
+            return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+        }
     }
 
     if (frame_margin < 0 || frame_margin > 50) {
@@ -94,9 +119,6 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         std::string error_msg = "--min_scene_len should be positive.";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
-
-    const std::filesystem::path input_path(input_path_str);
-    const std::filesystem::path output_dir(output_path_str);
 
     const Config config = { .input_path = input_path, .output_dir = output_dir,
                             .command = command,       .filename = filename,
@@ -130,7 +152,6 @@ WithError<Config> parse_args(int argc, char *argv[]) {
         .help("Output directory for created files. if unset, working directory will be used.");
 
     program.add_argument("--filename")
-        .default_value(std::string(""))
         .help("Output filename format to save csv, images, and videos. As with PySceneDetect, you can use "
               "macros like $VIDEO_NAME, $SCENE_NUMBER, $IMAGE_NUMBER. "
               "Default value: "

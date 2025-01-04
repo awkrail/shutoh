@@ -59,6 +59,7 @@ class ImageExtractor {
         std::optional<int32_t> width_;
         std::optional<int32_t> height_;
         ResizeMode resize_;
+        std::vector<int32_t> params_;
 };
 
 #endif

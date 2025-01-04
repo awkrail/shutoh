@@ -14,7 +14,15 @@ ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const in
                                const std::string& format, const int32_t quality, const std::optional<float> scale, 
                                const std::optional<int32_t> width, const std::optional<int32_t> height, const ResizeMode resize) 
                                : output_dir_{output_dir}, num_images_{num_images}, frame_margin_{frame_margin}, format_{format}, 
-                                 quality_{quality}, scale_{scale}, width_{width}, height_{height}, resize_{resize} {}
+                                 quality_{quality}, scale_{scale}, width_{width}, height_{height}, resize_{resize} {
+        if (format_ == "jpg")
+            params_.push_back(cv::IMWRITE_JPEG_QUALITY);
+        else if (format_ == "webp")
+            params_.push_back(cv::IMWRITE_WEBP_QUALITY);
+        else
+            params_.push_back(cv::IMWRITE_PNG_COMPRESSION);
+        params_.push_back(quality_);
+    }
 
 WithError<void> ImageExtractor::save_images(VideoStream& video,
                                             const std::filesystem::path& input_path,
@@ -52,8 +60,9 @@ WithError<void> ImageExtractor::_save_scene_frames(VideoStream& video,
             break;
         }
 
-        const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.jpg", output_dir, filename, scene_ind, frame_ind_in_scene);
-        if(!cv::imwrite(output_path, frame)) {
+        const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.{}", 
+                                        output_dir, filename, scene_ind, frame_ind_in_scene, format_);
+        if(!cv::imwrite(output_path, frame, params_)) {
             const std::string error_msg = "Failed to save the frame to " + output_path;
             return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
         }
@@ -90,7 +99,7 @@ WithError<void> ImageExtractor::_save_scene_frames_target_size(VideoStream& vide
         cv::resize(frame, frame, resized_size, 0, 0, cv::INTER_LINEAR);
 
         const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.jpg", output_dir, filename, scene_ind, frame_ind_in_scene);
-        if(!cv::imwrite(output_path, frame)) {
+        if(!cv::imwrite(output_path, frame, params_)) {
             const std::string error_msg = "Failed to save the frame to " + output_path;
             return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
         }
@@ -125,7 +134,7 @@ WithError<void> ImageExtractor::_save_scene_frames_scale(VideoStream& video,
         cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_LINEAR);
 
         const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.jpg", output_dir, filename, scene_ind, frame_ind_in_scene);
-        if(!cv::imwrite(output_path, frame)) {
+        if(!cv::imwrite(output_path, frame, params_)) {
             const std::string error_msg = "Failed to save the frame to " + output_path;
             return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
         }
