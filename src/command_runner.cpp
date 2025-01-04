@@ -19,8 +19,8 @@ WithError<void> CommandRunner::execute(VideoStream& video) const {
 }
 
 WithError<void> CommandRunner::_list_scenes() const {
-    const CSVWriter csv_writer = CSVWriter(cfg_.output_dir, cfg_.no_output_file);
-    return csv_writer.list_scenes(cfg_.input_path, scene_list_);
+    const CSVWriter csv_writer = CSVWriter(cfg_.output_dir, cfg_.no_output_file, cfg_.filename);
+    return csv_writer.list_scenes(scene_list_);
 }
 
 WithError<void> CommandRunner::_split_video() const {

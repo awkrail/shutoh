@@ -59,6 +59,8 @@ struct Config {
     const int32_t min_scene_len;
 };
 
+std::string _interpret_filename(const std::filesystem::path& input_path,
+                                const argparse::ArgumentParser& program);
 WithError<Config> _construct_config(argparse::ArgumentParser& program);
 WithError<Config> parse_args(int argc, char *argv[]);
 void update_config_with_video(Config& cfg, const VideoStream& video);

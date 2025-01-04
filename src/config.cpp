@@ -2,14 +2,7 @@
 #include "error.hpp"
 #include "video_stream.hpp"
 
-void _replace_all(std::string& output_filename, const std::string& target,
-                         const std::string& replacement) {
-    size_t pos = 0;
-    while ((pos = output_filename.find(target, pos)) != std::string::npos) {
-        output_filename.replace(pos, target.length(), replacement);
-        pos += replacement.length();
-    }
-}
+#include <regex>
 
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program) {
@@ -20,8 +13,8 @@ std::string _interpret_filename(const std::filesystem::path& input_path,
     if (output_filename.has_value()) {
         /* replace all $VIDEO_NAME placeholders with input_filename */
         std::string output_filename_str = output_filename.value();
-        _replace_all(output_filename_str, "@VIDEO_NAME", input_filename);
-        return output_filename_str;
+        std::regex pattern("@VIDEO_NAME");
+        return std::regex_replace(output_filename_str, pattern, input_filename);
     } else {
         if (command == "list-scenes")
             return input_filename + "-scenes";
