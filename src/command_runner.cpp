@@ -19,19 +19,21 @@ WithError<void> CommandRunner::execute(VideoStream& video) const {
 }
 
 WithError<void> CommandRunner::_list_scenes() const {
-    const CSVWriter csv_writer = CSVWriter(cfg_.output_dir, cfg_.no_output_file, cfg_.filename);
+    const CSVWriter csv_writer = CSVWriter(cfg_.output_dir, cfg_.filename, cfg_.no_output_file);
     return csv_writer.list_scenes(scene_list_);
 }
 
 WithError<void> CommandRunner::_split_video() const {
     const std::string ffmpeg_args = cfg_.copy ? "-map 0:v:0 -map 0:a? -map 0:s? -c:v copy -c:a copy" : cfg_.ffmpeg_args;
-    const VideoSplitter video_splitter = VideoSplitter(cfg_.output_dir, cfg_.crf, cfg_.preset, ffmpeg_args);
-    return video_splitter.split_video(cfg_.input_path, scene_list_);
+    const VideoSplitter video_splitter = VideoSplitter(cfg_.output_dir, cfg_.filename, cfg_.crf, cfg_.preset, ffmpeg_args);
+    video_splitter.split_video(cfg_.input_path, scene_list_);
+    return WithError<void> { Error(ErrorCode::Success, "") };
 }
 
 WithError<void> CommandRunner::_save_images(VideoStream& video) const {
-    const ImageExtractor image_extractor = ImageExtractor(cfg_.output_dir, cfg_.num_images, cfg_.frame_margin,
+    const ImageExtractor image_extractor = ImageExtractor(cfg_.output_dir, cfg_.filename,
+                                                          cfg_.num_images, cfg_.frame_margin,
                                                           cfg_.format, cfg_.quality, cfg_.scale, 
                                                           cfg_.width, cfg_.height, cfg_.resize);
-    return image_extractor.save_images(video, cfg_.input_path, scene_list_);
+    return image_extractor.save_images(video, scene_list_);
 }

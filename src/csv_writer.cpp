@@ -7,9 +7,9 @@
 #include <filesystem>
 #include <fmt/core.h>
 
-CSVWriter::CSVWriter(const std::filesystem::path& output_dir, const bool no_output_file,
-                     const std::string& output_filename) : output_dir_{output_dir},
-                     no_output_file_{no_output_file}, output_filename_{output_filename} {};
+CSVWriter::CSVWriter(const std::filesystem::path& output_dir, const std::string& output_filename,
+                     const bool no_output_file) : output_dir_{output_dir}, output_filename_{output_filename},
+                     no_output_file_{no_output_file} {};
 
 WithError<void> CSVWriter::list_scenes(const std::vector<FrameTimeCodePair>& scene_list) const {
     if (no_output_file_) {

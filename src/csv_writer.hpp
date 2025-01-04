@@ -11,8 +11,8 @@ template <typename T> struct WithError;
 
 class CSVWriter {
     public:
-        CSVWriter(const std::filesystem::path& output_dir, const bool no_output_file,
-                  const std::string& output_filename);
+        CSVWriter(const std::filesystem::path& output_dir, const std::string& output_filename,
+                  const bool no_output_file);
         WithError<void> list_scenes(const std::vector<FrameTimeCodePair>& scene_list) const;
 
     private:
@@ -20,8 +20,8 @@ class CSVWriter {
         WithError<void> _write_scenes_to_csv(const std::vector<FrameTimeCodePair>& scene_list) const;
 
         const std::filesystem::path output_dir_;
-        const bool no_output_file_;
         const std::string output_filename_;
+        const bool no_output_file_;
 };
 
 #endif

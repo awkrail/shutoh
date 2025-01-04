@@ -9,12 +9,15 @@
 #include <numeric>
 #include <optional>
 #include <fmt/core.h>
+#include <regex>
 
-ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const int32_t num_images, const int32_t frame_margin,
-                               const std::string& format, const int32_t quality, const std::optional<float> scale, 
-                               const std::optional<int32_t> width, const std::optional<int32_t> height, const ResizeMode resize) 
-                               : output_dir_{output_dir}, num_images_{num_images}, frame_margin_{frame_margin}, format_{format}, 
-                                 quality_{quality}, scale_{scale}, width_{width}, height_{height}, resize_{resize} {
+ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, 
+                               const int32_t num_images, const int32_t frame_margin, const std::string& format, 
+                               const int32_t quality, const std::optional<float> scale, const std::optional<int32_t> width, 
+                               const std::optional<int32_t> height, const ResizeMode resize) 
+                               : output_dir_{output_dir}, output_filename_{output_filename}, num_images_{num_images}, 
+                                 frame_margin_{frame_margin}, format_{format}, quality_{quality}, scale_{scale}, 
+                                 width_{width}, height_{height}, resize_{resize} {
     if (format_ == "jpg")
         params_.push_back(cv::IMWRITE_JPEG_QUALITY);
     else if (format_ == "webp")
@@ -25,34 +28,34 @@ ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const in
 }
 
 WithError<void> ImageExtractor::save_images(VideoStream& video,
-                                            const std::filesystem::path& input_path,
                                             const std::vector<FrameTimeCodePair>& scene_list) const {
     
     std::vector<SceneFrameIndex> scene_frame_list = _get_selected_frame_ind_from_scenes(scene_list);
     
     if (resize_ == ResizeMode::ORIGINAL) {
         auto resize_frame = [](cv::Mat& frame){}; /* dummy */
-        return _save_scene_frames(video, input_path, scene_frame_list, resize_frame);
+        return _save_scene_frames(video, scene_frame_list, resize_frame);
     } else if (resize_ == ResizeMode::RESIZE_TARGET) {
         const int32_t width = width_.value();
         const int32_t height = height_.value();
         cv::Size resized_size(width, height);
         auto resize_frame = [resized_size](cv::Mat& frame){ cv::resize(frame, frame, resized_size, 0, 0, cv::INTER_LINEAR); };
-        return _save_scene_frames(video, input_path, scene_frame_list, resize_frame);
+        return _save_scene_frames(video, scene_frame_list, resize_frame);
     } else {
         const float scale = scale_.value();
         auto resize_frame = [scale](cv::Mat& frame) { cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_LINEAR); };
-        return _save_scene_frames(video, input_path, scene_frame_list, resize_frame);
+        return _save_scene_frames(video, scene_frame_list, resize_frame);
     }
 }
 
 template <typename ResizeFunc>
 WithError<void> ImageExtractor::_save_scene_frames(VideoStream& video,
-                                                   const std::filesystem::path& input_path,
                                                    const std::vector<SceneFrameIndex>& scene_frame_list,
                                                    ResizeFunc resize_frame) const {
+    
     const std::string output_dir = output_dir_.string();
-    const std::string filename = input_path.stem().string();
+    const std::regex scene_pattern("@SCENE_NUMBER");
+    const std::regex frame_pattern("@IMAGE_NUMBER");
 
     for (size_t sf_i = 0; sf_i < scene_frame_list.size(); sf_i++) {
         const SceneFrameIndex scene_frame_index = scene_frame_list[sf_i];
@@ -70,8 +73,10 @@ WithError<void> ImageExtractor::_save_scene_frames(VideoStream& video,
 
         resize_frame(frame); /* if resize_ == ResizeMode::ORIGINAL, nothing happens. */
 
-        const std::string output_path = fmt::format("{}/{}-scene-{:03d}-{:02d}.{}", 
-                                        output_dir, filename, scene_ind, frame_ind_in_scene, format_);
+        const std::string filename = std::regex_replace(std::regex_replace(output_filename_, scene_pattern, std::to_string(scene_ind)), 
+                                                        frame_pattern, std::to_string(frame_ind_in_scene));
+        const std::string output_path = output_dir + "/" + filename + "." + format_;
+
         if(!cv::imwrite(output_path, frame, params_)) {
             const std::string error_msg = "Failed to save the frame to " + output_path;
             return WithError<void> { Error(ErrorCode::FailedToOpenFile, error_msg) };
