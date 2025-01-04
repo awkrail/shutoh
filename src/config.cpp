@@ -2,18 +2,33 @@
 #include "error.hpp"
 #include "video_stream.hpp"
 
-std::string _interpret_filename(const argparse::ArgumentParser& program) {
+void _replace_all(std::string& output_filename, const std::string& target,
+                         const std::string& replacement) {
+    size_t pos = 0;
+    while ((pos = output_filename.find(target, pos)) != std::string::npos) {
+        output_filename.replace(pos, target.length(), replacement);
+        pos += replacement.length();
+    }
+}
+
+std::string _interpret_filename(const std::filesystem::path& input_path,
+                                const argparse::ArgumentParser& program) {
     const std::string command = program.get<std::string>("--command");
+    const std::string input_filename = input_path.stem().string();
     const std::optional<std::string> output_filename = program.present<std::string>("--filename");
+
     if (output_filename.has_value()) {
-        return output_filename.value();
+        /* replace all $VIDEO_NAME placeholders with input_filename */
+        std::string output_filename_str = output_filename.value();
+        _replace_all(output_filename_str, "@VIDEO_NAME", input_filename);
+        return output_filename_str;
     } else {
         if (command == "list-scenes")
-            return "$VIDEO_NAME-scenes";
+            return input_filename + "-scenes";
         else if (command == "split-video")
-            return "$VIDEO_NAME-scene-$SCENE_NUMBER";
+            return input_filename + "-scene-@SCENE_NUMBER";
         else
-            return "$VIDEO_NAME-scene-$SCENE_NUMBER-$IMAGE_NUMBER";
+            return input_filename + "-scene-@SCENE_NUMBER-@IMAGE_NUMBER";
     }
 }
 
@@ -22,7 +37,7 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::filesystem::path output_dir(program.get<std::string>("--output"));
 
     const std::string command = program.get<std::string>("--command");
-    const std::string filename = _interpret_filename(program);
+    const std::string filename = _interpret_filename(input_path, program);
     const bool verbose = program.get<bool>("--verbose");
 
     const bool no_output_file = program.get<bool>("--no_output_file");

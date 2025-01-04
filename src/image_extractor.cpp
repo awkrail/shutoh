@@ -15,14 +15,14 @@ ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const in
                                const std::optional<int32_t> width, const std::optional<int32_t> height, const ResizeMode resize) 
                                : output_dir_{output_dir}, num_images_{num_images}, frame_margin_{frame_margin}, format_{format}, 
                                  quality_{quality}, scale_{scale}, width_{width}, height_{height}, resize_{resize} {
-        if (format_ == "jpg")
-            params_.push_back(cv::IMWRITE_JPEG_QUALITY);
-        else if (format_ == "webp")
-            params_.push_back(cv::IMWRITE_WEBP_QUALITY);
-        else
-            params_.push_back(cv::IMWRITE_PNG_COMPRESSION);
-        params_.push_back(quality_);
-    }
+    if (format_ == "jpg")
+        params_.push_back(cv::IMWRITE_JPEG_QUALITY);
+    else if (format_ == "webp")
+        params_.push_back(cv::IMWRITE_WEBP_QUALITY);
+    else
+        params_.push_back(cv::IMWRITE_PNG_COMPRESSION);
+    params_.push_back(quality_);
+}
 
 WithError<void> ImageExtractor::save_images(VideoStream& video,
                                             const std::filesystem::path& input_path,
