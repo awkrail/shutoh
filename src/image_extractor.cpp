@@ -13,11 +13,10 @@
 
 ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, 
                                const int32_t num_images, const int32_t frame_margin, const std::string& format, 
-                               const int32_t quality, const std::optional<float> scale, const std::optional<int32_t> width, 
-                               const std::optional<int32_t> height, const ResizeMode resize) 
-                               : output_dir_{output_dir}, output_filename_{output_filename}, num_images_{num_images}, 
-                                 frame_margin_{frame_margin}, format_{format}, quality_{quality}, scale_{scale}, 
-                                 width_{width}, height_{height}, resize_{resize} {
+                               const int32_t quality, const float scale, const int32_t width, const int32_t height, 
+                               const ResizeMode resize) : output_dir_{output_dir}, output_filename_{output_filename},
+                               num_images_{num_images}, frame_margin_{frame_margin}, format_{format}, quality_{quality},
+                               scale_{scale}, width_{width}, height_{height}, resize_{resize} {
     if (format_ == "jpg")
         params_.push_back(cv::IMWRITE_JPEG_QUALITY);
     else if (format_ == "webp")
@@ -36,13 +35,11 @@ WithError<void> ImageExtractor::save_images(VideoStream& video,
         auto resize_frame = [](cv::Mat& frame){}; /* dummy */
         return _save_scene_frames(video, scene_frame_list, resize_frame);
     } else if (resize_ == ResizeMode::RESIZE_TARGET) {
-        const int32_t width = width_.value();
-        const int32_t height = height_.value();
-        cv::Size resized_size(width, height);
+        cv::Size resized_size(width_, height_);
         auto resize_frame = [resized_size](cv::Mat& frame){ cv::resize(frame, frame, resized_size, 0, 0, cv::INTER_LINEAR); };
         return _save_scene_frames(video, scene_frame_list, resize_frame);
     } else {
-        const float scale = scale_.value();
+        const float scale = scale_;
         auto resize_frame = [scale](cv::Mat& frame) { cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_LINEAR); };
         return _save_scene_frames(video, scene_frame_list, resize_frame);
     }

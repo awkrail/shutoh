@@ -26,8 +26,8 @@ struct SceneFrameIndex {
 class ImageExtractor {
     public:
         ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, const int32_t num_images, 
-                       const int32_t frame_margin, const std::string& format, const int32_t quality, const std::optional<float> scale, 
-                       const std::optional<int32_t> width, const std::optional<int32_t> height, const ResizeMode resize);
+                       const int32_t frame_margin, const std::string& format, const int32_t quality, const float scale, 
+                       const int32_t width, const int32_t height, const ResizeMode resize);
         
         WithError<void> save_images(VideoStream& video, const std::vector<FrameTimeCodePair>& scene_list) const;
 
@@ -50,9 +50,9 @@ class ImageExtractor {
         const int32_t frame_margin_;
         std::string format_;
         const int32_t quality_;
-        std::optional<float> scale_;
-        std::optional<int32_t> width_;
-        std::optional<int32_t> height_;
+        float scale_;
+        int32_t width_;
+        int32_t height_;
         ResizeMode resize_;
         std::vector<int32_t> params_;
 };

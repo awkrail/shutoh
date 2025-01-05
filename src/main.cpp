@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     VideoStream video = opt_video.value();
-    update_config_with_video(cfg, video);
 
     ContentDetector detector = ContentDetector(cfg.threshold, cfg.min_scene_len);
     SceneManager scene_manager = SceneManager(detector);

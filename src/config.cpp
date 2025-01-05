@@ -11,7 +11,6 @@ std::string _interpret_filename(const std::filesystem::path& input_path,
     const std::optional<std::string> output_filename = program.present<std::string>("--filename");
 
     if (output_filename.has_value()) {
-        /* replace all $VIDEO_NAME placeholders with input_filename */
         std::string output_filename_str = output_filename.value();
         std::regex pattern("@VIDEO_NAME");
         return std::regex_replace(output_filename_str, pattern, input_filename);
@@ -45,13 +44,13 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const int32_t quality = program.get<int32_t>("--quality");
     const int32_t frame_margin = program.get<int32_t>("--frame_margin");
     
-    std::optional<float> scale = program.present<float>("--scale");
-    std::optional<int32_t> height = program.present<int32_t>("--height");
-    std::optional<int32_t> width = program.present<int32_t>("--width");
+    const std::optional<float> opt_scale = program.present<float>("--scale");
+    const std::optional<int32_t> opt_height = program.present<int32_t>("--height");
+    const std::optional<int32_t> opt_width = program.present<int32_t>("--width");
 
-    std::optional<std::string> start = program.present<std::string>("--start");
-    std::optional<std::string> end = program.present<std::string>("--end");
-    std::optional<std::string> duration = program.present<std::string>("--duration");
+    const std::optional<std::string> start = program.present<std::string>("--start");
+    const std::optional<std::string> end = program.present<std::string>("--end");
+    const std::optional<std::string> duration = program.present<std::string>("--duration");
 
     const float threshold = program.get<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
@@ -103,21 +102,6 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    if (scale.has_value() && (scale.value() < 0 || scale.value() > 10.0)) {
-        std::string error_msg = "--scale should be 0 < scale < 2.0";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
-
-    if (height.has_value() && (height.value() < 0 || height.value() > 10000)) {
-        std::string error_msg = "--height should be 0 < height < 10000";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
-
-    if (width.has_value() && (width.value() < 0 || width.value() > 10000)) {
-        std::string error_msg = "--width should be 0 < width < 10000";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
-
     if (threshold < 0.0) {
         std::string error_msg = "--threshold should be positive.";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
@@ -128,19 +112,89 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    const Config config = { .input_path = input_path, .output_dir = output_dir,
-                            .command = command,       .filename = filename,
-                            .verbose = verbose,       .no_output_file = no_output_file,
-                            .copy = copy,             .crf = crf,
-                            .preset = preset,         .ffmpeg_args = ffmpeg_args,
-                            .num_images = num_images, .format = format,
-                            .quality = quality,       .frame_margin = frame_margin,
-                            .scale = scale,           .height = height,
-                            .width = width,           .start = start,
-                            .end = end,               .duration = duration,
-                            .threshold = threshold,   .min_scene_len = min_scene_len };
-    
+    cv::VideoCapture cap(input_path.string());
+    ResizedSize resized_size = _get_size(command, cap, opt_height, opt_width, opt_scale);
+
+    const int32_t height = resized_size.height;
+    if (height < 0 || height > 10000) {
+        std::string error_msg = "--height should be 0 < height < 10000";
+        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+    }
+
+    const int32_t width = resized_size.width;
+    if (width < 0 || width > 10000) {
+        std::string error_msg = "--width should be 0 < width < 10000";
+        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+    }
+
+    const float scale = resized_size.scale;
+    if (scale < 0 || scale > 10.0) {
+        std::string error_msg = "--scale should be 0 < scale < 10.0";
+        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+    }
+
+    ResizeMode resize = resized_size.resize;
+
+    const Config config = { .input_path = input_path,    .output_dir = output_dir,
+                            .command = command,          .filename = filename,
+                            .verbose = verbose,          .no_output_file = no_output_file,
+                            .copy = copy,                .crf = crf,
+                            .preset = preset,            .ffmpeg_args = ffmpeg_args,
+                            .num_images = num_images,    .format = format,
+                            .quality = quality,          .frame_margin = frame_margin,
+                            .scale = scale,              .height = height,
+                            .width = width,              .resize = resize,
+                            .start = start,              .end = end,                  
+                            .duration = duration,        .threshold = threshold,
+                            .min_scene_len = min_scene_len };
+
     return WithError<Config> { config, Error(ErrorCode::Success, "") };
+}
+
+std::pair<int32_t, int32_t> _calculate_resized_size(const cv::VideoCapture& cap,
+                                                    std::optional<int32_t> width, 
+                                                    std::optional<int32_t> height) {
+    const int32_t original_width = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_WIDTH));
+    const int32_t original_height = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_HEIGHT));
+
+    if (width.has_value()) {
+        float factor = static_cast<float>(*width) / original_width;
+        return {static_cast<int32_t>(factor * original_height), *width};
+
+    } else if (height.has_value()) {
+        float factor = static_cast<float>(*height) / original_height;
+        return {*height, static_cast<int32_t>(factor * original_width)};
+    }
+    return { original_height, original_width };
+}
+
+ResizedSize _get_size(const std::string& command, const cv::VideoCapture& cap,
+                      const std::optional<int32_t> height, const std::optional<int32_t> width,
+                      const std::optional<float> scale) {
+    const int32_t original_width = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_WIDTH));
+    const int32_t original_height = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_HEIGHT));
+
+    if (command != "save-images")
+        return ResizedSize { original_height, original_width, 1.0, ResizeMode::ORIGINAL };
+    
+    if (width.has_value() && height.has_value())
+        return ResizedSize { height.value(), width.value(), 1.0, ResizeMode::RESIZE_TARGET };
+
+    if (width.has_value() || height.has_value()) {
+        auto [resized_height, resized_width] = _calculate_resized_size(cap, width, height);
+
+        if (!width.has_value())
+            return ResizedSize { height.value(), resized_width, 1.0, ResizeMode::RESIZE_TARGET };
+        
+        if (!height.has_value())
+            return ResizedSize { resized_height, width.value(), 1.0, ResizeMode::RESIZE_TARGET };
+    }
+
+    if (scale.has_value()) {
+        return ResizedSize { original_height, original_width, scale.value(), ResizeMode::RESIZE_SCALE };
+    }
+    
+    return ResizedSize { original_height, original_width, 1.0, ResizeMode::ORIGINAL };
 }
 
 WithError<Config> parse_args(int argc, char *argv[]) {
@@ -270,44 +324,4 @@ WithError<Config> parse_args(int argc, char *argv[]) {
     }
 
     return _construct_config(program);
-}
-
-void update_config_with_video(Config& cfg, const VideoStream& video) {
-    if (cfg.command != "save-images")
-        return;
-    
-    if (cfg.width.has_value() && cfg.height.has_value()) {
-        cfg.resize = ResizeMode::RESIZE_TARGET;
-        return;
-    }
-
-    if (cfg.width.has_value() || cfg.height.has_value()) {
-        auto [resized_width, resized_height] = _calculate_resized_size(video, cfg.width, cfg.height);
-        cfg.resize = ResizeMode::RESIZE_TARGET;
-
-        if (!cfg.width.has_value())
-            cfg.width = resized_width;
-        
-        if (!cfg.height.has_value())
-            cfg.height = resized_height;
-    }
-
-    if (cfg.scale.has_value()) {
-        cfg.resize = ResizeMode::RESIZE_SCALE;
-    }
-}
-
-std::pair<int32_t, int32_t> _calculate_resized_size(const VideoStream& video, 
-                                                    std::optional<int32_t> width, 
-                                                    std::optional<int32_t> height) {
-    if (width.has_value()) {
-        float factor = static_cast<float>(*width) / video.width();
-        return {*width, static_cast<int32_t>(factor * video.height())};
-
-    } else if (height.has_value()) {
-        float factor = static_cast<float>(*height) / video.height();
-        return {static_cast<int32_t>(factor * video.width()), *height};
-    }
-    
-    return {video.width(), video.height()};
 }
