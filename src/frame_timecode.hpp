@@ -8,9 +8,6 @@
 
 constexpr int32_t HOUR_MAX = 10;
 
-template <typename T>
-concept Numeric = std::same_as<T, int32_t> || std::same_as<T, float>;
-
 class Hour {
     public:
         Hour(const int32_t hour) : hour_{hour} {}
@@ -74,7 +71,8 @@ class FrameTimeCode {
         int32_t get_frame_num() const { return frame_num_; }
 
         WithError<int32_t> parse_timecode_string(const std::string& timecode_str) const;
-        int32_t parse_timecode_number(const Numeric auto seconds) const;
+        int32_t parse_timecode_number(const int32_t seconds) const;
+        int32_t parse_timecode_number(const float seconds) const;
         std::string to_string() const;
         std::string to_string_second() const;
 
@@ -90,6 +88,7 @@ class FrameTimeCode {
 
     private:
         WithError<TimeStamp> _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
+        int32_t _seconds_to_frames(const int32_t seconds) const;
         int32_t _seconds_to_frames(const float seconds) const;
 
         float framerate_;
@@ -105,7 +104,8 @@ constexpr float _MINUTES_PER_HOUR = 60.0;
 
 WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps);
 WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps);
-WithError<FrameTimeCode> from_seconds(const Numeric auto seconds, const float fps);
+WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps);
+WithError<FrameTimeCode> from_seconds(const float seconds, const float fps);
 
 }
 

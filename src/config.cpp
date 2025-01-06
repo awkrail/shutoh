@@ -48,9 +48,9 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::optional<int32_t> opt_height = program.present<int32_t>("--height");
     const std::optional<int32_t> opt_width = program.present<int32_t>("--width");
 
-    const std::optional<std::string> start = program.present<std::string>("--start");
-    const std::optional<std::string> end = program.present<std::string>("--end");
-    const std::optional<std::string> duration = program.present<std::string>("--duration");
+    const std::optional<std::string> opt_start = program.present<std::string>("--start");
+    const std::optional<std::string> opt_end = program.present<std::string>("--end");
+    const std::optional<std::string> opt_duration = program.present<std::string>("--duration");
 
     const float threshold = program.get<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
@@ -112,7 +112,18 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
+    /* If width, height, and scale is set (save-images), resized_size is calculated. */
+    if (!std::filesystem::exists(input_path)) {
+        const std::string error_msg = "No such file: " + input_path.string();
+        return WithError<Config> { std::nullopt, Error(ErrorCode::NoSuchFile, error_msg) };
+    }
+
     cv::VideoCapture cap(input_path.string());
+    if (!cap.isOpened()) {
+        const std::string error_msg = "Failed to open the video: " + input_path.string();
+        return WithError<Config> { std::nullopt, Error(ErrorCode::FailedToOpenFile, error_msg) };
+    }
+
     ResizedSize resized_size = _get_size(command, cap, opt_height, opt_width, opt_scale);
 
     const int32_t height = resized_size.height;
@@ -132,8 +143,15 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         std::string error_msg = "--scale should be 0 < scale < 10.0";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
-
     ResizeMode resize = resized_size.resize;
+
+    /* If start/end/duration is set, start-end timecode is computed. */
+    WithError<StartEndTimeCode> start_end_timecode = _get_start_end_timecode(cap, opt_start, opt_end, opt_duration);
+    if (start_end_timecode.has_error()) {
+        return WithError<Config> { std::nullopt, start_end_timecode.error };
+    }
+    const FrameTimeCode start = start_end_timecode.value().start;
+    const FrameTimeCode end = start_end_timecode.value().end;
 
     const Config config = { .input_path = input_path,    .output_dir = output_dir,
                             .command = command,          .filename = filename,
@@ -144,11 +162,53 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
                             .quality = quality,          .frame_margin = frame_margin,
                             .scale = scale,              .height = height,
                             .width = width,              .resize = resize,
-                            .start = start,              .end = end,                  
-                            .duration = duration,        .threshold = threshold,
-                            .min_scene_len = min_scene_len };
+                            .start = start,              .end = end,          
+                            .threshold = threshold,      .min_scene_len = min_scene_len };
 
     return WithError<Config> { config, Error(ErrorCode::Success, "") };
+}
+
+WithError<StartEndTimeCode> _get_start_end_timecode(const cv::VideoCapture& cap,
+                                                    std::optional<std::string> opt_start,
+                                                    std::optional<std::string> opt_end,
+                                                    std::optional<std::string> opt_duration) {
+    const float framerate = cap.get(cv::CAP_PROP_FPS);    
+    const int32_t total_frame_num = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_COUNT));
+    FrameTimeCode start = frame_timecode::from_seconds(0, framerate).value();
+    FrameTimeCode end = frame_timecode::from_frame_nums(total_frame_num, framerate).value();
+
+    if (opt_start.has_value()) {
+        WithError<FrameTimeCode> start_err = frame_timecode::from_timecode_string(opt_start.value(), framerate);
+        if (start_err.has_error())
+            return WithError<StartEndTimeCode> { std::nullopt, start_err.error };
+
+        start = start_err.value();
+        if (start > end) {
+            std::string error_msg = "--start is larger than video length.";
+            return WithError<StartEndTimeCode> { std::nullopt, Error(ErrorCode::FailedToParseArgs, error_msg) };
+        }
+    }
+
+    if (opt_end.has_value()) {
+        WithError<FrameTimeCode> end_err = frame_timecode::from_timecode_string(opt_end.value(), framerate);
+        if (end_err.has_error())
+            return WithError<StartEndTimeCode> { std::nullopt, end_err.error };
+        
+        end = end_err.value() <= end ? end_err.value() : end;
+        return WithError<StartEndTimeCode> { StartEndTimeCode { start, end }, Error(ErrorCode::Success, "") };
+    } 
+    
+    if (opt_duration.has_value()) {
+        WithError<FrameTimeCode> duration_err = frame_timecode::from_timecode_string(opt_duration.value(), framerate);
+        if (duration_err.has_error())
+            return WithError<StartEndTimeCode> { std::nullopt, duration_err.error };
+
+        end = start + duration_err.value() <= end ? start + duration_err.value() : end;    
+        return WithError<StartEndTimeCode> { StartEndTimeCode { start, end }, Error(ErrorCode::Success, "") };
+    }
+    
+    /* If --end and --duration are not set, end is set to be the last frame. */
+    return WithError<StartEndTimeCode> { StartEndTimeCode { start, end }, Error(ErrorCode::Success, "") };
 }
 
 std::pair<int32_t, int32_t> _calculate_resized_size(const cv::VideoCapture& cap,

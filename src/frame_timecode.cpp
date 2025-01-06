@@ -23,18 +23,24 @@ WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timec
     auto sep_found = std::find(timecode_str.begin(), timecode_str.end(), ':');
     if (sep_found != timecode_str.end()) {
         const WithError<TimeStamp> timestamp = _parse_hrs_mins_secs_to_second(timecode_str);
-        if (timestamp.has_error()) {
+        if (timestamp.has_error())
             return WithError<int32_t> { std::nullopt, timestamp.error };
-        }
+        
         const float secs = calculate_total_seconds(timestamp.value());
-        return WithError<int32_t> { _seconds_to_frames(secs * framerate_), Error(ErrorCode::Success, "") };
+
+
+        return WithError<int32_t> { _seconds_to_frames(secs), Error(ErrorCode::Success, "") };
     }
 
     const std::string error_msg = "Invalid timestamp format. Accepted format is HH:MM:SS[.nnn] or numeric format, but got " + timecode_str;
     return WithError<int32_t> { std::nullopt, Error(ErrorCode::InvalidTimestamp, error_msg) };
 }
 
-int32_t FrameTimeCode::parse_timecode_number(Numeric auto seconds) const {
+int32_t FrameTimeCode::parse_timecode_number(const int32_t seconds) const {
+    return _seconds_to_frames(seconds);
+}
+
+int32_t FrameTimeCode::parse_timecode_number(const float seconds) const {
     return _seconds_to_frames(seconds);
 }
 
@@ -129,6 +135,10 @@ int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
     return std::round(seconds * framerate_);
 }
 
+int32_t FrameTimeCode::_seconds_to_frames(const int32_t seconds) const {
+    return std::round(seconds * framerate_);
+}
+
 bool FrameTimeCode::operator==(const FrameTimeCode& other) const {
     return framerate_ == other.get_framerate() && frame_num_ == other.get_frame_num();
 }
@@ -179,9 +189,9 @@ WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, c
     }
     FrameTimeCode frame_timecode = FrameTimeCode(0, fps);
     const WithError<int32_t> frame_num = frame_timecode.parse_timecode_string(timecode_str);
-    if (frame_num.has_error()) {
+    if (frame_num.has_error())
         return WithError<FrameTimeCode> { std::nullopt, frame_num.error };
-    }
+
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num.value(), fps), Error(ErrorCode::Success, "") };
 }
 
@@ -201,7 +211,25 @@ WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fp
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num, fps), Error(ErrorCode::Success, "") };
 }
 
-WithError<FrameTimeCode> from_seconds(Numeric auto seconds, const float fps) {
+WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps) {
+    /*
+        Conver the number of seconds S (float) into the number of frames.
+    */
+   if (fps < MIN_FPS_DELTA) {
+        const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
+        return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
+    }
+
+    if (seconds < 0) {
+        const std::string error_msg = "Seconds should be larger than 0, but got " + std::to_string(seconds);
+        return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::NegativeSecond, error_msg) };
+    }
+    FrameTimeCode frame_timecode = FrameTimeCode(0, fps);
+    const int32_t frame_num = frame_timecode.parse_timecode_number(seconds);
+    return WithError<FrameTimeCode> { FrameTimeCode(frame_num, fps), Error(ErrorCode::Success, "")  };
+}
+
+WithError<FrameTimeCode> from_seconds(const float seconds, const float fps) {
     /*
         Conver the number of seconds S (float) into the number of frames.
     */

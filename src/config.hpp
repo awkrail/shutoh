@@ -24,6 +24,11 @@ struct ResizedSize {
     const ResizeMode resize;
 };
 
+struct StartEndTimeCode {
+    const FrameTimeCode start;
+    const FrameTimeCode end; 
+};
+
 struct Config {
     /* common */
     const std::filesystem::path input_path;
@@ -58,12 +63,8 @@ struct Config {
        These values is set to be std::nullopt as default value, 
        representing start = 0(s), end = video_duration(s).
     */
-    const std::optional<std::string> start;
-    const std::optional<std::string> end;
-    const std::optional<std::string> duration;
-
-    std::optional<FrameTimeCode> start_timecode = std::nullopt;
-    std::optional<FrameTimeCode> end_timecode = std::nullopt;
+    FrameTimeCode start;
+    FrameTimeCode end;
 
     /* detector parameters */
     const float threshold;
@@ -72,10 +73,18 @@ struct Config {
 
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program);
+
 WithError<Config> _construct_config(argparse::ArgumentParser& program);
+
+WithError<StartEndTimeCode> _get_start_end_timecode(const cv::VideoCapture& cap,
+                                                    std::optional<std::string> opt_start,
+                                                    std::optional<std::string> opt_end,
+                                                    std::optional<std::string> opt_duration);
+
 std::pair<int32_t, int32_t> _calculate_resized_size(const VideoStream& video, 
                                                     std::optional<int32_t> width, 
                                                     std::optional<int32_t> height);
+
 ResizedSize _get_size(const std::string& command, const cv::VideoCapture& cap,
                       const std::optional<int32_t> height, const std::optional<int32_t> width,
                       const std::optional<float> scale);
