@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     }
     Config cfg = opt_cfg.value();
 
-    WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(cfg.input_path);
+    WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(cfg.input_path, cfg.start, cfg.end);
     if (opt_video.has_error()) {
         opt_video.error.show_error_msg();
         return 1;

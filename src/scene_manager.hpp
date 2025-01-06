@@ -31,9 +31,8 @@ class SceneManager {
         std::vector<int32_t> cutting_list_;
         ContentDetector detector_;
         float framerate_ = 0.0f;
-        std::optional<FrameTimeCode> base_timecode_ = std::nullopt;
-        std::optional<FrameTimeCode> start_pos_ = std::nullopt;
-        std::optional<FrameTimeCode> last_pos_ = std::nullopt;
+        std::optional<FrameTimeCode> start_ = std::nullopt;
+        std::optional<FrameTimeCode> end_ = std::nullopt;
 };
 
 int32_t compute_downscale_factor(const int32_t frame_width);
