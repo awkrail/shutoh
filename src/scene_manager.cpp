@@ -1,5 +1,4 @@
 #include "scene_manager.hpp"
-#include "frame_timecode.hpp"
 #include "video_frame.hpp"
 #include "video_stream.hpp"
 #include "blocking_queue.hpp"
@@ -85,22 +84,24 @@ void SceneManager::_process_frame(VideoFrame& next_frame) {
 void SceneManager::_decode_thread(VideoStream& video,
                                   int32_t downscale_factor, 
                                   BlockingQueue<VideoFrame>& frame_queue) {
-
+    int32_t new_width = video.width();
+    int32_t new_height = video.height();
+    if (downscale_factor > 1) {
+        new_width = round(new_width / downscale_factor);
+        new_height = round(new_height / downscale_factor);
+    }
+    cv::Size new_size(new_width, new_height);
+    
     while (true) {
         cv::Mat frame;
 
         if(!video.get_cap().read(frame))
-            continue;
+            break;
 
-        if (downscale_factor > 1) {
-            int32_t new_width = static_cast<int32_t>(round(frame.cols / downscale_factor));
-            int32_t new_height = static_cast<int32_t>(round(frame.rows / downscale_factor));
-            cv::Size new_size(new_width, new_height);
+        if (downscale_factor > 1)
             cv::resize(frame, frame, new_size, 0, 0, cv::INTER_LINEAR);
-        }
 
-        const int32_t num_pixels = frame.rows * frame.cols;
-        VideoFrame video_frame {frame, video.position(), video.is_end_frame(), num_pixels};
+        VideoFrame video_frame {frame, video.position().get_frame_num(), video.is_end_frame()};
         frame_queue.push(video_frame);
 
         if (video.is_end_frame())

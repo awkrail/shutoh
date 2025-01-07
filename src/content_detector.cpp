@@ -5,9 +5,9 @@ ContentDetector::ContentDetector(const float threshold, const int32_t min_scene_
     : threshold_{threshold}, min_scene_len_{min_scene_len} {}
 
 std::optional<int32_t> ContentDetector::process_frame(VideoFrame& next_frame) {
-    frame_score_ = _calculate_frame_score(next_frame);
-    const bool is_above_threshold = (frame_score_ > threshold_);
-    const int32_t frame_num = next_frame.position.get_frame_num();
+    const float frame_score = _calculate_frame_score(next_frame);
+    const bool is_above_threshold = (frame_score > threshold_);
+    const int32_t frame_num = next_frame.frame_num;
     std::optional<int32_t> cut = flash_filter_.filter(frame_num, is_above_threshold);
     return cut;
 }
@@ -24,7 +24,7 @@ float ContentDetector::_calculate_frame_score(VideoFrame& next_frame) {
 }
 
 float ContentDetector::_mean_pixel_distance(VideoFrame& next_frame) const {
-    const int32_t num_pixels = next_frame.num_pixels;        
+    const int32_t num_pixels = next_frame.frame.rows * next_frame.frame.cols;   
     cv::Mat pixel_diff;
     cv::absdiff(last_frame_.value(), next_frame.frame, pixel_diff);
     cv::Scalar pixel_diff_channel_sum = cv::sum(pixel_diff);

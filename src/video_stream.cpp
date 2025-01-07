@@ -64,8 +64,8 @@ WithError<VideoStream> VideoStream::initialize_video_stream(const std::filesyste
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::FailedToOpenFile, error_msg) };
     }
 
-    int8_t codec = static_cast<int8_t>(cap.get(cv::CAP_PROP_FOURCC));
-    bool codec_unsupported = (std::abs(codec) == 0);
+    const int8_t codec = static_cast<int8_t>(cap.get(cv::CAP_PROP_FOURCC));
+    const bool codec_unsupported = (std::abs(codec) == 0);
     if (codec_unsupported) {
         const std::string error_msg = "Not supported codec.";
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::NotSupportedCodec, error_msg) };

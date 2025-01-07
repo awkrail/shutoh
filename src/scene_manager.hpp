@@ -3,6 +3,7 @@
 
 #include "content_detector.hpp"
 #include "video_frame.hpp"
+#include "frame_timecode.hpp"
 #include "frame_timecode_pair.hpp"
 
 #include <opencv2/opencv.hpp>
