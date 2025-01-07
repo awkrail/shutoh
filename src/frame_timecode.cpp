@@ -82,8 +82,8 @@ WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::st
     }
 
     /*
-        Unfortunately, without stoi/stof, converting string into numbers is very difficult.
-        Hence, we remain try - catch in this code. If you have any ideas to remove try - catch, please let me know!
+    Unfortunately, without stoi/stof, converting string into numbers is difficult.
+    Hence, we remain try - catch in this code. If you have any ideas to remove try - catch, please let me know!
     */
     int32_t hour_val = 0;
     int32_t minute_val = 0;
