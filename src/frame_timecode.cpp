@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <regex>
 #include <fmt/core.h>
 
 FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode)
@@ -27,7 +28,6 @@ WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timec
             return WithError<int32_t> { std::nullopt, timestamp.error };
         
         const float secs = calculate_total_seconds(timestamp.value());
-
         return WithError<int32_t> { std::round(secs * framerate_), Error(ErrorCode::Success, "") };
     }
 
@@ -70,27 +70,11 @@ std::string FrameTimeCode::to_string_second() const {
 
 WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::string& timecode_str) const {
     std::vector<std::string> tokens;
-    std::string token;
-    char delimiter = ':';
-
-    for (char ch : timecode_str) {
-        if (ch == delimiter) {
-            if (!token.empty()) {
-                tokens.push_back(token);
-                token.clear();
-            }
-        } else {
-            if (!std::isdigit(ch)) {
-                const std::string error_msg = "Invalid timestamp format. The timestamp string characters should be 0 - 9 values.";
-                return WithError<TimeStamp> { std::nullopt, Error(ErrorCode::InvalidTimestamp, error_msg) };
-            }
-            token += ch;
-        }
-    }
-
-    if (!token.empty()) {
-        tokens.push_back(token);
-    }
+    std::regex delimiter(":");
+    auto ite = std::sregex_token_iterator(timecode_str.begin(), timecode_str.end(), delimiter, -1);
+    auto end = std::sregex_token_iterator();
+    while (ite != end)
+        tokens.push_back(*ite++);
 
     if (tokens.size() != 3) {
         const std::string error_msg = "Invalid timestamp format. The format should be HH:MM:SS.nnn or HH:MM:SS.";
@@ -117,15 +101,14 @@ WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::st
     WithError<Minute> minute = Minute::create_minute(minute_val);
     WithError<Second> second = Second::create_second(second_val);
 
-    if (hour.has_error()) {
+    if (hour.has_error())
         return WithError<TimeStamp> { std::nullopt, hour.error };
-    }
-    if (minute.has_error()) {
+    
+    if (minute.has_error())
         return WithError<TimeStamp> { std::nullopt, minute.error };
-    }
-    if (second.has_error()) {
+
+    if (second.has_error())
         return WithError<TimeStamp> { std::nullopt, second.error };
-    }
 
     return WithError<TimeStamp> { TimeStamp(hour.value(), minute.value(), second.value()), Error(ErrorCode::Success, "") };
 }
