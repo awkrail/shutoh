@@ -28,8 +28,7 @@ WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timec
         
         const float secs = calculate_total_seconds(timestamp.value());
 
-
-        return WithError<int32_t> { _seconds_to_frames(secs), Error(ErrorCode::Success, "") };
+        return WithError<int32_t> { std::round(secs * framerate_), Error(ErrorCode::Success, "") };
     }
 
     const std::string error_msg = "Invalid timestamp format. Accepted format is HH:MM:SS[.nnn] or numeric format, but got " + timecode_str;
@@ -37,11 +36,11 @@ WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timec
 }
 
 int32_t FrameTimeCode::parse_timecode_number(const int32_t seconds) const {
-    return _seconds_to_frames(seconds);
+    return std::round(seconds * framerate_);
 }
 
 int32_t FrameTimeCode::parse_timecode_number(const float seconds) const {
-    return _seconds_to_frames(seconds);
+    return std::round(seconds * framerate_);
 }
 
 std::string FrameTimeCode::to_string() const {
@@ -131,14 +130,6 @@ WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::st
     return WithError<TimeStamp> { TimeStamp(hour.value(), minute.value(), second.value()), Error(ErrorCode::Success, "") };
 }
 
-int32_t FrameTimeCode::_seconds_to_frames(const float seconds) const {
-    return std::round(seconds * framerate_);
-}
-
-int32_t FrameTimeCode::_seconds_to_frames(const int32_t seconds) const {
-    return std::round(seconds * framerate_);
-}
-
 bool FrameTimeCode::operator==(const FrameTimeCode& other) const {
     return framerate_ == other.get_framerate() && frame_num_ == other.get_frame_num();
 }
@@ -163,19 +154,11 @@ bool FrameTimeCode::operator>=(const FrameTimeCode& other) const {
     return frame_num_ >= other.frame_num_;
 }
 
-// TODO: remove std::runtime_error throw
 FrameTimeCode FrameTimeCode::operator+(const FrameTimeCode& other) const {
-    if(framerate_ != other.framerate_) {
-        throw std::runtime_error("Framerate should be same between operands.");
-    }
     return FrameTimeCode(frame_num_ + other.frame_num_, framerate_);
 }
 
-// TODO: remove std::runtime_error throw
 FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
-    if(framerate_ != other.framerate_) {
-        throw std::runtime_error("Framerate should be same between operands.");
-    }
     const int32_t new_frame_num = std::max(frame_num_ - other.frame_num_, 0);
     return FrameTimeCode(new_frame_num, framerate_);
 }
@@ -196,9 +179,6 @@ WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, c
 }
 
 WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps) {
-    /*
-        Process the timecode value as an exact number of frames.
-    */
     if (fps < MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
@@ -212,9 +192,6 @@ WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fp
 }
 
 WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps) {
-    /*
-        Conver the number of seconds S (float) into the number of frames.
-    */
    if (fps < MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
@@ -230,9 +207,6 @@ WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps) {
 }
 
 WithError<FrameTimeCode> from_seconds(const float seconds, const float fps) {
-    /*
-        Conver the number of seconds S (float) into the number of frames.
-    */
    if (fps < MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };

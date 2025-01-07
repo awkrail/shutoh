@@ -183,8 +183,8 @@ WithError<StartEndTimeCode> _get_start_end_timecode(const cv::VideoCapture& cap,
             return WithError<StartEndTimeCode> { std::nullopt, start_err.error };
 
         start = start_err.value();
-        if (start > end) {
-            std::string error_msg = "--start is larger than video length.";
+        if (start >= end) {
+            std::string error_msg = "--start is smaller than video length.";
             return WithError<StartEndTimeCode> { std::nullopt, Error(ErrorCode::FailedToParseArgs, error_msg) };
         }
     }

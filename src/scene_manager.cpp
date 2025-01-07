@@ -21,11 +21,8 @@ void SceneManager::detect_scenes(VideoStream& video) {
 
     BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
     const int32_t downscale_factor = compute_downscale_factor(video.width());
-    std::thread thread(&SceneManager::_decode_thread,
-                       this,
-                       std::ref(video),
-                       downscale_factor,
-                       std::ref(frame_queue));
+    std::thread thread(&SceneManager::_decode_thread, this, std::ref(video),
+                       downscale_factor, std::ref(frame_queue));
 
     while (true) {
         VideoFrame next_frame = frame_queue.get();        
