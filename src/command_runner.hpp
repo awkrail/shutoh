@@ -26,6 +26,4 @@ class CommandRunner {
         const std::vector<FrameTimeCodePair> scene_list_;
 };
 
-void cut_video_with_ffmpeg(const std::string& command);
-
 #endif

@@ -13,10 +13,10 @@
 
 ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, 
                                const int32_t num_images, const int32_t frame_margin, const std::string& format, 
-                               const int32_t quality, const float scale, const int32_t width, const int32_t height, 
-                               const ResizeMode resize) : output_dir_{output_dir}, output_filename_{output_filename},
-                               num_images_{num_images}, frame_margin_{frame_margin}, format_{format}, quality_{quality},
-                               scale_{scale}, width_{width}, height_{height}, resize_{resize} {
+                               const int32_t quality, const std::optional<int32_t> width, const std::optional<int32_t> height,
+                               const std::optional<float> scale) : output_dir_{output_dir}, output_filename_{output_filename},
+                               num_images_{num_images}, frame_margin_{frame_margin}, format_{format}, quality_{quality}, width_{width},
+                               height_{height}, scale_{scale} {
     if (format_ == "jpg")
         params_.push_back(cv::IMWRITE_JPEG_QUALITY);
     else if (format_ == "webp")
@@ -29,17 +29,18 @@ ImageExtractor::ImageExtractor(const std::filesystem::path& output_dir, const st
 WithError<void> ImageExtractor::save_images(VideoStream& video,
                                             const std::vector<FrameTimeCodePair>& scene_list) const {
     
+    ResizedSize resize = _get_size(video);
     std::vector<SceneFrameIndex> scene_frame_list = _get_selected_frame_ind_from_scenes(scene_list);
     
-    if (resize_ == ResizeMode::ORIGINAL) {
+    if (resize.resize_mode == ResizeMode::ORIGINAL) {
         auto resize_frame = [](cv::Mat& frame){}; /* dummy */
         return _save_scene_frames(video, scene_frame_list, resize_frame);
-    } else if (resize_ == ResizeMode::RESIZE_TARGET) {
-        cv::Size resized_size(width_, height_);
+    } else if (resize.resize_mode == ResizeMode::RESIZE_TARGET) {
+        cv::Size resized_size(resize.width, resize.height);
         auto resize_frame = [resized_size](cv::Mat& frame){ cv::resize(frame, frame, resized_size, 0, 0, cv::INTER_LINEAR); };
         return _save_scene_frames(video, scene_frame_list, resize_frame);
     } else {
-        const float scale = scale_;
+        const float scale = resize.scale;
         auto resize_frame = [scale](cv::Mat& frame) { cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_LINEAR); };
         return _save_scene_frames(video, scene_frame_list, resize_frame);
     }
@@ -146,4 +147,38 @@ std::vector<StartEndSplitIndex> ImageExtractor::_construct_splits(const FrameTim
     }
 
     return result;
+}
+
+ResizedSize ImageExtractor::_get_size(const VideoStream& video) const {
+    if (width_.has_value() && height_.has_value())
+        return ResizedSize { width_.value(), height_.value(), 1.0, ResizeMode::RESIZE_TARGET };
+
+    const int32_t original_width = video.width();
+    const int32_t original_height = video.height();    
+
+    if (width_.has_value() || height_.has_value()) {
+        auto [resized_width, resized_height] = _calculate_resized_size(original_width, original_height);
+        
+        if (!width_.has_value())
+            return ResizedSize { resized_width, height_.value(), 1.0, ResizeMode::RESIZE_TARGET };
+
+        if (!height_.has_value())
+            return ResizedSize { width_.value(), resized_height, 1.0, ResizeMode::RESIZE_TARGET };
+    }
+
+    if (scale_.has_value())
+        return ResizedSize { original_width, original_height, scale_.value(), ResizeMode::RESIZE_SCALE };
+
+    return ResizedSize { original_width, original_height, 1.0, ResizeMode::ORIGINAL };
+}
+
+std::pair<int32_t, int32_t> ImageExtractor::_calculate_resized_size(const int32_t original_width, const int32_t original_height) const {
+    if (width_.has_value()) {
+        float factor = static_cast<float>(width_.value()) / original_width;
+        return {width_.value(), static_cast<int32_t>(factor * original_height)};
+    } else if (height_.has_value()) {
+        float factor = static_cast<float>(height_.value()) / original_height;
+        return {static_cast<int32_t>(factor * original_width), height_.value()};
+    }
+    return { original_width, original_height };
 }

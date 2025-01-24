@@ -44,13 +44,13 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const int32_t quality = program.get<int32_t>("--quality");
     const int32_t frame_margin = program.get<int32_t>("--frame_margin");
     
-    const std::optional<float> opt_scale = program.present<float>("--scale");
-    const std::optional<int32_t> opt_height = program.present<int32_t>("--height");
-    const std::optional<int32_t> opt_width = program.present<int32_t>("--width");
+    const std::optional<float> scale = program.present<float>("--scale");
+    const std::optional<int32_t> height = program.present<int32_t>("--height");
+    const std::optional<int32_t> width = program.present<int32_t>("--width");
 
-    const std::optional<std::string> opt_start = program.present<std::string>("--start");
-    const std::optional<std::string> opt_end = program.present<std::string>("--end");
-    const std::optional<std::string> opt_duration = program.present<std::string>("--duration");
+    const std::optional<std::string> start = program.present<std::string>("--start");
+    const std::optional<std::string> end = program.present<std::string>("--end");
+    const std::optional<std::string> duration = program.present<std::string>("--duration");
 
     const float threshold = program.get<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
@@ -118,41 +118,6 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::NoSuchFile, error_msg) };
     }
 
-    cv::VideoCapture cap(input_path.string());
-    if (!cap.isOpened()) {
-        const std::string error_msg = "Failed to open the video: " + input_path.string();
-        return WithError<Config> { std::nullopt, Error(ErrorCode::FailedToOpenFile, error_msg) };
-    }
-
-    ResizedSize resized_size = _get_size(command, cap, opt_height, opt_width, opt_scale);
-
-    const int32_t height = resized_size.height;
-    if (height < 0 || height > 10000) {
-        std::string error_msg = "--height should be 0 < height < 10000";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
-
-    const int32_t width = resized_size.width;
-    if (width < 0 || width > 10000) {
-        std::string error_msg = "--width should be 0 < width < 10000";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
-
-    const float scale = resized_size.scale;
-    if (scale < 0 || scale > 10.0) {
-        std::string error_msg = "--scale should be 0 < scale < 10.0";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
-    ResizeMode resize = resized_size.resize;
-
-    /* If start/end/duration is set, start-end timecode is computed. */
-    WithError<StartEndTimeCode> start_end_timecode = _get_start_end_timecode(cap, opt_start, opt_end, opt_duration);
-    if (start_end_timecode.has_error()) {
-        return WithError<Config> { std::nullopt, start_end_timecode.error };
-    }
-    const FrameTimeCode start = start_end_timecode.value().start;
-    const FrameTimeCode end = start_end_timecode.value().end;
-
     const Config config = { .input_path = input_path,    .output_dir = output_dir,
                             .command = command,          .filename = filename,
                             .verbose = verbose,          .no_output_file = no_output_file,
@@ -161,100 +126,11 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
                             .num_images = num_images,    .format = format,
                             .quality = quality,          .frame_margin = frame_margin,
                             .scale = scale,              .height = height,
-                            .width = width,              .resize = resize,
-                            .start = start,              .end = end,          
+                            .width = width,              .start = start,
+                            .end = end,                  .duration = duration,
                             .threshold = threshold,      .min_scene_len = min_scene_len };
 
     return WithError<Config> { config, Error(ErrorCode::Success, "") };
-}
-
-WithError<StartEndTimeCode> _get_start_end_timecode(const cv::VideoCapture& cap,
-                                                    std::optional<std::string> opt_start,
-                                                    std::optional<std::string> opt_end,
-                                                    std::optional<std::string> opt_duration) {
-    const float framerate = cap.get(cv::CAP_PROP_FPS);    
-    const int32_t total_frame_num = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_COUNT));
-    FrameTimeCode start = frame_timecode::from_seconds(0, framerate).value();
-    FrameTimeCode end = frame_timecode::from_frame_nums(total_frame_num, framerate).value();
-
-    if (opt_start.has_value()) {
-        WithError<FrameTimeCode> start_err = frame_timecode::from_timecode_string(opt_start.value(), framerate);
-        if (start_err.has_error())
-            return WithError<StartEndTimeCode> { std::nullopt, start_err.error };
-
-        start = start_err.value();
-        if (start >= end) {
-            std::string error_msg = "--start is smaller than video length.";
-            return WithError<StartEndTimeCode> { std::nullopt, Error(ErrorCode::FailedToParseArgs, error_msg) };
-        }
-    }
-
-    if (opt_end.has_value()) {
-        WithError<FrameTimeCode> end_err = frame_timecode::from_timecode_string(opt_end.value(), framerate);
-        if (end_err.has_error())
-            return WithError<StartEndTimeCode> { std::nullopt, end_err.error };
-        
-        end = end_err.value() <= end ? end_err.value() : end;
-        return WithError<StartEndTimeCode> { StartEndTimeCode { start, end }, Error(ErrorCode::Success, "") };
-    } 
-    
-    if (opt_duration.has_value()) {
-        WithError<FrameTimeCode> duration_err = frame_timecode::from_timecode_string(opt_duration.value(), framerate);
-        if (duration_err.has_error())
-            return WithError<StartEndTimeCode> { std::nullopt, duration_err.error };
-
-        end = start + duration_err.value() <= end ? start + duration_err.value() : end;    
-        return WithError<StartEndTimeCode> { StartEndTimeCode { start, end }, Error(ErrorCode::Success, "") };
-    }
-    
-    /* If --end and --duration are not set, end is set to be the last frame. */
-    return WithError<StartEndTimeCode> { StartEndTimeCode { start, end }, Error(ErrorCode::Success, "") };
-}
-
-std::pair<int32_t, int32_t> _calculate_resized_size(const cv::VideoCapture& cap,
-                                                    std::optional<int32_t> width, 
-                                                    std::optional<int32_t> height) {
-    const int32_t original_width = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_WIDTH));
-    const int32_t original_height = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_HEIGHT));
-
-    if (width.has_value()) {
-        float factor = static_cast<float>(*width) / original_width;
-        return {static_cast<int32_t>(factor * original_height), *width};
-
-    } else if (height.has_value()) {
-        float factor = static_cast<float>(*height) / original_height;
-        return {*height, static_cast<int32_t>(factor * original_width)};
-    }
-    return { original_height, original_width };
-}
-
-ResizedSize _get_size(const std::string& command, const cv::VideoCapture& cap,
-                      const std::optional<int32_t> height, const std::optional<int32_t> width,
-                      const std::optional<float> scale) {
-    const int32_t original_width = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_WIDTH));
-    const int32_t original_height = static_cast<int32_t>(cap.get(cv::CAP_PROP_FRAME_HEIGHT));
-
-    if (command != "save-images")
-        return ResizedSize { original_height, original_width, 1.0, ResizeMode::ORIGINAL };
-    
-    if (width.has_value() && height.has_value())
-        return ResizedSize { height.value(), width.value(), 1.0, ResizeMode::RESIZE_TARGET };
-
-    if (width.has_value() || height.has_value()) {
-        auto [resized_height, resized_width] = _calculate_resized_size(cap, width, height);
-
-        if (!width.has_value())
-            return ResizedSize { height.value(), resized_width, 1.0, ResizeMode::RESIZE_TARGET };
-        
-        if (!height.has_value())
-            return ResizedSize { resized_height, width.value(), 1.0, ResizeMode::RESIZE_TARGET };
-    }
-
-    if (scale.has_value()) {
-        return ResizedSize { original_height, original_width, scale.value(), ResizeMode::RESIZE_SCALE };
-    }
-    
-    return ResizedSize { original_height, original_width, 1.0, ResizeMode::ORIGINAL };
 }
 
 WithError<Config> parse_args(int argc, char *argv[]) {

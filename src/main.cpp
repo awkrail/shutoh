@@ -17,12 +17,17 @@ int main(int argc, char *argv[]) {
     }
     Config cfg = opt_cfg.value();
 
-    WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(cfg.input_path, cfg.start, cfg.end);
+    WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(cfg.input_path);
     if (opt_video.has_error()) {
         opt_video.error.show_error_msg();
         return 1;
     }
-    VideoStream video = opt_video.value();
+    VideoStream video = opt_video.value();    
+    WithError<void> settime_err = video.set_time(cfg.start, cfg.end, cfg.duration);
+    if (settime_err.has_error()) {
+        settime_err.error.show_error_msg();
+        return 1;
+    }
 
     ContentDetector detector = ContentDetector(cfg.threshold, cfg.min_scene_len);
     SceneManager scene_manager = SceneManager(detector);

@@ -110,9 +110,9 @@ WithError<TimeStamp> FrameTimeCode::_parse_hrs_mins_secs_to_second(const std::st
     if (second.has_error())
         return WithError<TimeStamp> { std::nullopt, second.error };
 
-    return WithError<TimeStamp> { TimeStamp(static_cast<int32_t>(hour.value()),
-                                            static_cast<int32_t>(minute.value()), 
-                                            static_cast<float>(second.value())), Error(ErrorCode::Success, "") };
+    return WithError<TimeStamp> { TimeStamp(hour.value(),
+                                            minute.value(), 
+                                            second.value()), Error(ErrorCode::Success, "") };
 }
 
 bool FrameTimeCode::operator==(const FrameTimeCode& other) const {

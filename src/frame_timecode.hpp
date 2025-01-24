@@ -88,7 +88,6 @@ class FrameTimeCode {
 
     private:
         WithError<TimeStamp> _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
-
         float framerate_;
         int32_t frame_num_;
 };

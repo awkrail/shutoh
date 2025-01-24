@@ -23,11 +23,24 @@ struct SceneFrameIndex {
     const int32_t frame_ind_in_video; /* frame index in the video (absolute) */
 };
 
+enum class ResizeMode {
+    ORIGINAL,
+    RESIZE_TARGET,
+    RESIZE_SCALE,
+};
+
+struct ResizedSize {
+    const int32_t width;
+    const int32_t height;
+    const float scale;
+    const ResizeMode resize_mode;
+};
+
 class ImageExtractor {
     public:
         ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, const int32_t num_images, 
-                       const int32_t frame_margin, const std::string& format, const int32_t quality, const float scale, 
-                       const int32_t width, const int32_t height, const ResizeMode resize);
+                       const int32_t frame_margin, const std::string& format, const int32_t quality, const std::optional<int32_t> width,
+                       const std::optional<int32_t> height, const std::optional<float> scale);
         
         WithError<void> save_images(VideoStream& video, const std::vector<FrameTimeCodePair>& scene_list) const;
 
@@ -44,16 +57,18 @@ class ImageExtractor {
         std::vector<StartEndSplitIndex> _construct_splits(const FrameTimeCode& start,
                                                           const FrameTimeCode& end) const;
 
+        ResizedSize _get_size(const VideoStream& video) const;
+        std::pair<int32_t, int32_t> _calculate_resized_size(const int32_t original_width, const int32_t original_height) const;
+
         const std::filesystem::path output_dir_;
         const std::string output_filename_;
         const int32_t num_images_;
         const int32_t frame_margin_;
         std::string format_;
         const int32_t quality_;
-        float scale_;
-        int32_t width_;
-        int32_t height_;
-        ResizeMode resize_;
+        std::optional<int32_t> width_;
+        std::optional<int32_t> height_;
+        std::optional<float> scale_;
         std::vector<int32_t> params_;
 };
 
