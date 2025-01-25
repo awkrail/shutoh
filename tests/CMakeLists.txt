@@ -22,10 +22,11 @@ FetchContent_MakeAvailable(fmt)
 
 file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
+file(GLOB TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
 
 find_package(OpenCV REQUIRED)
 
-add_executable(tests ${SOURCES})
+add_executable(tests ${SOURCES} ${TEST_SOURCES})
 
 target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/src)

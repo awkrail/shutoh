@@ -12,8 +12,8 @@ class Hour {
     public:
         Hour(const int32_t hour) : hour_{hour} {}
         static WithError<Hour> create_hour(const int32_t hour) {
-            if (hour < 0 || hour >= HOUR_MAX) {
-                const std::string error_msg = "Hour should be 0 < x < 10, but got " + std::to_string(hour);
+            if (hour < 0 || hour > HOUR_MAX) {
+                const std::string error_msg = "Hour should be 0 < x <= 10, but got " + std::to_string(hour);
                 return WithError<Hour> { std::nullopt, Error(ErrorCode::TimeOutOfRange, error_msg) };
             }
             return WithError<Hour> { Hour(hour), Error(ErrorCode::Success, "") };
