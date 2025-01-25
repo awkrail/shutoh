@@ -25,7 +25,7 @@ TEST_CASE("FrameTime initialization - from_timecode_string", "[Frametime init]")
     REQUIRE(frame_timecode::from_timecode_string("10:59:59", 1.0).value().get_frame_num() == 39599);
     REQUIRE(frame_timecode::from_timecode_string("10:59:59.999", 1.0).value().get_frame_num() == 39600);
 
-    REQUIRE(frame_timecode::from_timecode_string("01:30:05", 60.0).value().get_frame_num()  == 324300); // 1 * 3600 + 30 * 60 + 5 = 5405
+    REQUIRE(frame_timecode::from_timecode_string("01:30:05", 60.0).value().get_frame_num()  == 324300); // 60x
     REQUIRE(frame_timecode::from_timecode_string("01:30:05.999", 60.0).value().get_frame_num()  == 324360);
     REQUIRE(frame_timecode::from_timecode_string("00:00:00", 60.0).value().get_frame_num() == 0);
     REQUIRE(frame_timecode::from_timecode_string("10:59:59", 60.0).value().get_frame_num() == 2375940);
