@@ -1,7 +1,7 @@
 #ifndef SCENE_MANAGER_H
 #define SCENE_MANAGER_H
 
-#include "content_detector.hpp"
+#include "detector/base_detector.hpp"
 #include "video_frame.hpp"
 #include "frame_timecode.hpp"
 #include "frame_timecode_pair.hpp"
@@ -10,6 +10,7 @@
 #include <vector>
 #include <cstdint>
 #include <optional>
+#include <memory>
 
 class VideoStream;
 template <typename T> class BlockingQueue;
@@ -17,7 +18,7 @@ template <typename T> struct WithError;
 
 class SceneManager {
     public:
-        SceneManager(ContentDetector& detector);
+        SceneManager(std::unique_ptr<BaseDetector> detector);
         void detect_scenes(VideoStream& video);
         WithError<std::vector<FrameTimeCodePair>> get_scene_list() const;
 
@@ -30,7 +31,7 @@ class SceneManager {
 
         cv::Mat previous_frame_;
         std::vector<int32_t> cutting_list_;
-        ContentDetector detector_;
+        std::unique_ptr<BaseDetector> detector_;
         float framerate_ = 0.0f;
         std::optional<FrameTimeCode> start_ = std::nullopt;
         std::optional<FrameTimeCode> end_ = std::nullopt;

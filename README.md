@@ -7,6 +7,8 @@ Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shut
 
 **Note:** This project is work in progress and the current codebase may be changed signficantly.
 
+## Installation (WIP)
+
 ## Build
 Install dependency libraries: FFmpeg and openCV. If you are an Ubuntu user, run:
 ```
@@ -17,7 +19,7 @@ Then, build `shutoh` with `cmake` as:
 cmake -S . -B build
 cmake --build build
 ```
-For develoers, run test using `ctest` as:
+Run test using `ctest` as:
 ```
 cd build
 ctest
@@ -33,9 +35,6 @@ Save scenes as csv file:
 ```
 ./build/shutoh -i video/input.mp4 -c list-scenes
 ```
-
-## Limitations
-- Currently, Shutoh supports videos up to **10 hours** at **120 fps**.
 
 ## Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

@@ -9,7 +9,7 @@
 constexpr int32_t DEFAULT_MIN_WIDTH = 256;
 constexpr int32_t MAX_FRAME_QUEUE_LENGTH = 100;
 
-SceneManager::SceneManager(ContentDetector& detector) : detector_{detector} {}
+SceneManager::SceneManager(std::unique_ptr<BaseDetector> detector) : detector_{std::move(detector)} {}
 
 void SceneManager::detect_scenes(VideoStream& video) {
     start_ = video.get_start();
@@ -73,7 +73,7 @@ std::vector<FrameTimeCode> SceneManager::_get_cutting_list() const {
 }
 
 void SceneManager::_process_frame(VideoFrame& next_frame) {
-    std::optional<int32_t> cuts = detector_.process_frame(next_frame);
+    std::optional<int32_t> cuts = detector_->process_frame(next_frame);
     if (cuts.has_value())
         cutting_list_.push_back(cuts.value());
 }

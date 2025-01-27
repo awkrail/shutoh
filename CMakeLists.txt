@@ -21,7 +21,7 @@ FetchContent_MakeAvailable(fmt)
 
 find_package(OpenCV REQUIRED)
 
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
+file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/detector/*.cpp")
 
 add_executable(shutoh ${SOURCES})
 

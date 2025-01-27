@@ -2,12 +2,9 @@
 #include "video_stream.hpp"
 #include "frame_timecode.hpp"
 #include "scene_manager.hpp"
-#include "content_detector.hpp"
+#include "detector/content_detector.hpp"
 #include "command_runner.hpp"
 #include "config.hpp"
-
-#include <iostream>
-#include <filesystem>
 
 int main(int argc, char *argv[]) {
     const WithError<Config> opt_cfg = parse_args(argc, argv);
@@ -29,8 +26,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    ContentDetector detector = ContentDetector(cfg.threshold, cfg.min_scene_len);
-    SceneManager scene_manager = SceneManager(detector);
+    auto detector = std::make_unique<ContentDetector>();
+    SceneManager scene_manager = SceneManager(std::move(detector));
     scene_manager.detect_scenes(video);
     WithError<std::vector<FrameTimeCodePair>> opt_scene_list = scene_manager.get_scene_list();
     if (opt_scene_list.has_error()) {

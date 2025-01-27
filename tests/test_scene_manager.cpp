@@ -2,15 +2,13 @@
 #include "video_stream.hpp"
 #include "scene_manager.hpp"
 #include "frame_timecode_pair.hpp"
+#include "detector/content_detector.hpp"
 
 TEST_CASE("SceneManager - content detector", "[SceneManager scene_detect]") {
     const std::string input_path = "../../video/input.mp4";
     VideoStream video = VideoStream::initialize_video_stream(input_path).value();
-
-    const float threshold = 27.0;
-    const int32_t min_scene_len = 15;
-    ContentDetector detector = ContentDetector(threshold, min_scene_len);
-    SceneManager scene_manager = SceneManager(detector);
+    auto detector = std::make_unique<ContentDetector>();
+    SceneManager scene_manager = SceneManager(std::move(detector));
     scene_manager.detect_scenes(video);
     std::vector<FrameTimeCodePair> scene_list = scene_manager.get_scene_list().value();
     
