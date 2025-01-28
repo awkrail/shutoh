@@ -24,6 +24,22 @@ std::string _interpret_filename(const std::filesystem::path& input_path,
     }
 }
 
+DetectorType _convert_name_to_type(const std::string& detector_name) {
+    const std::unordered_map<std::string, DetectorType> detector_map = {
+        {"adaptive", DetectorType::ADAPTIVE},
+        {"hash", DetectorType::HASH},
+        {"content", DetectorType::CONTENT},
+        {"histogram", DetectorType::HISTOGRAM},
+        {"threshold", DetectorType::THRESHOLD},
+    };
+
+    auto it = detector_map.find(detector_name);
+    if (it != detector_map.end())
+        return it->second;
+    else
+        return DetectorType::OTHER;
+}
+
 WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::filesystem::path input_path(program.get<std::string>("--input"));
     const std::filesystem::path output_dir(program.get<std::string>("--output"));
@@ -52,8 +68,10 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::optional<std::string> end = program.present<std::string>("--end");
     const std::optional<std::string> duration = program.present<std::string>("--duration");
 
+    const std::string detector_name = program.get<std::string>("--detector");
     const float threshold = program.get<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
+
 
     /* validate arguments */
     if (!(command == "list-scenes" || command == "split-video" || command == "save-images")) {
@@ -102,6 +120,12 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
+    const DetectorType detector_type = _convert_name_to_type(detector_name);
+    if (detector_type == DetectorType::OTHER) {
+        std::string error_msg = "Unsupported --detector type. Choose one from [adaptive, content, hash, histogram, threshold].";
+        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
+    }
+
     if (threshold < 0.0) {
         std::string error_msg = "--threshold should be positive.";
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
@@ -118,17 +142,18 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::NoSuchFile, error_msg) };
     }
 
-    const Config config = { .input_path = input_path,    .output_dir = output_dir,
-                            .command = command,          .filename = filename,
-                            .verbose = verbose,          .no_output_file = no_output_file,
-                            .copy = copy,                .crf = crf,
-                            .preset = preset,            .ffmpeg_args = ffmpeg_args,
-                            .num_images = num_images,    .format = format,
-                            .quality = quality,          .frame_margin = frame_margin,
-                            .scale = scale,              .height = height,
-                            .width = width,              .start = start,
-                            .end = end,                  .duration = duration,
-                            .threshold = threshold,      .min_scene_len = min_scene_len };
+    const Config config = { .input_path = input_path,       .output_dir = output_dir,
+                            .command = command,             .filename = filename,
+                            .verbose = verbose,             .no_output_file = no_output_file,
+                            .copy = copy,                   .crf = crf,
+                            .preset = preset,               .ffmpeg_args = ffmpeg_args,
+                            .num_images = num_images,       .format = format,
+                            .quality = quality,             .frame_margin = frame_margin,
+                            .scale = scale,                 .height = height,
+                            .width = width,                 .start = start,
+                            .end = end,                     .duration = duration,
+                            .detector_type = detector_type, .threshold = threshold,      
+                            .min_scene_len = min_scene_len };
 
     return WithError<Config> { config, Error(ErrorCode::Success, "") };
 }
@@ -241,6 +266,10 @@ WithError<Config> parse_args(int argc, char *argv[]) {
         .help("Maximum time in video to process. Default value represents the whole video length. Ignored if --end is set.");
     
     /* TODO: detector parameters */
+    program.add_argument("--detector")
+        .default_value(std::string("content"))
+        .help("Detector type. Choose from [adaptive, content, hash, histogram, threshold].");
+
     program.add_argument("--threshold")
         .default_value(27.0f)
         .scan<'g', float>()

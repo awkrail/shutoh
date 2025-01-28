@@ -11,9 +11,14 @@
 class VideoStream;
 template <typename T> struct WithError;
 
-struct StartEndTimeCode {
-    const FrameTimeCode start;
-    const FrameTimeCode end; 
+enum class DetectorType {
+    CONTENT,
+    HASH,
+    /* TODO: to be implemented soon */
+    ADAPTIVE,
+    HISTOGRAM,
+    THRESHOLD,
+    OTHER,
 };
 
 struct Config {
@@ -54,12 +59,14 @@ struct Config {
     const std::optional<std::string> duration;
 
     /* detector parameters */
+    DetectorType detector_type;
     const float threshold;
     const int32_t min_scene_len;
 };
 
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program);
+DetectorType _convert_name_to_type(const std::string& detector_name);
 WithError<Config> _construct_config(argparse::ArgumentParser& program);
 WithError<Config> parse_args(int argc, char *argv[]);
 

@@ -3,8 +3,20 @@
 #include "frame_timecode.hpp"
 #include "scene_manager.hpp"
 #include "detector/content_detector.hpp"
+#include "detector/hash_detector.hpp"
 #include "command_runner.hpp"
 #include "config.hpp"
+
+std::unique_ptr<BaseDetector> _select_detector(DetectorType detector_type) {
+    switch (detector_type) {
+        case DetectorType::CONTENT:
+            return std::make_unique<ContentDetector>();
+        case DetectorType::HASH:
+            return std::make_unique<HashDetector>();
+        default: /* TODO: to be implemented */
+            return std::make_unique<ContentDetector>();
+    }
+}
 
 int main(int argc, char *argv[]) {
     const WithError<Config> opt_cfg = parse_args(argc, argv);
@@ -26,7 +38,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    auto detector = std::make_unique<ContentDetector>();
+    auto detector = _select_detector(cfg.detector_type);
     SceneManager scene_manager = SceneManager(std::move(detector));
     scene_manager.detect_scenes(video);
     WithError<std::vector<FrameTimeCodePair>> opt_scene_list = scene_manager.get_scene_list();
