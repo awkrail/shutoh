@@ -63,10 +63,8 @@ void HashDetector::_hash_frame(const cv::Mat& frame, cv::Mat& hash) {
     dct_sliced.copyTo(dct_complete);
     const float median = _calculate_median_in_DCT(dct_complete);
 
-    /* Calculate hash */
+    /* Calculate hash: note that the hash does not return 0/1 but 0/255, yet ok for countNonZero function */
     hash = (dct_complete > median);
-    // hash.convertTo(hash, CV_8U, 1.0);
-    // cv::threshold(dct_complete, hash, median, 1, cv::THRESH_BINARY);
 }
 
 int32_t HashDetector::_calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last) {
