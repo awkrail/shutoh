@@ -2,11 +2,16 @@
 #define CONFIG_H
 
 #include "frame_timecode.hpp"
+#include "detector/base_detector.hpp"
+#include "detector/content_detector.hpp"
+#include "detector/hash_detector.hpp"
+#include "detector/histogram_detector.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <filesystem>
 #include <optional>
 #include <argparse/argparse.hpp>
+#include <memory>
 
 class VideoStream;
 template <typename T> struct WithError;
@@ -14,9 +19,9 @@ template <typename T> struct WithError;
 enum class DetectorType {
     CONTENT,
     HASH,
+    HISTOGRAM,
     /* TODO: to be implemented soon */
     ADAPTIVE,
-    HISTOGRAM,
     THRESHOLD,
     OTHER,
 };
@@ -64,6 +69,7 @@ struct Config {
     const int32_t min_scene_len;
 };
 
+std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type);
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program);
 DetectorType _convert_name_to_type(const std::string& detector_name);

@@ -6,17 +6,6 @@
 #include "detector/hash_detector.hpp"
 #include "config.hpp"
 
-std::unique_ptr<BaseDetector> _select_detector(DetectorType detector_type) {
-    switch (detector_type) {
-        case DetectorType::CONTENT:
-            return std::make_unique<ContentDetector>();
-        case DetectorType::HASH:
-            return std::make_unique<HashDetector>();
-        default: /* TODO: to be implemented */
-            return std::make_unique<ContentDetector>();
-    }
-}
-
 std::vector<FrameTimeCodePair> _get_scenes(DetectorType detector_type) {
     const std::string input_path = "../../video/input.mp4";
     VideoStream video = VideoStream::initialize_video_stream(input_path).value();
@@ -55,5 +44,17 @@ TEST_CASE("SceneManager - hash detector", "[SceneManager scene_detect]") {
         0, 64, 127, 143, 194, 254, 314, 419, 712, 809, 880, 965, 1125, 1211,
         1250, 1330, 1391, 1449, 1529, 1611, 1704, 1804, 2000, 2207, 2541, 2872,
         2913, 2992, 3072, 3151, 3212, 3271, 3352, 3453, 3618, 4122, 4257 };
+    test_frame_index(scene_list, expected_inds);
+}
+
+TEST_CASE("SceneManager - hist detector", "[SceneManager scene_detect]") {
+    const DetectorType detector_type = DetectorType::HISTOGRAM;
+    std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
+    /* content detector's frame indices */
+    std::vector<int32_t> expected_inds {
+        0, 64, 124, 143, 194, 254, 297, 377, 409, 628, 712, 809, 880, 965,
+        1125, 1211, 1250, 1330, 1391, 1449, 1529, 1611, 1704, 1804, 2000, 2207,
+        2354, 2541, 2872, 2913, 2992, 3072, 3151, 3212, 3271, 3352, 3453, 3618,
+        4213, 4257, 4316, 4397 };
     test_frame_index(scene_list, expected_inds);
 }

@@ -4,6 +4,20 @@
 
 #include <regex>
 
+
+std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type) {
+    switch (detector_type) {
+        case DetectorType::CONTENT:
+            return std::make_unique<ContentDetector>();
+        case DetectorType::HASH:
+            return std::make_unique<HashDetector>();
+        case DetectorType::HISTOGRAM:
+            return std::make_unique<HistogramDetector>();
+        default: /* TODO: to be implemented */
+            return std::make_unique<ContentDetector>();
+    }
+}
+
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program) {
     const std::string command = program.get<std::string>("--command");

@@ -73,6 +73,10 @@ int32_t HashDetector::_calculate_hamming_distance(const cv::Mat& curr, const cv:
 }
 
 float HashDetector::_calculate_median_in_DCT(const cv::Mat& dct) {
+    /* WATCH: median calculation is based on numpy, where it is computed based on two center elements
+       if the number of elements in array is even. This implementation assumes that the size of DCT matrix is even.
+       If the users want to use HashDetector with odd size DCT matrix, I will fix it in the future.
+     */
     std::vector<float> dct_values;
     dct.reshape(1, 1).copyTo(dct_values);
     

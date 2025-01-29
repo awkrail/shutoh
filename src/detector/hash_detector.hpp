@@ -29,7 +29,6 @@ class HashDetector : public BaseDetector {
         std::optional<int32_t> last_scene_cut_ = std::nullopt;
         std::optional<cv::Mat> last_frame_ = std::nullopt;
         std::optional<cv::Mat> last_hash_ = std::nullopt;
-
 };
 
 #endif
