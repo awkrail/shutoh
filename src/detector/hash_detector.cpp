@@ -43,17 +43,17 @@ void HashDetector::_hash_frame(const cv::Mat& frame, cv::Mat& hash) {
     cv::cvtColor(frame, gray_img, cv::COLOR_BGR2GRAY);
 
     /* Resize image to square to apply DCT */
-    cv::resize(gray_img, gray_img, imsize_, cv::INTER_AREA);
+    cv::resize(gray_img, gray_img, imsize_, 0, 0, cv::INTER_AREA);
 
     /* Check to avoid dividing by zero */
     double max_val;
     cv::minMaxLoc(gray_img, nullptr, &max_val, nullptr, nullptr);
-    if (max_val == 0)
+    if (max_val == 0.0)
         max_val = 1.0;
 
     /* Calculate discrete cosine transformation of the image */
-    gray_img = gray_img / static_cast<float>(max_val);
     gray_img.convertTo(gray_img, CV_32F);
+    gray_img = gray_img / max_val;
     cv::Mat dct_complete;
     cv::dct(gray_img, dct_complete);
 
@@ -61,18 +61,29 @@ void HashDetector::_hash_frame(const cv::Mat& frame, cv::Mat& hash) {
     cv::Mat dct_sliced;
     dct_sliced = dct_complete(cv::Range(0, size_), cv::Range(0, size_));
     dct_sliced.copyTo(dct_complete);
-    std::vector<float> dct_values;
-    dct_complete.reshape(1, 1).copyTo(dct_values);
-    const size_t median_ind = dct_values.size() / 2;
-    std::nth_element(dct_values.begin(), dct_values.begin() + median_ind, dct_values.end());
-    const float median = dct_values[median_ind];
+    const float median = _calculate_median_in_DCT(dct_complete);
 
     /* Calculate hash */
     hash = (dct_complete > median);
-    hash.convertTo(hash, CV_8U);
+    // hash.convertTo(hash, CV_8U, 1.0);
+    // cv::threshold(dct_complete, hash, median, 1, cv::THRESH_BINARY);
 }
 
 int32_t HashDetector::_calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last) {
     cv::Mat diff = (curr != last);
     return cv::countNonZero(diff);
+}
+
+float HashDetector::_calculate_median_in_DCT(const cv::Mat& dct) {
+    std::vector<float> dct_values;
+    dct.reshape(1, 1).copyTo(dct_values);
+    
+    const size_t median_ind = dct_values.size() / 2;
+    std::nth_element(dct_values.begin(), dct_values.begin() + median_ind, dct_values.end());
+    const float median_high = dct_values[median_ind];
+    std::nth_element(dct_values.begin(), dct_values.begin() + median_ind - 1, dct_values.end());
+    const float median_low = dct_values[median_ind-1];
+    const float median = (median_high + median_low) / 2.0f;
+    
+    return median;
 }

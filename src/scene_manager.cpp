@@ -5,6 +5,7 @@
 #include "error.hpp"
 
 #include <thread>
+#include <algorithm>
 
 constexpr int32_t DEFAULT_MIN_WIDTH = 256;
 constexpr int32_t MAX_FRAME_QUEUE_LENGTH = 100;
@@ -20,12 +21,12 @@ void SceneManager::detect_scenes(VideoStream& video) {
     video.seek(start_frame_num);
 
     BlockingQueue<VideoFrame> frame_queue(MAX_FRAME_QUEUE_LENGTH);
-    const int32_t downscale_factor = compute_downscale_factor(video.width());
+    const float downscale_factor = compute_downscale_factor(video.width());
     std::thread thread(&SceneManager::_decode_thread, this, std::ref(video),
                        downscale_factor, std::ref(frame_queue));
 
     while (true) {
-        VideoFrame next_frame = frame_queue.get();        
+        VideoFrame next_frame = frame_queue.get();
         _process_frame(next_frame);
 
         if (next_frame.is_end_frame)
@@ -79,13 +80,13 @@ void SceneManager::_process_frame(VideoFrame& next_frame) {
 }
 
 void SceneManager::_decode_thread(VideoStream& video,
-                                  int32_t downscale_factor, 
+                                  const float downscale_factor, 
                                   BlockingQueue<VideoFrame>& frame_queue) {
     int32_t new_width = video.width();
     int32_t new_height = video.height();
     if (downscale_factor > 1) {
-        new_width = round(new_width / downscale_factor);
-        new_height = round(new_height / downscale_factor);
+        new_width = std::max(1.0f, std::round(new_width / downscale_factor));
+        new_height = std::max(1.0f, std::round(new_height / downscale_factor));
     }
     cv::Size new_size(new_width, new_height);
     
@@ -106,9 +107,9 @@ void SceneManager::_decode_thread(VideoStream& video,
     }
 }
 
-int32_t compute_downscale_factor(const int32_t frame_width) {
+float compute_downscale_factor(const int32_t frame_width) {
     if (frame_width < DEFAULT_MIN_WIDTH)
-        return 1;
+        return 1.0f;
 
-    return static_cast<int32_t>(frame_width / DEFAULT_MIN_WIDTH);
+    return static_cast<float>(frame_width) / DEFAULT_MIN_WIDTH;
 }

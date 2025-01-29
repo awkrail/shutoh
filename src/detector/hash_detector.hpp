@@ -18,6 +18,7 @@ class HashDetector : public BaseDetector {
     private:
         void _hash_frame(const cv::Mat& frame, cv::Mat& hash);
         int32_t _calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last);
+        float _calculate_median_in_DCT(const cv::Mat& dct);
 
         const float threshold_;
         const int32_t min_scene_len_;
