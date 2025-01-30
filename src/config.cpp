@@ -1,9 +1,9 @@
 #include "config.hpp"
 #include "error.hpp"
 #include "video_stream.hpp"
+#include "frame_timecode.hpp"
 
 #include <regex>
-
 
 std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type) {
     switch (detector_type) {
@@ -85,7 +85,6 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::string detector_name = program.get<std::string>("--detector");
     const float threshold = program.get<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
-
 
     /* validate arguments */
     if (!(command == "list-scenes" || command == "split-video" || command == "save-images")) {

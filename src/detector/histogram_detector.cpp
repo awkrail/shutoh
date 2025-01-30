@@ -1,8 +1,8 @@
 #include "histogram_detector.hpp"
 #include "../video_frame.hpp"
 
-HistogramDetector::HistogramDetector(const float threshold, const int32_t min_scene_len,
-                                     const int32_t bins) : threshold_{std::max(0.0f, std::min(1.0f, 1.0f - threshold))}, min_scene_len_{min_scene_len}, bins_{bins} {}
+HistogramDetector::HistogramDetector(const float threshold, const int32_t min_scene_len, const int32_t bins) 
+    : threshold_{std::max(0.0f, std::min(1.0f, 1.0f - threshold))}, min_scene_len_{min_scene_len}, bins_{bins} {}
 
 std::optional<int32_t> HistogramDetector::process_frame(VideoFrame& next_frame) {
     std::optional<int32_t> cut = std::nullopt;

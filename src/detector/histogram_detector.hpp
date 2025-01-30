@@ -22,7 +22,6 @@ class HistogramDetector : public BaseDetector {
         const int32_t min_scene_len_;
         const int32_t bins_;
         std::optional<int32_t> last_scene_cut_ = std::nullopt;
-        std::optional<cv::Mat> last_frame_ = std::nullopt;
         std::optional<cv::Mat> last_hist_ = std::nullopt;
 };
 

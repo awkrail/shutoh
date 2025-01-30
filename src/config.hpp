@@ -66,7 +66,7 @@ struct Config {
     /* detector parameters */
     DetectorType detector_type;
     const float threshold;
-    const int32_t min_scene_len;
+    const std::optional<int32_t> min_scene_len;
 };
 
 std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type);
