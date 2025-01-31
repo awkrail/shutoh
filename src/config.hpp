@@ -6,6 +6,7 @@
 #include "detector/content_detector.hpp"
 #include "detector/hash_detector.hpp"
 #include "detector/histogram_detector.hpp"
+#include "detector/threshold_detector.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <filesystem>

@@ -13,6 +13,8 @@ std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type)
             return std::make_unique<HashDetector>();
         case DetectorType::HISTOGRAM:
             return std::make_unique<HistogramDetector>();
+        case DetectorType::THRESHOLD:
+            return std::make_unique<ThresholdDetector>();
         default: /* TODO: to be implemented */
             return std::make_unique<ContentDetector>();
     }

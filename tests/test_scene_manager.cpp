@@ -58,3 +58,13 @@ TEST_CASE("SceneManager - hist detector", "[SceneManager scene_detect]") {
         4122, 4257, 4316, 4397 };
     test_frame_index(scene_list, expected_inds);
 }
+
+TEST_CASE("SceneManager - threshold detector", "[SceneManager scene_detect]") {
+    const DetectorType detector_type = DetectorType::THRESHOLD;
+    std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
+    /* content detector's frame indices */
+    std::vector<int32_t> expected_inds {
+        0, 467, 583, 621, 667, 887, 1063, 1089, 1230, 1378, 1489, 1597, 1754,
+        1919, 2073, 2652, 3241, 3710, 3892, 3913, 4019, 4113 };
+    test_frame_index(scene_list, expected_inds);
+}

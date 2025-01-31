@@ -5,7 +5,7 @@ HashDetector::HashDetector(const float threshold, const int32_t min_scene_len,
                            const int32_t size, const int32_t lowpass) : threshold_{threshold}, min_scene_len_{min_scene_len}, 
                            size_{size}, size_sq_{size * size}, factor_{lowpass}, imsize_{cv::Size(size * lowpass, size * lowpass)} {}
 
-std::optional<int32_t> HashDetector::process_frame(VideoFrame& next_frame) {
+std::optional<int32_t> HashDetector::process_frame(const VideoFrame& next_frame) {
     std::optional<int32_t> cut = std::nullopt;
     const int32_t frame_num = next_frame.frame_num;
 
@@ -37,7 +37,7 @@ std::optional<int32_t> HashDetector::process_frame(VideoFrame& next_frame) {
     return cut;
 }
 
-void HashDetector::_hash_frame(const cv::Mat& frame, cv::Mat& hash) {
+void HashDetector::_hash_frame(const cv::Mat& frame, cv::Mat& hash) const {
     /* Convert frames to grayscale */
     cv::Mat gray_img;
     cv::cvtColor(frame, gray_img, cv::COLOR_BGR2GRAY);
@@ -67,12 +67,12 @@ void HashDetector::_hash_frame(const cv::Mat& frame, cv::Mat& hash) {
     hash = (dct_complete > median);
 }
 
-int32_t HashDetector::_calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last) {
+int32_t HashDetector::_calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last) const {
     cv::Mat diff = (curr != last);
     return cv::countNonZero(diff);
 }
 
-float HashDetector::_calculate_median_in_DCT(const cv::Mat& dct) {
+float HashDetector::_calculate_median_in_DCT(const cv::Mat& dct) const {
     /* WATCH: median calculation is based on numpy, where it is computed based on two center elements
        if the number of elements in array is even. This implementation assumes that the size of DCT matrix is even.
        If the users want to use HashDetector with odd size DCT matrix, I will fix it in the future.

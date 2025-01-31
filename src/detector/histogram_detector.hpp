@@ -13,10 +13,10 @@ class HistogramDetector : public BaseDetector {
     public:
         HistogramDetector(const float threshold = 0.05, const int32_t min_scene_len = 15,
                           const int32_t bins = 256);
-        std::optional<int32_t> process_frame(VideoFrame& next_frame) override;
+        std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
     
     private:
-        void _calculate_histogram(const cv::Mat& frame, cv::Mat& hist);
+        void _calculate_histogram(const cv::Mat& frame, cv::Mat& hist) const;
 
         const float threshold_;
         const int32_t min_scene_len_;

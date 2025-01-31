@@ -4,7 +4,7 @@
 HistogramDetector::HistogramDetector(const float threshold, const int32_t min_scene_len, const int32_t bins) 
     : threshold_{std::max(0.0f, std::min(1.0f, 1.0f - threshold))}, min_scene_len_{min_scene_len}, bins_{bins} {}
 
-std::optional<int32_t> HistogramDetector::process_frame(VideoFrame& next_frame) {
+std::optional<int32_t> HistogramDetector::process_frame(const VideoFrame& next_frame) {
     std::optional<int32_t> cut = std::nullopt;
     const int32_t frame_num = next_frame.frame_num;
 
@@ -27,7 +27,7 @@ std::optional<int32_t> HistogramDetector::process_frame(VideoFrame& next_frame) 
     return cut;
 }
 
-void HistogramDetector::_calculate_histogram(const cv::Mat& frame, cv::Mat& hist) {
+void HistogramDetector::_calculate_histogram(const cv::Mat& frame, cv::Mat& hist) const {
     cv::Mat yuv;
     cv::cvtColor(frame, yuv, cv::COLOR_BGR2YUV);
 

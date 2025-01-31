@@ -13,12 +13,12 @@ class HashDetector : public BaseDetector {
     public:
         HashDetector(const float threshold = 0.395, const int32_t min_scene_len = 15,
                      const int32_t size = 16, const int32_t lowpass = 2);
-        std::optional<int32_t> process_frame(VideoFrame& next_frame) override;
+        std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
 
     private:
-        void _hash_frame(const cv::Mat& frame, cv::Mat& hash);
-        int32_t _calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last);
-        float _calculate_median_in_DCT(const cv::Mat& dct);
+        void _hash_frame(const cv::Mat& frame, cv::Mat& hash) const;
+        int32_t _calculate_hamming_distance(const cv::Mat& curr, const cv::Mat& last) const;
+        float _calculate_median_in_DCT(const cv::Mat& dct) const;
 
         const float threshold_;
         const int32_t min_scene_len_;
