@@ -14,6 +14,7 @@ class ContentDetector : public BaseDetector {
     public:
         ContentDetector(const float threshold = 27.0, const int32_t min_scene_len = 15);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
+        std::optional<float> get_frame_score() const { return frame_score_; }
 
     private:
         float _calculate_frame_score(const VideoFrame& next_frame);
@@ -22,6 +23,7 @@ class ContentDetector : public BaseDetector {
         const float threshold_;
         const int32_t min_scene_len_;
         const FilterMode filter_mode_ = FilterMode::MERGE;
+        std::optional<float> frame_score_ = std::nullopt;
         std::optional<cv::Mat> last_frame_ = std::nullopt;
         FlashFilter flash_filter_ = FlashFilter(filter_mode_, min_scene_len_);
 };

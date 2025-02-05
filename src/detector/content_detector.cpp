@@ -6,6 +6,7 @@ ContentDetector::ContentDetector(const float threshold, const int32_t min_scene_
 
 std::optional<int32_t> ContentDetector::process_frame(const VideoFrame& next_frame) {
     const float frame_score = _calculate_frame_score(next_frame);
+    frame_score_ = frame_score; /* for adaptive detector */
     const bool is_above_threshold = (frame_score > threshold_);
     const int32_t frame_num = next_frame.frame_num;
     std::optional<int32_t> cut = flash_filter_.filter(frame_num, is_above_threshold);

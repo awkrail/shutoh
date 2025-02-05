@@ -8,42 +8,42 @@
 template <typename T>
 class BlockingQueue {
     public:
-        BlockingQueue(size_t max_size) : max_size{max_size} {}
+        BlockingQueue(size_t max_size) : max_size_{max_size} {}
 
-    void push(const T& item) {
-        std::unique_lock<std::mutex> lock(mutex);
-        cond_producer.wait(lock, [this]() { return queue.size() < max_size; });
-        
-        queue.push(item);
-        cond_consumer.notify_one();
-    }
+        void push(const T& item) {
+            std::unique_lock<std::mutex> lock(mutex_);
+            cond_producer_.wait(lock, [this]() { return queue_.size() < max_size_; });
+            
+            queue_.push(item);
+            cond_consumer_.notify_one();
+        }
 
-    T get() {
-        std::unique_lock<std::mutex> lock(mutex);
-        cond_consumer.wait(lock, [this]() { return !queue.empty(); });
+        T get() {
+            std::unique_lock<std::mutex> lock(mutex_);
+            cond_consumer_.wait(lock, [this]() { return !queue_.empty(); });
 
-        T item = queue.front();
-        queue.pop();
-        cond_producer.notify_one();
-        return item;
-    }
+            T item = queue_.front();
+            queue_.pop();
+            cond_producer_.notify_one();
+            return item;
+        }
 
-    size_t size() {
-        std::lock_guard<std::mutex> lock(mutex);
-        return queue.size();
-    }
+        size_t size() {
+            std::lock_guard<std::mutex> lock(mutex_);
+            return queue_.size();
+        }
 
-    bool empty() {
-        std::lock_guard<std::mutex> lock(mutex);
-        return queue.empty();
-    }
+        bool empty() {
+            std::lock_guard<std::mutex> lock(mutex_);
+            return queue_.empty();
+        }
 
     private:
-        std::queue<T> queue;
-        size_t max_size;
-        std::mutex mutex;
-        std::condition_variable cond_producer;
-        std::condition_variable cond_consumer;
+        std::queue<T> queue_;
+        const size_t max_size_;
+        std::mutex mutex_;
+        std::condition_variable cond_producer_;
+        std::condition_variable cond_consumer_;
 };
 
 #endif
