@@ -1,6 +1,9 @@
 #include "adaptive_detector.hpp"
 #include "../video_frame.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 AdaptiveDetector::AdaptiveDetector(const float adaptive_threshold, const int32_t min_scene_len,
                                    const int32_t window_width, const float min_content_val)
     : ContentDetector(255.0, 0), adaptive_threshold_{adaptive_threshold}, min_scene_len_{min_scene_len}, 
@@ -8,7 +11,6 @@ AdaptiveDetector::AdaptiveDetector(const float adaptive_threshold, const int32_t
       buffer_{required_frames_} {}
 
 std::optional<int32_t> AdaptiveDetector::process_frame(const VideoFrame& next_frame) {
-    std::optional<int32_t> cut = std::nullopt;
     ContentDetector::process_frame(next_frame);
     
     const int32_t frame_num = next_frame.frame_num;
@@ -21,11 +23,28 @@ std::optional<int32_t> AdaptiveDetector::process_frame(const VideoFrame& next_fr
     if (buffer_.size() < required_frames_)
         return std::nullopt;
 
-    //const FrameNumScore frame_num_score = buffer_[window_width_];
-    const float average_window_score = _calculate_average_window_score();
-    std::cout << average_window_score << std::endl;
+    const int32_t target_frame = buffer_[window_width_].frame_num;
+    const float target_score = buffer_[window_width_].frame_score;
 
-    return cut;   
+    const float average_window_score = _calculate_average_window_score();
+    const bool is_average_zero = std::abs(average_window_score) < 0.00001;
+
+    float adaptive_ratio = 0.0f;
+    if (!is_average_zero) {
+        adaptive_ratio = std::min(target_score / average_window_score, 255.0f);
+    } else if (is_average_zero && target_score >= min_content_val_) {
+        adaptive_ratio = 255.0f;
+    }
+
+    const bool threshold_met = (adaptive_ratio >= adaptive_threshold_ && target_score >= min_content_val_);
+    const bool min_length_met = (frame_num - last_cut_.value()) >= min_scene_len_;
+
+    if (threshold_met && min_length_met) {
+        last_cut_ = target_frame;
+        return target_frame;
+    }
+
+    return std::nullopt;
 }
 
 float AdaptiveDetector::_calculate_average_window_score() const {

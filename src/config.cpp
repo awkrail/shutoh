@@ -17,7 +17,8 @@ std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type)
             return std::make_unique<ThresholdDetector>();
         case DetectorType::ADAPTIVE:
             return std::make_unique<AdaptiveDetector>();
-        default: /* TODO: to be implemented */
+        default: 
+            /* TODO: to be implemented */
             return std::make_unique<ContentDetector>();
     }
 }

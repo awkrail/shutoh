@@ -39,7 +39,6 @@ TEST_CASE("SceneManager - content detector", "[SceneManager scene_detect]") {
 TEST_CASE("SceneManager - hash detector", "[SceneManager scene_detect]") {
     const DetectorType detector_type = DetectorType::HASH;
     std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
-    /* content detector's frame indices */
     std::vector<int32_t> expected_inds {
         0, 64, 127, 143, 194, 254, 314, 419, 712, 809, 880, 965, 1125, 1211,
         1250, 1330, 1391, 1449, 1529, 1611, 1704, 1804, 2000, 2207, 2541, 2872,
@@ -50,7 +49,6 @@ TEST_CASE("SceneManager - hash detector", "[SceneManager scene_detect]") {
 TEST_CASE("SceneManager - hist detector", "[SceneManager scene_detect]") {
     const DetectorType detector_type = DetectorType::HISTOGRAM;
     std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
-    /* content detector's frame indices */
     std::vector<int32_t> expected_inds {
         0, 64, 124, 143, 194, 254, 297, 312, 377, 409, 628, 712, 809, 880, 965,
         1125, 1211, 1250, 1330, 1391, 1449, 1529, 1611, 1704, 1804, 2000, 2207,
@@ -62,9 +60,18 @@ TEST_CASE("SceneManager - hist detector", "[SceneManager scene_detect]") {
 TEST_CASE("SceneManager - threshold detector", "[SceneManager scene_detect]") {
     const DetectorType detector_type = DetectorType::THRESHOLD;
     std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
-    /* content detector's frame indices */
     std::vector<int32_t> expected_inds {
         0, 467, 583, 621, 667, 887, 1063, 1089, 1230, 1378, 1489, 1597, 1754,
         1919, 2073, 2652, 3241, 3710, 3892, 3913, 4019, 4113 };
+    test_frame_index(scene_list, expected_inds);
+}
+
+TEST_CASE("SceneManager - adaptive detector", "[SceneManager scene_detect]") {
+    const DetectorType detector_type = DetectorType::ADAPTIVE;
+    std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
+    std::vector<int32_t> expected_inds {
+        0, 64, 143, 194, 254, 314, 419, 628, 712, 809, 880, 965, 1125, 1211, 
+        1250, 1330, 1391, 1449, 1529, 1611, 1704, 1804, 2000, 2207, 2541, 2872, 
+        2913, 2992, 3072, 3151, 3212, 3271, 3352, 3453, 3618, 4122, 4257, 4316, 4397 };
     test_frame_index(scene_list, expected_inds);
 }
