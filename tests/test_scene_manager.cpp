@@ -1,10 +1,42 @@
+#include "shutoh/video_stream.hpp"
+#include "shutoh/scene_manager.hpp"
+#include "shutoh/frame_timecode_pair.hpp"
+#include "shutoh/detector/base_detector.hpp"
+#include "shutoh/detector/content_detector.hpp"
+#include "shutoh/detector/hash_detector.hpp"
+#include "shutoh/detector/histogram_detector.hpp"
+#include "shutoh/detector/threshold_detector.hpp"
+#include "shutoh/detector/adaptive_detector.hpp"
+
 #include <catch2/catch_test_macros.hpp>
-#include "video_stream.hpp"
-#include "scene_manager.hpp"
-#include "frame_timecode_pair.hpp"
-#include "detector/content_detector.hpp"
-#include "detector/hash_detector.hpp"
-#include "config.hpp"
+
+enum class DetectorType {
+    CONTENT,
+    HASH,
+    HISTOGRAM,
+    /* TODO: to be implemented soon */
+    ADAPTIVE,
+    THRESHOLD,
+    OTHER,
+};
+
+std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type) {
+    switch (detector_type) {
+        case DetectorType::CONTENT:
+            return std::make_unique<ContentDetector>();
+        case DetectorType::HASH:
+            return std::make_unique<HashDetector>();
+        case DetectorType::HISTOGRAM:
+            return std::make_unique<HistogramDetector>();
+        case DetectorType::THRESHOLD:
+            return std::make_unique<ThresholdDetector>();
+        case DetectorType::ADAPTIVE:
+            return std::make_unique<AdaptiveDetector>();
+        default: 
+            /* TODO: to be implemented */
+            return std::make_unique<ContentDetector>();
+    }
+}
 
 std::vector<FrameTimeCodePair> _get_scenes(DetectorType detector_type) {
     const std::string input_path = "../../video/input.mp4";

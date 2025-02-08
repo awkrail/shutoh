@@ -1,7 +1,8 @@
+#include "shutoh/error.hpp"
+#include "shutoh/video_stream.hpp"
+#include "shutoh/frame_timecode.hpp"
+
 #include "config.hpp"
-#include "error.hpp"
-#include "video_stream.hpp"
-#include "frame_timecode.hpp"
 
 #include <regex>
 

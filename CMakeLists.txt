@@ -4,6 +4,7 @@ project(shutoh VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -21,14 +22,23 @@ FetchContent_MakeAvailable(fmt)
 
 find_package(OpenCV REQUIRED)
 
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/detector/*.cpp")
+# Library
+file(GLOB LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/detector/*.cpp")
+# list(REMOVE_ITEM LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
+add_library(shutoh_lib SHARED ${LIB_SOURCES})
+target_compile_options(shutoh_lib PRIVATE -O3 -Wall)
+target_include_directories(shutoh_lib PUBLIC include ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(shutoh_lib PUBLIC ${OpenCV_LIBS} fmt::fmt argparse)
 
-add_executable(shutoh ${SOURCES})
+# CLI
+add_executable(shutoh src/main.cpp)
+target_link_libraries(shutoh PRIVATE shutoh_lib)
 
-target_compile_options(shutoh PRIVATE -O3 -Wall)
-target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(shutoh PRIVATE ${OpenCV_LIBS} argparse fmt::fmt)
-
-# tests
+# Tests
 enable_testing()
 add_subdirectory(tests)
+
+# Install
+install(TARGETS shutoh_lib DESTINATION lib)
+install(TARGETS shutoh DESTINATION bin)
+install(DIRECTORY include/ DESTINATION include)

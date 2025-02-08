@@ -1,5 +1,5 @@
-#include "video_stream.hpp"
-#include "error.hpp"
+#include "shutoh/video_stream.hpp"
+#include "shutoh/error.hpp"
 
 #include <string>
 #include <filesystem>

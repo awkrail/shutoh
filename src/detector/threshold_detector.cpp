@@ -1,5 +1,5 @@
-#include "threshold_detector.hpp"
-#include "../video_frame.hpp"
+#include "shutoh/detector/threshold_detector.hpp"
+#include "shutoh/video_frame.hpp"
 
 ThresholdDetector::ThresholdDetector(const int32_t threshold, const int32_t min_scene_len,
                                      const float fade_bias, const bool add_final_scene)

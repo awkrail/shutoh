@@ -2,7 +2,7 @@
 #define ADAPTIVE_DETECTOR_H
 
 #include "content_detector.hpp"
-#include "../fixed_size_deque.hpp"
+#include "fixed_size_deque.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <cstdint>

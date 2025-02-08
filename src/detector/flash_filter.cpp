@@ -1,4 +1,4 @@
-#include "flash_filter.hpp"
+#include "shutoh/detector/flash_filter.hpp"
 
 FlashFilter::FlashFilter(const FilterMode mode, const int32_t length) : mode_{mode}, filter_length_{length} {}
 

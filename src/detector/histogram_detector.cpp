@@ -1,5 +1,5 @@
-#include "histogram_detector.hpp"
-#include "../video_frame.hpp"
+#include "shutoh/detector/histogram_detector.hpp"
+#include "shutoh/video_frame.hpp"
 
 HistogramDetector::HistogramDetector(const float threshold, const int32_t min_scene_len, const int32_t bins) 
     : threshold_{std::max(0.0f, std::min(1.0f, 1.0f - threshold))}, min_scene_len_{min_scene_len}, bins_{bins} {}

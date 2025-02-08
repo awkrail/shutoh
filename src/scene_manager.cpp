@@ -1,8 +1,8 @@
-#include "scene_manager.hpp"
-#include "video_frame.hpp"
-#include "video_stream.hpp"
+#include "shutoh/scene_manager.hpp"
+#include "shutoh/video_frame.hpp"
+#include "shutoh/video_stream.hpp"
+#include "shutoh/error.hpp"
 #include "blocking_queue.hpp"
-#include "error.hpp"
 
 #include <thread>
 #include <algorithm>

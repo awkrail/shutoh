@@ -1,7 +1,8 @@
+#include "shutoh/error.hpp"
+#include "shutoh/frame_timecode.hpp"
+#include "shutoh/video_stream.hpp"
+
 #include "image_extractor.hpp"
-#include "error.hpp"
-#include "frame_timecode.hpp"
-#include "video_stream.hpp"
 #include "config.hpp"
 
 #include <opencv2/opencv.hpp>

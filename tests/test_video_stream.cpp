@@ -1,5 +1,5 @@
-#include "video_stream.hpp"
-#include "frame_timecode.hpp"
+#include "shutoh/video_stream.hpp"
+#include "shutoh/frame_timecode.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <catch2/catch_test_macros.hpp>

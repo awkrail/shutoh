@@ -1,7 +1,7 @@
 #ifndef IMAGE_EXTRACTOR_H
 #define IMAGE_EXTRACTOR_H
 
-#include "frame_timecode_pair.hpp"
+#include "shutoh/frame_timecode_pair.hpp"
 
 #include <string>
 #include <vector>

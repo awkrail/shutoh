@@ -1,5 +1,5 @@
-#include "adaptive_detector.hpp"
-#include "../video_frame.hpp"
+#include "shutoh/detector/adaptive_detector.hpp"
+#include "shutoh/video_frame.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -30,11 +30,10 @@ std::optional<int32_t> AdaptiveDetector::process_frame(const VideoFrame& next_fr
     const bool is_average_zero = std::abs(average_window_score) < 0.00001;
 
     float adaptive_ratio = 0.0f;
-    if (!is_average_zero) {
+    if (!is_average_zero)
         adaptive_ratio = std::min(target_score / average_window_score, 255.0f);
-    } else if (is_average_zero && target_score >= min_content_val_) {
+    else if (is_average_zero && target_score >= min_content_val_)
         adaptive_ratio = 255.0f;
-    }
 
     const bool threshold_met = (adaptive_ratio >= adaptive_threshold_ && target_score >= min_content_val_);
     const bool min_length_met = (frame_num - last_cut_.value()) >= min_scene_len_;

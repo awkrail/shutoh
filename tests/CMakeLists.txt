@@ -20,18 +20,13 @@ FetchContent_Declare(
   GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
 FetchContent_MakeAvailable(fmt)
 
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/detector/*.cpp")
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
-file(GLOB TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
-
 find_package(OpenCV REQUIRED)
 
-add_executable(tests ${SOURCES} ${TEST_SOURCES})
+# Tests
+file(GLOB TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
 
-target_include_directories(shutoh PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
-
-target_link_libraries(tests PRIVATE ${OpenCV_LIBS} Catch2::Catch2WithMain argparse fmt::fmt)
+add_executable(tests ${TEST_SOURCES})
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain shutoh_lib)
 
 include(CTest)
 include(Catch)

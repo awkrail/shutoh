@@ -1,13 +1,13 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "frame_timecode.hpp"
-#include "detector/base_detector.hpp"
-#include "detector/content_detector.hpp"
-#include "detector/hash_detector.hpp"
-#include "detector/histogram_detector.hpp"
-#include "detector/threshold_detector.hpp"
-#include "detector/adaptive_detector.hpp"
+#include "shutoh/frame_timecode.hpp"
+#include "shutoh/detector/base_detector.hpp"
+#include "shutoh/detector/content_detector.hpp"
+#include "shutoh/detector/hash_detector.hpp"
+#include "shutoh/detector/histogram_detector.hpp"
+#include "shutoh/detector/threshold_detector.hpp"
+#include "shutoh/detector/adaptive_detector.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <filesystem>

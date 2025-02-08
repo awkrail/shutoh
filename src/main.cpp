@@ -1,7 +1,8 @@
-#include "frame_timecode_pair.hpp"
-#include "video_stream.hpp"
-#include "frame_timecode.hpp"
-#include "scene_manager.hpp"
+#include "shutoh/video_stream.hpp"
+#include "shutoh/frame_timecode.hpp"
+#include "shutoh/scene_manager.hpp"
+#include "shutoh/frame_timecode_pair.hpp"
+
 #include "command_runner.hpp"
 #include "config.hpp"
 

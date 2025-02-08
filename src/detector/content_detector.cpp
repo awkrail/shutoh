@@ -1,5 +1,5 @@
-#include "content_detector.hpp"
-#include "../video_frame.hpp"
+#include "shutoh/detector/content_detector.hpp"
+#include "shutoh/video_frame.hpp"
 
 ContentDetector::ContentDetector(const float threshold, const int32_t min_scene_len)
     : threshold_{threshold}, min_scene_len_{min_scene_len} {}

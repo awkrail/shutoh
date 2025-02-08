@@ -1,7 +1,7 @@
 #ifndef COMMAND_RUNNER_H
 #define COMMAND_RUNNER_H
 
-#include "frame_timecode_pair.hpp"
+#include "shutoh/frame_timecode_pair.hpp"
 #include "config.hpp"
 
 #include <string>
