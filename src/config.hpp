@@ -65,10 +65,22 @@ struct Config {
     const std::optional<std::string> end;
     const std::optional<std::string> duration;
 
-    /* detector parameters */
+    /* detectors' common parameters */
     DetectorType detector_type;
     const float threshold;
-    const std::optional<int32_t> min_scene_len;
+    const int32_t min_scene_len;
+
+    /* adaptive detector */
+    const int32_t window_width;
+    const float min_content_val;
+
+    /* hash detector */
+    const int32_t dct_size;
+    const int32_t lowpass;
+
+    /* histogram detector */
+    const int32_t bins;
+    const float fade_bias;
 };
 
 std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type);

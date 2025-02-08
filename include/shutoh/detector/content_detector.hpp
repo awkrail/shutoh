@@ -12,7 +12,7 @@ struct VideoFrame;
 
 class ContentDetector : public BaseDetector {
     public:
-        ContentDetector(const float threshold = 27.0, const int32_t min_scene_len = 15);
+        ContentDetector(const float threshold = 27.0f, const int32_t min_scene_len = 15);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
         std::optional<float> get_frame_score() const { return frame_score_; }
 

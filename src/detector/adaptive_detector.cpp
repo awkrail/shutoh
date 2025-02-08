@@ -27,7 +27,7 @@ std::optional<int32_t> AdaptiveDetector::process_frame(const VideoFrame& next_fr
     const float target_score = buffer_[window_width_].frame_score;
 
     const float average_window_score = _calculate_average_window_score();
-    const bool is_average_zero = std::abs(average_window_score) < 0.00001;
+    const bool is_average_zero = std::abs(average_window_score) < 0.00001f;
 
     float adaptive_ratio = 0.0f;
     if (!is_average_zero)
@@ -53,4 +53,25 @@ float AdaptiveDetector::_calculate_average_window_score() const {
             average_window_score += buffer_[i].frame_score;
     }
     return average_window_score / (2.0f * window_width_);
+}
+
+std::unique_ptr<AdaptiveDetector> AdaptiveDetector::initialize_detector(float adaptive_threshold, int32_t min_scene_len,
+                                                                        int32_t window_width, float min_content_val) {
+    if (adaptive_threshold < 0.0) {
+        std::cout << "[Warning]: adaptive_threshold should be positive and is reset to be 3.0" << std::endl;
+        adaptive_threshold = 3.0f;
+    }
+    if (min_scene_len < 0) {
+        std::cout << "[Warning]: min_scene_len should be positive and is reset to be 15" << std::endl;
+        min_scene_len = 15;
+    }
+    if (window_width < 0) {
+        std::cout << "[Warning]: window_width should be positive and is reset to be 2" << std::endl;
+        window_width = 2;
+    }
+    if (min_content_val < 0) {
+        std::cout << "[Warning]: min_content_val should be positive and is reset to be 15.0" << std::endl;
+        min_content_val = 15.0; 
+    }
+    return std::make_unique<AdaptiveDetector>(adaptive_threshold, min_scene_len, window_width, min_content_val);
 }

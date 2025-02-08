@@ -1,9 +1,8 @@
 #include "shutoh/detector/threshold_detector.hpp"
 #include "shutoh/video_frame.hpp"
 
-ThresholdDetector::ThresholdDetector(const int32_t threshold, const int32_t min_scene_len,
-                                     const float fade_bias, const bool add_final_scene)
-    : threshold_{threshold}, min_scene_len_{min_scene_len}, fade_bias_{fade_bias}, add_final_scene_{add_final_scene} {}
+ThresholdDetector::ThresholdDetector(const int32_t threshold, const int32_t min_scene_len, const float fade_bias)
+    : threshold_{threshold}, min_scene_len_{min_scene_len}, fade_bias_{fade_bias} {}
 
 std::optional<int32_t> ThresholdDetector::process_frame(const VideoFrame& next_frame) {
     std::optional<int32_t> cut = std::nullopt;

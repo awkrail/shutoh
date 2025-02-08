@@ -19,9 +19,13 @@ struct FrameNumScore {
 
 class AdaptiveDetector : public ContentDetector {
     public:
-        AdaptiveDetector(const float adaptive_threshold = 3.0, const int32_t min_scene_len = 15,
-                         const int32_t window_width = 2, const float min_content_val = 15.0);
+        AdaptiveDetector(const float adaptive_threshold = 3.0f, const int32_t min_scene_len = 15,
+                         const int32_t window_width = 2, const float min_content_val = 15.0f);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
+        static std::unique_ptr<AdaptiveDetector> initialize_detector(const float adaptive_threshold = 3.0f,
+                                                                     const int32_t min_scene_len = 15,
+                                                                     const int32_t window_width = 2,
+                                                                     const float min_content_val = 15.0f);
     
     private:
         float _calculate_average_window_score() const;

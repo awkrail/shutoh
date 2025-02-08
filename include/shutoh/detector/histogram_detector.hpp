@@ -11,7 +11,7 @@ struct VideoFrame;
 
 class HistogramDetector : public BaseDetector {
     public:
-        HistogramDetector(const float threshold = 0.05, const int32_t min_scene_len = 15,
+        HistogramDetector(const float threshold = 0.05f, const int32_t min_scene_len = 15,
                           const int32_t bins = 256);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
     

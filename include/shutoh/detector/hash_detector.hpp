@@ -11,7 +11,7 @@ struct VideoFrame;
 
 class HashDetector : public BaseDetector {
     public:
-        HashDetector(const float threshold = 0.395, const int32_t min_scene_len = 15,
+        HashDetector(const float threshold = 0.395f, const int32_t min_scene_len = 15,
                      const int32_t size = 16, const int32_t lowpass = 2);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
 

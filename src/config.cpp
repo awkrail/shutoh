@@ -17,7 +17,7 @@ std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type)
         case DetectorType::THRESHOLD:
             return std::make_unique<ThresholdDetector>();
         case DetectorType::ADAPTIVE:
-            return std::make_unique<AdaptiveDetector>();
+            return AdaptiveDetector::initialize_detector();
         default: 
             /* TODO: to be implemented */
             return std::make_unique<ContentDetector>();
@@ -61,20 +61,22 @@ DetectorType _convert_name_to_type(const std::string& detector_name) {
 }
 
 WithError<Config> _construct_config(argparse::ArgumentParser& program) {
+    /* mandatory commands */
     const std::filesystem::path input_path(program.get<std::string>("--input"));
     const std::filesystem::path output_dir(program.get<std::string>("--output"));
-
     const std::string command = program.get<std::string>("--command");
     const std::string filename = _interpret_filename(input_path, program);
-    const bool verbose = program.get<bool>("--verbose");
 
+    /* list-scenes */
     const bool no_output_file = program.get<bool>("--no_output_file");
     
+    /* split-video */
     const bool copy = program.get<bool>("--copy");
     const int32_t crf = program.get<int32_t>("--crf");
     const std::string preset = program.get<std::string>("--preset");
     const std::string ffmpeg_args = program.get<std::string>("--ffmpeg_args");
 
+    /* save-images */
     const int32_t num_images = program.get<int32_t>("--num_images");
     const std::string format = program.get<std::string>("--format");
     const int32_t quality = program.get<int32_t>("--quality");
@@ -84,13 +86,29 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     const std::optional<int32_t> height = program.present<int32_t>("--height");
     const std::optional<int32_t> width = program.present<int32_t>("--width");
 
+    /* timecode */
     const std::optional<std::string> start = program.present<std::string>("--start");
     const std::optional<std::string> end = program.present<std::string>("--end");
     const std::optional<std::string> duration = program.present<std::string>("--duration");
 
+    /* detector common */
     const std::string detector_name = program.get<std::string>("--detector");
     const float threshold = program.get<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
+    
+    /* adaptive detector */
+    const int32_t window_width = program.get<int32_t>("--window_width");
+    const float min_content_val = program.get<float>("--min_content_val");
+    
+    /* hash detector */
+    const int32_t dct_size = program.get<int32_t>("--dct_size");
+    const int32_t lowpass = program.get<int32_t>("--lowpass");
+    
+    /* histogram detector */
+    const int32_t bins = program.get<int32_t>("--bins");
+
+    /* threshold detector */
+    const float fade_bias = program.get<float>("--fade_bias");
 
     /* validate arguments */
     if (!(command == "list-scenes" || command == "split-video" || command == "save-images")) {
@@ -161,18 +179,20 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::NoSuchFile, error_msg) };
     }
 
-    const Config config = { .input_path = input_path,       .output_dir = output_dir,
-                            .command = command,             .filename = filename,
-                            .verbose = verbose,             .no_output_file = no_output_file,
-                            .copy = copy,                   .crf = crf,
-                            .preset = preset,               .ffmpeg_args = ffmpeg_args,
-                            .num_images = num_images,       .format = format,
-                            .quality = quality,             .frame_margin = frame_margin,
-                            .scale = scale,                 .height = height,
-                            .width = width,                 .start = start,
-                            .end = end,                     .duration = duration,
-                            .detector_type = detector_type, .threshold = threshold,      
-                            .min_scene_len = min_scene_len };
+    const Config config = { .input_path = input_path,         .output_dir = output_dir,
+                            .command = command,               .filename = filename,
+                            .no_output_file = no_output_file, .copy = copy,
+                            .crf = crf,                       .preset = preset,
+                            .ffmpeg_args = ffmpeg_args,       .num_images = num_images,
+                            .format = format,                 .quality = quality,
+                            .frame_margin = frame_margin,     .scale = scale,
+                            .height = height,                 .width = width,
+                            .start = start,                   .end = end,
+                            .duration = duration,             .detector_type = detector_type,
+                            .threshold = threshold,           .min_scene_len = min_scene_len,
+                            .window_width = window_width,     .min_content_val = min_content_val,
+                            .dct_size = dct_size,             .lowpass = lowpass,
+                            .bins = bins,                     .fade_bias = fade_bias };
 
     return WithError<Config> { config, Error(ErrorCode::Success, "") };
 }
@@ -180,7 +200,7 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
 WithError<Config> parse_args(int argc, char *argv[]) {
     argparse::ArgumentParser program("shutoh");
 
-    /* General parameters */ 
+    /* Mandatory */ 
     program.add_argument("-i", "--input")
         .help("Input video file.")
         .required();
@@ -200,19 +220,14 @@ WithError<Config> parse_args(int argc, char *argv[]) {
               "$VIDEO_NAME-scenes.csv (list-scenes), "
               "$VIDEO_NAME-scene-$SCENE_NUMBER (split-video), "
               "$VIDEO_NAME-scene-$SCENE_NUMBER-$IMAGE_NUMBER (save-images).");
-    
-    program.add_argument("--verbose")
-        .default_value(false)
-        .implicit_value(true)
-        .help("Show detailed information.");
 
-    /* command: list-scenes */
+    /* list-scenes */
     program.add_argument("--no_output_file")
         .default_value(false)
         .implicit_value(true)
         .help("[list-scenes] Print scene list only.");
 
-    /* command: split-video */
+    /* split-video */
     program.add_argument("--copy")
         .default_value(false)
         .implicit_value(true)
@@ -233,7 +248,7 @@ WithError<Config> parse_args(int argc, char *argv[]) {
         .help("[split-video] Codec arguments passed to FFmpeg when splitting scenes."
               "Use double quotes around arguments. Must specify at least audio/video codec.");
 
-    /* command: save-images */
+    /* save-images */
     program.add_argument("--num_images")
         .default_value(3)
         .scan<'d', int>()
@@ -274,7 +289,7 @@ WithError<Config> parse_args(int argc, char *argv[]) {
         .scan<'d', int>()
         .help("[save-images] Height of images.");
 
-    /* Time */
+    /* timecode */
     program.add_argument("--start")
         .help("Time in video to start detection. Default value reperesents the first frame of the video.");
 
@@ -284,7 +299,7 @@ WithError<Config> parse_args(int argc, char *argv[]) {
     program.add_argument("--duration")
         .help("Maximum time in video to process. Default value represents the whole video length. Ignored if --end is set.");
     
-    /* TODO: detector parameters */
+    /* detectors' common parameters */
     program.add_argument("--detector")
         .default_value(std::string("content"))
         .help("Detector type. Choose from [adaptive, content, hash, histogram, threshold].");
@@ -298,6 +313,40 @@ WithError<Config> parse_args(int argc, char *argv[]) {
         .default_value(15)
         .scan<'d', int>()
         .help("Minimum scene length (=#frames) in cuts. Higher values ignore abrupt cuts.");
+    
+    /* adaptive detector */
+    program.add_argument("--window_width")
+        .default_value(2)
+        .scan<'d', int>()
+        .help("[AdaptiveDetector]: Size of window (#frames) before/after to average together to detect deviations from the mean.");
+    
+    program.add_argument("--min_content_val")
+        .default_value(15.0f)
+        .scan<'g', float>()
+        .help("[AdaptiveDetector]: Minimum threshold (float) that content_val must be over to register as a new scene.");
+
+    /* hash detector */
+    program.add_argument("--dct_size")
+        .default_value(16)
+        .scan<'d', int>()
+        .help("[HashDetector]: Square size of low frequency to use for the DCT.");
+    
+    program.add_argument("--lowpass")
+        .default_value(2)
+        .scan<'d', int>()
+        .help("[HashDetector]: How much high frequency to filter from the DCT. A value of 2 means keeping lower 1/2 frequency data.");
+    
+    /* histogram detector */
+    program.add_argument("--bins")
+        .default_value(256)
+        .scan<'d', int>()
+        .help("[HistogramDetector]: Number of bins to use for the histogram.");
+    
+    /* threshold detector */
+    program.add_argument("--fade_bias")
+        .default_value(0.0f)
+        .scan<'g', float>()
+        .help("[ThresholdDetector]: Float between -1.0 and +1.0 that represents the percentage of timecode skew for the start of a scene");
 
     try {
         program.parse_args(argc, argv);
