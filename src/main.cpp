@@ -4,7 +4,10 @@
 #include "shutoh/frame_timecode_pair.hpp"
 
 #include "command_runner.hpp"
+#include "parameters.hpp"
 #include "config.hpp"
+
+#include <iostream>
 
 int main(int argc, char *argv[]) {
     const WithError<Config> opt_cfg = parse_args(argc, argv);
@@ -26,7 +29,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    auto detector = _select_detector(cfg.detector_type);
+    const DetectorParameters params = initialize_parameters(cfg);
+    auto detector = _select_detector(params);
+    
     SceneManager scene_manager = SceneManager(std::move(detector));
     scene_manager.detect_scenes(video);
     WithError<std::vector<FrameTimeCodePair>> opt_scene_list = scene_manager.get_scene_list();

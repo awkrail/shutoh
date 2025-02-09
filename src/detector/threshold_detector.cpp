@@ -1,7 +1,7 @@
 #include "shutoh/detector/threshold_detector.hpp"
 #include "shutoh/video_frame.hpp"
 
-ThresholdDetector::ThresholdDetector(const int32_t threshold, const int32_t min_scene_len, const float fade_bias)
+ThresholdDetector::ThresholdDetector(const float threshold, const int32_t min_scene_len, const float fade_bias)
     : threshold_{threshold}, min_scene_len_{min_scene_len}, fade_bias_{fade_bias} {}
 
 std::optional<int32_t> ThresholdDetector::process_frame(const VideoFrame& next_frame) {
@@ -43,4 +43,23 @@ float ThresholdDetector::_compute_frame_average(const cv::Mat& frame) const {
     const cv::Scalar sum_value = cv::sum(frame);
     const int32_t total_pixels = frame.rows * frame.cols * frame.channels();
     return static_cast<float>(sum_value[0] + sum_value[1] + sum_value[2]) / total_pixels;
+}
+
+std::unique_ptr<ThresholdDetector> ThresholdDetector::initialize_detector(float threshold, int32_t min_scene_len, float fade_bias) {
+    if (threshold < 0) {
+        std::cout << "Warning: threshold should be positive and is reset to 95." << std::endl;
+        threshold = 95.0f;
+    }
+
+    if (min_scene_len < 0) {
+        std::cout << "Warning: min_scene_len should be positive and is reset to 15." << std::endl;
+        min_scene_len = 15;
+    }
+
+    if (std::abs(fade_bias) > 1) {
+        std::cout << "Warning: fade_bias should be between -1.0f and +1.0f. Reset to 0.0f" << std::endl;
+        fade_bias = 0.0f;
+    }
+
+    return std::make_unique<ThresholdDetector>(threshold, min_scene_len, fade_bias);
 }

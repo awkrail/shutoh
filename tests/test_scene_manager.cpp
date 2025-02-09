@@ -14,7 +14,6 @@ enum class DetectorType {
     CONTENT,
     HASH,
     HISTOGRAM,
-    /* TODO: to be implemented soon */
     ADAPTIVE,
     THRESHOLD,
     OTHER,
@@ -33,7 +32,6 @@ std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type)
         case DetectorType::ADAPTIVE:
             return std::make_unique<AdaptiveDetector>();
         default: 
-            /* TODO: to be implemented */
             return std::make_unique<ContentDetector>();
     }
 }

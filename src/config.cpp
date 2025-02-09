@@ -3,24 +3,29 @@
 #include "shutoh/frame_timecode.hpp"
 
 #include "config.hpp"
+#include "parameters.hpp"
 
 #include <regex>
 
-std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type) {
-    switch (detector_type) {
+std::unique_ptr<BaseDetector> _select_detector(const DetectorParameters& params) {
+    switch (params.detector_type) {
         case DetectorType::CONTENT:
-            return std::make_unique<ContentDetector>();
+            return ContentDetector::initialize_detector(params.threshold, params.min_scene_len);
         case DetectorType::HASH:
-            return std::make_unique<HashDetector>();
+            return HashDetector::initialize_detector(params.threshold, params.min_scene_len,
+                                                     params.hash_params.dct_size, params.hash_params.lowpass);
         case DetectorType::HISTOGRAM:
-            return std::make_unique<HistogramDetector>();
+            return HistogramDetector::initialize_detector(params.threshold, params.min_scene_len,
+                                                          params.histogram_params.bins);
         case DetectorType::THRESHOLD:
-            return std::make_unique<ThresholdDetector>();
+            return ThresholdDetector::initialize_detector(params.threshold, params.min_scene_len,
+                                                          params.threshold_params.fade_bias);
         case DetectorType::ADAPTIVE:
-            return AdaptiveDetector::initialize_detector();
-        default: 
-            /* TODO: to be implemented */
-            return std::make_unique<ContentDetector>();
+            return AdaptiveDetector::initialize_detector(params.threshold, params.min_scene_len,
+                                                         params.adaptive_params.window_width,
+                                                         params.adaptive_params.min_content_val);
+        default:
+            return ContentDetector::initialize_detector();
     }
 }
 
@@ -60,6 +65,23 @@ DetectorType _convert_name_to_type(const std::string& detector_name) {
         return DetectorType::OTHER;
 }
 
+float _get_default_threshold(const DetectorType& detector_type) {
+    switch (detector_type) {
+        case DetectorType::CONTENT:
+            return 27.0f;
+        case DetectorType::HASH:
+            return 0.395f;
+        case DetectorType::HISTOGRAM:
+            return 0.05f;
+        case DetectorType::THRESHOLD:
+            return 95.0f;
+        case DetectorType::ADAPTIVE:
+            return 3.0f;
+        default:
+            return 27.0f; /* content detector */
+    }
+}
+
 WithError<Config> _construct_config(argparse::ArgumentParser& program) {
     /* mandatory commands */
     const std::filesystem::path input_path(program.get<std::string>("--input"));
@@ -93,7 +115,7 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
 
     /* detector common */
     const std::string detector_name = program.get<std::string>("--detector");
-    const float threshold = program.get<float>("--threshold");
+    const std::optional<float> opt_threshold = program.present<float>("--threshold");
     const int32_t min_scene_len = program.get<int32_t>("--min_scene_len");
     
     /* adaptive detector */
@@ -163,15 +185,7 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
         return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
     }
 
-    if (threshold < 0.0) {
-        std::string error_msg = "--threshold should be positive.";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }    
-
-    if (min_scene_len < 0) {
-        std::string error_msg = "--min_scene_len should be positive.";
-        return WithError<Config> { std::nullopt, Error(ErrorCode::InvalidArgument, error_msg) };
-    }
+    const float threshold = opt_threshold.has_value() ? opt_threshold.value() : _get_default_threshold(detector_type);
 
     /* If width, height, and scale is set (save-images), resized_size is calculated. */
     if (!std::filesystem::exists(input_path)) {
@@ -305,7 +319,6 @@ WithError<Config> parse_args(int argc, char *argv[]) {
         .help("Detector type. Choose from [adaptive, content, hash, histogram, threshold].");
 
     program.add_argument("--threshold")
-        .default_value(27.0f)
         .scan<'g', float>()
         .help("Threshold for scene shot detection. Higher values ignore small changes of scenes in the video.");
     

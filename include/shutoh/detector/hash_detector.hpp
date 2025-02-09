@@ -14,6 +14,10 @@ class HashDetector : public BaseDetector {
         HashDetector(const float threshold = 0.395f, const int32_t min_scene_len = 15,
                      const int32_t size = 16, const int32_t lowpass = 2);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
+        static std::unique_ptr<HashDetector> initialize_detector(float threshold = 0.395f,
+                                                                 int32_t min_scene_len = 15,
+                                                                 int32_t dct_size = 16,
+                                                                 int32_t lowpass = 2);
 
     private:
         void _hash_frame(const cv::Mat& frame, cv::Mat& hash) const;

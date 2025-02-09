@@ -17,12 +17,12 @@
 
 class VideoStream;
 template <typename T> struct WithError;
+struct DetectorParameters;
 
 enum class DetectorType {
     CONTENT,
     HASH,
     HISTOGRAM,
-    /* TODO: to be implemented soon */
     ADAPTIVE,
     THRESHOLD,
     OTHER,
@@ -34,7 +34,6 @@ struct Config {
     const std::filesystem::path output_dir;
     const std::string command;
     const std::string filename;
-    const bool verbose;
 
     /* list-scene */
     const bool no_output_file;
@@ -50,7 +49,6 @@ struct Config {
     const std::string format;
     const int32_t quality;
     const int32_t frame_margin;
-
     const std::optional<float> scale; /* scale is ignored if width and height are set. */
     const std::optional<int32_t> height;
     const std::optional<int32_t> width;
@@ -66,9 +64,9 @@ struct Config {
     const std::optional<std::string> duration;
 
     /* detectors' common parameters */
-    DetectorType detector_type;
+    const DetectorType detector_type;
     const float threshold;
-    const int32_t min_scene_len;
+    const int32_t min_scene_len = 15;
 
     /* adaptive detector */
     const int32_t window_width;
@@ -83,10 +81,11 @@ struct Config {
     const float fade_bias;
 };
 
-std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type);
+std::unique_ptr<BaseDetector> _select_detector(const DetectorParameters& params);
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program);
 DetectorType _convert_name_to_type(const std::string& detector_name);
+float _get_default_threshold(const DetectorType& detector_type);
 WithError<Config> _construct_config(argparse::ArgumentParser& program);
 WithError<Config> parse_args(int argc, char *argv[]);
 

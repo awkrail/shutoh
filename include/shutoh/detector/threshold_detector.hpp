@@ -14,13 +14,16 @@ enum class Fade {
 
 class ThresholdDetector : public BaseDetector {
     public:
-        ThresholdDetector(const int32_t threshold = 95, const int32_t min_scene_len = 15, const float fade_bias = 0.0f);
+        ThresholdDetector(const float threshold = 95.0f, const int32_t min_scene_len = 15, const float fade_bias = 0.0f);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
-    
+        static std::unique_ptr<ThresholdDetector> initialize_detector(float threshold = 95.0f,
+                                                                      int32_t min_scene_len = 15,
+                                                                      float fade_bias = 0.0f);
+
     private:
         float _compute_frame_average(const cv::Mat& frame) const;
 
-        const int32_t threshold_;
+        const float threshold_;
         const int32_t min_scene_len_;
         const float fade_bias_;
         bool process_frame_ = false;
