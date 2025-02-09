@@ -86,6 +86,11 @@ class FrameTimeCode {
         FrameTimeCode operator+(const FrameTimeCode& other) const;
         FrameTimeCode operator-(const FrameTimeCode& other) const;
 
+        static WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps);
+        static WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps);
+        static WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps);
+        static WithError<FrameTimeCode> from_seconds(const float seconds, const float fps);
+
     private:
         WithError<TimeStamp> _parse_hrs_mins_secs_to_second(const std::string& timecode_str) const;
         float framerate_;
@@ -98,11 +103,6 @@ constexpr float MIN_FPS_DELTA = 1.0 / 100000;
 constexpr float _SECONDS_PER_MINUTE = 60.0;
 constexpr float _SECONDS_PER_HOUR = 60.0 * _SECONDS_PER_MINUTE;
 constexpr float _MINUTES_PER_HOUR = 60.0;
-
-WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps);
-WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps);
-WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps);
-WithError<FrameTimeCode> from_seconds(const float seconds, const float fps);
 
 }
 

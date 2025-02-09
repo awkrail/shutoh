@@ -19,7 +19,7 @@ enum class DetectorType {
     OTHER,
 };
 
-std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type) {
+std::unique_ptr<BaseDetector> _select_default_detector(const DetectorType detector_type) {
     switch (detector_type) {
         case DetectorType::CONTENT:
             return std::make_unique<ContentDetector>();
@@ -39,7 +39,7 @@ std::unique_ptr<BaseDetector> _select_detector(const DetectorType detector_type)
 std::vector<FrameTimeCodePair> _get_scenes(DetectorType detector_type) {
     const std::string input_path = "../../video/input.mp4";
     VideoStream video = VideoStream::initialize_video_stream(input_path).value();
-    auto detector = _select_detector(detector_type);
+    auto detector = _select_default_detector(detector_type);
     SceneManager scene_manager = SceneManager(std::move(detector));
     scene_manager.detect_scenes(video);
     std::vector<FrameTimeCodePair> scene_list = scene_manager.get_scene_list().value();
@@ -90,9 +90,7 @@ TEST_CASE("SceneManager - hist detector", "[SceneManager scene_detect]") {
 TEST_CASE("SceneManager - threshold detector", "[SceneManager scene_detect]") {
     const DetectorType detector_type = DetectorType::THRESHOLD;
     std::vector<FrameTimeCodePair> scene_list = _get_scenes(detector_type);
-    std::vector<int32_t> expected_inds {
-        0, 467, 583, 621, 667, 887, 1063, 1089, 1230, 1378, 1489, 1597, 1754,
-        1919, 2073, 2652, 3241, 3710, 3892, 3913, 4019, 4113 };
+    std::vector<int32_t> expected_inds { 0 };
     test_frame_index(scene_list, expected_inds);
 }
 

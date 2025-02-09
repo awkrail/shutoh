@@ -24,7 +24,6 @@ find_package(OpenCV REQUIRED)
 
 # Library
 file(GLOB LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/detector/*.cpp")
-# list(REMOVE_ITEM LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 add_library(shutoh_lib SHARED ${LIB_SOURCES})
 target_compile_options(shutoh_lib PRIVATE -O3 -Wall)
 target_include_directories(shutoh_lib PUBLIC include ${OpenCV_INCLUDE_DIRS})

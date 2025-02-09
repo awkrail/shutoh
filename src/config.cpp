@@ -74,7 +74,7 @@ float _get_default_threshold(const DetectorType& detector_type) {
         case DetectorType::HISTOGRAM:
             return 0.05f;
         case DetectorType::THRESHOLD:
-            return 95.0f;
+            return 12.0f;
         case DetectorType::ADAPTIVE:
             return 3.0f;
         default:

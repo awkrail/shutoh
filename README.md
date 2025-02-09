@@ -45,7 +45,33 @@ Save scenes as csv file:
 WIP
 
 ### C++
-WIP
+The simpletest code is as follow:
+```cpp
+#include "shutoh/video_stream.hpp"
+#include "shutoh/frame_timecode.hpp"
+#include "shutoh/scene_manager.hpp"
+#include "shutoh/frame_timecode_pair.hpp"
+#include "shutoh/detector/content_detector.hpp"
+
+int main() {
+    VideoStream video = VideoStream::initialize_video_stream("../video/input.mp4").value();
+    auto detector = ContentDetector::initialize_detector();
+    SceneManager scene_manager = SceneManager(std::move(detector));
+    scene_manager.detect_scenes(video);
+    std::vector<FrameTimeCodePair> scene_list = scene_manager.get_scene_list().value();
+
+    for (auto& scene : scene_list) {
+        const FrameTimeCode start = std::get<0>(scene);
+        const FrameTimeCode end = std::get<1>(scene);
+        std::cout << "Start Time: " << start.to_string() << " Frame: " << start.get_frame_num()
+        << " / End Time: " << end.to_string() << " Frame: " << end.get_frame_num() << std::endl; 
+    }
+}
+```
+To compile the code, run the following g++ command (replace `-I` and `-L` with your directory):
+```
+g++ -std=c++20 -I/path/to/shutoh/include -I/usr/include/opencv4 main.cc -L/path/to/shutoh/build -lopencv_core -lopencv_videoio -Wl,-rpath,/path/to/build -lshutoh_lib
+```
 
 ## Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

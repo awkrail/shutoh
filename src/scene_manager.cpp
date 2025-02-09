@@ -67,7 +67,7 @@ WithError<std::vector<FrameTimeCodePair>> SceneManager::get_scene_list() const {
 std::vector<FrameTimeCode> SceneManager::_get_cutting_list() const {
     std::vector<FrameTimeCode> timecode_list;
     for(auto& cut : cutting_list_) {
-        const FrameTimeCode timecode = frame_timecode::from_frame_nums(cut, framerate_).value();
+        const FrameTimeCode timecode = FrameTimeCode::from_frame_nums(cut, framerate_).value();
         timecode_list.push_back(timecode);
     }
     return timecode_list;

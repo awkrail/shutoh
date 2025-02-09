@@ -148,10 +148,8 @@ FrameTimeCode FrameTimeCode::operator-(const FrameTimeCode& other) const {
     return FrameTimeCode(new_frame_num, framerate_);
 }
 
-namespace frame_timecode {
-
-WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, const float fps) {
-    if (fps < MIN_FPS_DELTA) {
+WithError<FrameTimeCode> FrameTimeCode::from_timecode_string(const std::string& timecode_str, const float fps) {
+    if (fps < frame_timecode::MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
     }
@@ -163,8 +161,8 @@ WithError<FrameTimeCode> from_timecode_string(const std::string& timecode_str, c
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num.value(), fps), Error(ErrorCode::Success, "") };
 }
 
-WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fps) {
-    if (fps < MIN_FPS_DELTA) {
+WithError<FrameTimeCode> FrameTimeCode::from_frame_nums(const int32_t frame_num, const float fps) {
+    if (fps < frame_timecode::MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
     }
@@ -176,8 +174,8 @@ WithError<FrameTimeCode> from_frame_nums(const int32_t frame_num, const float fp
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num, fps), Error(ErrorCode::Success, "") };
 }
 
-WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps) {
-   if (fps < MIN_FPS_DELTA) {
+WithError<FrameTimeCode> FrameTimeCode::from_seconds(const int32_t seconds, const float fps) {
+   if (fps < frame_timecode::MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
     }
@@ -191,8 +189,8 @@ WithError<FrameTimeCode> from_seconds(const int32_t seconds, const float fps) {
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num, fps), Error(ErrorCode::Success, "")  };
 }
 
-WithError<FrameTimeCode> from_seconds(const float seconds, const float fps) {
-   if (fps < MIN_FPS_DELTA) {
+WithError<FrameTimeCode> FrameTimeCode::from_seconds(const float seconds, const float fps) {
+   if (fps < frame_timecode::MIN_FPS_DELTA) {
         const std::string error_msg = "Framerate should be larger than MIN_FPS_DELTA = " + std::to_string(frame_timecode::MIN_FPS_DELTA);
         return WithError<FrameTimeCode> { std::nullopt, Error(ErrorCode::TooSmallFpsValue, error_msg) };
     }
@@ -204,8 +202,6 @@ WithError<FrameTimeCode> from_seconds(const float seconds, const float fps) {
     FrameTimeCode frame_timecode = FrameTimeCode(0, fps);
     const int32_t frame_num = frame_timecode.parse_timecode_number(seconds);
     return WithError<FrameTimeCode> { FrameTimeCode(frame_num, fps), Error(ErrorCode::Success, "")  };
-}
-
 }
 
 std::string convert_timecode_to_datetime(const int32_t hrs, const int32_t mins, const float secs) {

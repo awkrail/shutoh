@@ -10,26 +10,26 @@ TEST_CASE("FrameTime initialization - FrameTimeCode", "[Frametime init]") {
 }
 
 TEST_CASE("FrameTime initialization - from_frame_num", "[Frametime init]") {
-    REQUIRE(frame_timecode::from_frame_nums(10, 0.5).value().get_frame_num() == 10);
+    REQUIRE(FrameTimeCode::from_frame_nums(10, 0.5).value().get_frame_num() == 10);
 }
 
 TEST_CASE("FrameTime initialization - from_seconds", "[Frametime init]") {
-    REQUIRE(frame_timecode::from_seconds(5.1f, 0.5).value().get_frame_num() == 3);
-    REQUIRE(frame_timecode::from_seconds(5, 0.5).value().get_frame_num() == 3);
+    REQUIRE(FrameTimeCode::from_seconds(5.1f, 0.5).value().get_frame_num() == 3);
+    REQUIRE(FrameTimeCode::from_seconds(5, 0.5).value().get_frame_num() == 3);
 }
 
 TEST_CASE("FrameTime initialization - from_timecode_string", "[Frametime init]") {
-    REQUIRE(frame_timecode::from_timecode_string("01:30:05", 1.0).value().get_frame_num()  == 5405); // 1 * 3600 + 30 * 60 + 5 = 5405
-    REQUIRE(frame_timecode::from_timecode_string("01:30:05.999", 1.0).value().get_frame_num()  == 5406);
-    REQUIRE(frame_timecode::from_timecode_string("00:00:00", 1.0).value().get_frame_num() == 0);
-    REQUIRE(frame_timecode::from_timecode_string("09:59:59", 1.0).value().get_frame_num() == 35999);
-    REQUIRE(frame_timecode::from_timecode_string("09:59:59.999", 1.0).value().get_frame_num() == 36000);
+    REQUIRE(FrameTimeCode::from_timecode_string("01:30:05", 1.0).value().get_frame_num()  == 5405); // 1 * 3600 + 30 * 60 + 5 = 5405
+    REQUIRE(FrameTimeCode::from_timecode_string("01:30:05.999", 1.0).value().get_frame_num()  == 5406);
+    REQUIRE(FrameTimeCode::from_timecode_string("00:00:00", 1.0).value().get_frame_num() == 0);
+    REQUIRE(FrameTimeCode::from_timecode_string("09:59:59", 1.0).value().get_frame_num() == 35999);
+    REQUIRE(FrameTimeCode::from_timecode_string("09:59:59.999", 1.0).value().get_frame_num() == 36000);
 
-    REQUIRE(frame_timecode::from_timecode_string("01:30:05", 60.0).value().get_frame_num()  == 324300); // 60x
-    REQUIRE(frame_timecode::from_timecode_string("01:30:05.999", 60.0).value().get_frame_num()  == 324360);
-    REQUIRE(frame_timecode::from_timecode_string("00:00:00", 60.0).value().get_frame_num() == 0);
-    REQUIRE(frame_timecode::from_timecode_string("09:59:59", 60.0).value().get_frame_num() == 2159940);
-    REQUIRE(frame_timecode::from_timecode_string("09:59:59.999", 60.0).value().get_frame_num() == 2160000);
+    REQUIRE(FrameTimeCode::from_timecode_string("01:30:05", 60.0).value().get_frame_num()  == 324300); // 60x
+    REQUIRE(FrameTimeCode::from_timecode_string("01:30:05.999", 60.0).value().get_frame_num()  == 324360);
+    REQUIRE(FrameTimeCode::from_timecode_string("00:00:00", 60.0).value().get_frame_num() == 0);
+    REQUIRE(FrameTimeCode::from_timecode_string("09:59:59", 60.0).value().get_frame_num() == 2159940);
+    REQUIRE(FrameTimeCode::from_timecode_string("09:59:59.999", 60.0).value().get_frame_num() == 2160000);
 }
 
 // Compare, Add, and substract
@@ -44,17 +44,17 @@ TEST_CASE("FrameTime comparison - equal", "[FrameTime comparison]") {
 TEST_CASE("FrameTime comparison - Add and substract", "[FrameTime comparison]") {
     std::vector<FrameTimeCode> list_a;
     list_a.push_back(FrameTimeCode(10, 1.0));
-    list_a.push_back(frame_timecode::from_timecode_string("00:00:10", 1.0).value());
-    list_a.push_back(frame_timecode::from_frame_nums(10, 1.0).value());
-    list_a.push_back(frame_timecode::from_seconds(10.0f, 1.0).value());
-    list_a.push_back(frame_timecode::from_seconds(10, 1.0).value());
+    list_a.push_back(FrameTimeCode::from_timecode_string("00:00:10", 1.0).value());
+    list_a.push_back(FrameTimeCode::from_frame_nums(10, 1.0).value());
+    list_a.push_back(FrameTimeCode::from_seconds(10.0f, 1.0).value());
+    list_a.push_back(FrameTimeCode::from_seconds(10, 1.0).value());
 
     std::vector<FrameTimeCode> list_b;
     list_b.push_back(FrameTimeCode(5, 1.0));
-    list_b.push_back(frame_timecode::from_timecode_string("00:00:05", 1.0).value());
-    list_b.push_back(frame_timecode::from_frame_nums(5, 1.0).value());
-    list_b.push_back(frame_timecode::from_seconds(5.0f, 1.0).value());
-    list_b.push_back(frame_timecode::from_seconds(5, 1.0).value());
+    list_b.push_back(FrameTimeCode::from_timecode_string("00:00:05", 1.0).value());
+    list_b.push_back(FrameTimeCode::from_frame_nums(5, 1.0).value());
+    list_b.push_back(FrameTimeCode::from_seconds(5.0f, 1.0).value());
+    list_b.push_back(FrameTimeCode::from_seconds(5, 1.0).value());
 
     for(const FrameTimeCode& a : list_a) {
         for(const FrameTimeCode& b : list_b) {

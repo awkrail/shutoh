@@ -17,7 +17,7 @@ FrameTimeCode VideoStream::position() const {
     if (frame_num < 1)
         return start_;
 
-    WithError<FrameTimeCode> cur_timecode = frame_timecode::from_frame_nums(frame_num - 1, framerate_);
+    WithError<FrameTimeCode> cur_timecode = FrameTimeCode::from_frame_nums(frame_num - 1, framerate_);
     return cur_timecode.value();
 }
 
@@ -36,23 +36,23 @@ int32_t VideoStream::height() const {
 WithError<void> VideoStream::set_time(const std::optional<std::string>& start, const std::optional<std::string>& end, 
                                       const std::optional<std::string>& duration) {
     if (start.has_value()) {
-        const WithError<FrameTimeCode> start_err = frame_timecode::from_timecode_string(start.value(), framerate_);
+        const WithError<FrameTimeCode> start_err = FrameTimeCode::from_timecode_string(start.value(), framerate_);
         if (start_err.has_error())
             return WithError<void> { start_err.error };
         start_ = start_err.value();
     }
 
     const int32_t frame_num = static_cast<int32_t>(cap_.get(cv::CAP_PROP_POS_FRAMES));
-    const FrameTimeCode video_end = frame_timecode::from_frame_nums(frame_num, framerate_).value();
+    const FrameTimeCode video_end = FrameTimeCode::from_frame_nums(frame_num, framerate_).value();
 
     if (end.has_value()) {
-        const WithError<FrameTimeCode> end_err = frame_timecode::from_timecode_string(end.value(), framerate_);
+        const WithError<FrameTimeCode> end_err = FrameTimeCode::from_timecode_string(end.value(), framerate_);
         if (end_err.has_error())
             return WithError<void> { end_err.error };
         end_ = end_err.value() <= video_end ? end_err.value() : video_end;
 
     } else if (duration.has_value()) {
-        const WithError<FrameTimeCode> duration_err = frame_timecode::from_timecode_string(duration.value(), framerate_);
+        const WithError<FrameTimeCode> duration_err = FrameTimeCode::from_timecode_string(duration.value(), framerate_);
         if (duration_err.has_error())
             return WithError<void> { duration_err.error };
         
