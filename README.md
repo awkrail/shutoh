@@ -7,14 +7,15 @@ Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shut
 
 **Note:** This project is work in progress and the current codebase may be changed signficantly.
 
-# Performance
-[WIP]: Evaluated results
+## Installation
+### Package manager (WIP)
+```shell
+# Debian
+sudo apt install shutoh
+```
 
-# Installation
-[WIP]: Installation
-
-## Build
-Install dependency libraries: FFmpeg and openCV. If you are an Ubuntu user, run:
+### Build from Source
+Ensure that FFmpeg and OpenCV are installed. On Ubuntu, run:
 ```shell
 apt install libopencv-dev ffmpeg
 ```
@@ -22,7 +23,10 @@ Then, build `shutoh` with `cmake` as:
 ```shell
 cmake -S . -B build
 cmake --build build
+sudo make install
 ```
+
+### Run tests
 Run test using `ctest` as:
 ```shell
 cd build
