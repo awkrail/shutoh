@@ -37,16 +37,19 @@ ctest
 I focus on three commands (`split-video`, `list-scenes`, and `save-images`) and remove several options for simplicity.
 Split an input video into cuts:
 ```
-./build/shutoh -i video/input.mp4 -c split-video
+./build/shutoh_cli -i video/input.mp4 -c split-video
 ```
 Save scenes as csv file:
 ```
-./build/shutoh -i video/input.mp4 -c list-scenes
+./build/shutoh_cli -i video/input.mp4 -c list-scenes
 ```
 
 ## API
 ### Python
-WIP
+```python
+from libshutoh import detect
+scenes = detect('video/input.mp4')
+```
 
 ### C++
 The simpletest code is as follow:
