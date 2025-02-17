@@ -7,7 +7,7 @@
 
 #include <regex>
 
-std::unique_ptr<BaseDetector> _select_detector(const DetectorParameters& params) {
+std::shared_ptr<BaseDetector> _select_detector(const DetectorParameters& params) {
     switch (params.detector_type) {
         case DetectorType::CONTENT:
             return ContentDetector::initialize_detector(params.threshold, params.min_scene_len);

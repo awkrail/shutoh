@@ -45,7 +45,7 @@ float ThresholdDetector::_compute_frame_average(const cv::Mat& frame) const {
     return static_cast<float>(sum_value[0] + sum_value[1] + sum_value[2]) / total_pixels;
 }
 
-std::unique_ptr<ThresholdDetector> ThresholdDetector::initialize_detector(float threshold, int32_t min_scene_len, float fade_bias) {
+std::shared_ptr<ThresholdDetector> ThresholdDetector::initialize_detector(float threshold, int32_t min_scene_len, float fade_bias) {
     if (threshold < 0) {
         std::cout << "Warning: threshold should be positive and is reset to 12.0f." << std::endl;
         threshold = 12.0f;
@@ -61,5 +61,5 @@ std::unique_ptr<ThresholdDetector> ThresholdDetector::initialize_detector(float 
         fade_bias = 0.0f;
     }
 
-    return std::make_unique<ThresholdDetector>(threshold, min_scene_len, fade_bias);
+    return std::make_shared<ThresholdDetector>(threshold, min_scene_len, fade_bias);
 }

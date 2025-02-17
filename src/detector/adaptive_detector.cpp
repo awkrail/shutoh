@@ -55,7 +55,7 @@ float AdaptiveDetector::_calculate_average_window_score() const {
     return average_window_score / (2.0f * window_width_);
 }
 
-std::unique_ptr<AdaptiveDetector> AdaptiveDetector::initialize_detector(float adaptive_threshold, int32_t min_scene_len,
+std::shared_ptr<AdaptiveDetector> AdaptiveDetector::initialize_detector(float adaptive_threshold, int32_t min_scene_len,
                                                                         int32_t window_width, float min_content_val) {
     if (adaptive_threshold < 0.0) {
         std::cout << "Warning: threshold should be positive and is reset to be 3.0" << std::endl;
@@ -73,5 +73,5 @@ std::unique_ptr<AdaptiveDetector> AdaptiveDetector::initialize_detector(float ad
         std::cout << "Warning: min_content_val should be positive and is reset to be 15.0" << std::endl;
         min_content_val = 15.0; 
     }
-    return std::make_unique<AdaptiveDetector>(adaptive_threshold, min_scene_len, window_width, min_content_val);
+    return std::make_shared<AdaptiveDetector>(adaptive_threshold, min_scene_len, window_width, min_content_val);
 }

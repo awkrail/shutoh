@@ -81,7 +81,7 @@ struct Config {
     const float fade_bias;
 };
 
-std::unique_ptr<BaseDetector> _select_detector(const DetectorParameters& params);
+std::shared_ptr<BaseDetector> _select_detector(const DetectorParameters& params);
 std::string _interpret_filename(const std::filesystem::path& input_path,
                                 const argparse::ArgumentParser& program);
 DetectorType _convert_name_to_type(const std::string& detector_name);

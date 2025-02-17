@@ -43,7 +43,7 @@ void HistogramDetector::_calculate_histogram(const cv::Mat& frame, cv::Mat& hist
     cv::normalize(hist, hist);
 }
 
-std::unique_ptr<HistogramDetector> HistogramDetector::initialize_detector(float threshold, int32_t min_scene_len, int32_t bins) {
+std::shared_ptr<HistogramDetector> HistogramDetector::initialize_detector(float threshold, int32_t min_scene_len, int32_t bins) {
     if (threshold < 0) {
         std::cout << "Warning: threshold should be positive and is reset to 0.05f." << std::endl;
         threshold = 0.05f;
@@ -59,5 +59,5 @@ std::unique_ptr<HistogramDetector> HistogramDetector::initialize_detector(float 
         bins = 256;
     }
 
-    return std::make_unique<HistogramDetector>(threshold, min_scene_len, bins);
+    return std::make_shared<HistogramDetector>(threshold, min_scene_len, bins);
 }

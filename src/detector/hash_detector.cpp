@@ -90,7 +90,7 @@ float HashDetector::_calculate_median_in_DCT(const cv::Mat& dct) const {
     return median;
 }
 
-std::unique_ptr<HashDetector> HashDetector::initialize_detector(float threshold, int32_t min_scene_len,
+std::shared_ptr<HashDetector> HashDetector::initialize_detector(float threshold, int32_t min_scene_len,
                                                                 int32_t dct_size, int32_t lowpass) {
     if (threshold < 0.0f) {
         std::cout << "Warning: threshold should be positive and is reset to 27.0f." << std::endl;
@@ -111,5 +111,5 @@ std::unique_ptr<HashDetector> HashDetector::initialize_detector(float threshold,
         std::cout << "Warning: low_pass should be positive and is reset to 2." << std::endl;
     }
 
-    return std::make_unique<HashDetector>(threshold, min_scene_len, dct_size, lowpass);
+    return std::make_shared<HashDetector>(threshold, min_scene_len, dct_size, lowpass);
 }

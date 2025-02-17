@@ -14,7 +14,7 @@ class HistogramDetector : public BaseDetector {
         HistogramDetector(const float threshold = 0.05f, const int32_t min_scene_len = 15,
                           const int32_t bins = 256);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
-        static std::unique_ptr<HistogramDetector> initialize_detector(float threshold = 0.05f,
+        static std::shared_ptr<HistogramDetector> initialize_detector(float threshold = 0.05f,
                                                                       int32_t min_scene_len = 15,
                                                                       int32_t bins = 256);
     

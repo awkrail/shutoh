@@ -33,7 +33,7 @@ float ContentDetector::_mean_pixel_distance(const VideoFrame& next_frame) const 
     return pixel_diff_sum;
 }
 
-std::unique_ptr<ContentDetector> ContentDetector::initialize_detector(float threshold, int32_t min_scene_len) {
+std::shared_ptr<ContentDetector> ContentDetector::initialize_detector(float threshold, int32_t min_scene_len) {
     if (threshold < 0.0) {
         std::cout << "Warning: threshold should be positive and is reset to be 27.0f" << std::endl;
         threshold = 27.0f;
@@ -43,5 +43,5 @@ std::unique_ptr<ContentDetector> ContentDetector::initialize_detector(float thre
         std::cout << "Warning: min_scene_len should be positive and is reset to be 15" << std::endl;
         min_scene_len = 15;
     }
-    return std::make_unique<ContentDetector>(threshold, min_scene_len);
+    return std::make_shared<ContentDetector>(threshold, min_scene_len);
 }

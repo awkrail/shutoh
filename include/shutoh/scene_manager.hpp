@@ -18,7 +18,7 @@ template <typename T> struct WithError;
 
 class SceneManager {
     public:
-        SceneManager(std::unique_ptr<BaseDetector> detector);
+        SceneManager(std::shared_ptr<BaseDetector> detector);
         void detect_scenes(VideoStream& video);
         WithError<std::vector<FrameTimeCodePair>> get_scene_list() const;
 
@@ -31,7 +31,7 @@ class SceneManager {
 
         cv::Mat previous_frame_;
         std::vector<int32_t> cutting_list_;
-        std::unique_ptr<BaseDetector> detector_;
+        std::shared_ptr<BaseDetector> detector_;
         float framerate_ = 0.0f;
         std::optional<FrameTimeCode> start_ = std::nullopt;
         std::optional<FrameTimeCode> end_ = std::nullopt;

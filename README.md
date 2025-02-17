@@ -47,8 +47,9 @@ Save scenes as csv file:
 ## API
 ### Python
 ```python
-from libshutoh import detect
-scenes = detect('video/input.mp4')
+from libshutoh import detect, ContentDetector
+detector = ContentDetector.initialize_detector()
+scenes = detect('video/input.mp4', detector)
 ```
 
 ### C++

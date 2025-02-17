@@ -10,7 +10,7 @@
 constexpr int32_t DEFAULT_MIN_WIDTH = 256;
 constexpr int32_t MAX_FRAME_QUEUE_LENGTH = 100;
 
-SceneManager::SceneManager(std::unique_ptr<BaseDetector> detector) : detector_{std::move(detector)} {}
+SceneManager::SceneManager(std::shared_ptr<BaseDetector> detector) : detector_{detector} {}
 
 void SceneManager::detect_scenes(VideoStream& video) {
     start_ = video.get_start();
