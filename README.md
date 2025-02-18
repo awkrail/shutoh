@@ -10,31 +10,23 @@ Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shut
 ## Installation
 ### Package manager (WIP)
 ```shell
+# Install dependency libraries
+sudo apt install libopencv-dev ffmpeg cmake
 # Debian
 sudo apt install shutoh
 ```
 
 ### Build from Source
-Ensure that FFmpeg and OpenCV are installed. On Ubuntu, run:
-```shell
-apt install libopencv-dev ffmpeg
-```
-Then, build `shutoh` with `cmake` as:
+Ensure that FFmpeg, OpenCV, and CMake are installed.
+To build `shutoh` with `cmake`, run:
 ```shell
 cmake -S . -B build
 cmake --build build
 sudo make install
 ```
 
-### Run tests
-Run test using `ctest` as:
-```shell
-cd build
-ctest
-```
-
 ## Quick Start (Command Line)
-I focus on three commands (`split-video`, `list-scenes`, and `save-images`) and remove several options for simplicity.
+I focus on three commands: `split-video`, `list-scenes`, and `save-images`.
 Split an input video into cuts:
 ```
 ./build/shutoh_cli -i video/input.mp4 -c split-video
@@ -46,6 +38,11 @@ Save scenes as csv file:
 
 ## API
 ### Python
+I prepare Python wrapper for Shutoh. To use it, you first install PySceneDetect as:
+```
+pip install scenedetect
+```
+Then run the following python snipet.
 ```python
 from libshutoh import detect, ContentDetector
 detector = ContentDetector.initialize_detector()
@@ -64,7 +61,7 @@ The simpletest code is as follow:
 int main() {
     VideoStream video = VideoStream::initialize_video_stream("../video/input.mp4").value();
     auto detector = ContentDetector::initialize_detector();
-    SceneManager scene_manager = SceneManager(std::move(detector));
+    SceneManager scene_manager = SceneManager(detector);
     scene_manager.detect_scenes(video);
     std::vector<FrameTimeCodePair> scene_list = scene_manager.get_scene_list().value();
 
@@ -106,6 +103,13 @@ Then run:
 ```shell
 cmake -S . -B build
 cmake --build build
+```
+
+## Tests
+Run test using `ctest`:
+```shell
+cd build
+ctest
 ```
 
 ## Contribution

@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     const DetectorParameters params = initialize_parameters(cfg);
     auto detector = _select_detector(params);
     
-    SceneManager scene_manager = SceneManager(std::move(detector));
+    SceneManager scene_manager = SceneManager(detector);
     scene_manager.detect_scenes(video);
     WithError<std::vector<FrameTimeCodePair>> opt_scene_list = scene_manager.get_scene_list();
     if (opt_scene_list.has_error()) {
