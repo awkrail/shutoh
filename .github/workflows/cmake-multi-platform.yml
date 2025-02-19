@@ -38,12 +38,6 @@ jobs:
           - os: ubuntu-22.04
             c_compiler: clang
             cpp_compiler: clang++
-          - os: centos-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: centos-latest
-            c_compiler: clang
-            cpp_compiler: clang++
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -66,23 +60,23 @@ jobs:
       run: |
         sudo apt update
         sudo apt upgrade
-        sudo apt install -y libopencv-dev g++ clang ffmpeg
+        sudo apt install -y libopencv-dev g++ clang
 
     - name: Install dependencies (CentOS)
       if: matrix.os == 'centos-latest'
       run: |
         sudo yum install -y epel-release
-        sudo yum install -y opencv-devel ffmpeg gcc-c++ clang
+        sudo yum install -y opencv-devel gcc-c++ clang
 
     - name: Install dependency libraries (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        brew install opencv ffmpeg gcc
+        brew install opencv gcc
 
     - name: Install dependency libraries (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        vcpkg install opencv:x64-windows ffmpeg:x64-windows
+        vcpkg install opencv:x64-windows
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
