@@ -12,12 +12,12 @@ struct VideoFrame;
 
 class ContentDetector : public BaseDetector {
     public:
-        ContentDetector(const float threshold = 27.0f, const int32_t min_scene_len = 15);
+        explicit ContentDetector(const float threshold = 27.0f, const int32_t min_scene_len = 15);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
         std::optional<float> get_frame_score() const { return frame_score_; }
         static std::shared_ptr<ContentDetector> initialize_detector(float threshold = 27.0f,
                                                                     int32_t min_scene_len = 15);
-
+        
     private:
         float _calculate_frame_score(const VideoFrame& next_frame);
         float _mean_pixel_distance(const VideoFrame& next_frame) const;

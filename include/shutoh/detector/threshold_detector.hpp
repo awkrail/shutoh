@@ -14,7 +14,8 @@ enum class Fade {
 
 class ThresholdDetector : public BaseDetector {
     public:
-        ThresholdDetector(const float threshold = 12.0f, const int32_t min_scene_len = 15, const float fade_bias = 0.0f);
+        explicit ThresholdDetector(const float threshold = 12.0f, const int32_t min_scene_len = 15, 
+                                   const float fade_bias = 0.0f);
         std::optional<int32_t> process_frame(const VideoFrame& next_frame) override;
         static std::shared_ptr<ThresholdDetector> initialize_detector(float threshold = 12.0f,
                                                                       int32_t min_scene_len = 15,

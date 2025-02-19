@@ -7,11 +7,11 @@
 #include <regex>
 #include <fmt/core.h>
 
-FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode)
-    : framerate_{timecode.framerate_}, frame_num_{timecode.frame_num_} {}
-
 FrameTimeCode::FrameTimeCode(const int32_t frame_num, const float fps) 
     : framerate_{fps}, frame_num_{frame_num} {}
+
+FrameTimeCode::FrameTimeCode(const FrameTimeCode& timecode)
+    : framerate_{timecode.framerate_}, frame_num_{timecode.frame_num_} {}
 
 WithError<int32_t> FrameTimeCode::parse_timecode_string(const std::string& timecode_str) const {
     /*
