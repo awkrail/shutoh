@@ -23,7 +23,7 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest] # TODO: add windows-latest, macos-latest
+        os: [ubuntu-latest, ubuntu-22.04, centos-latest, macos-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, clang]
         include:
@@ -33,6 +33,24 @@ jobs:
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+          - os: ubuntu-22.04
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-22.04
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: centos-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: centos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
 
     steps:
     - uses: actions/checkout@v4
@@ -44,12 +62,28 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Install dendency libraries
-      if: matrix.os == 'ubuntu-latest'
+    - name: Install dendency libraries (Ubuntu)
+      if: startsWith(matrix.os, 'ubuntu')
       run: |
         sudo apt update
         sudo apt upgrade
-        sudo apt install -y libopencv-dev g++ clang
+        sudo apt install -y libopencv-dev g++ clang ffmpeg
+
+    - name: Install dependencies (CentOS)
+      if: matrix.os == 'centos-latest'
+      run: |
+        sudo yum install -y epel-release
+        sudo yum install -y opencv-devel ffmpeg gcc-c++ clang
+
+    - name: Install dependency libraries (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install opencv ffmpeg
+
+    - name: Install dependency libraries (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        vcpkg install opencv:x64-windows ffmpeg:x64-windows
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -59,7 +93,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_STANDARD=17
+        -DCMAKE_CXX_STANDARD=20
         -DCMAKE_CXX_STANDARD_REQUIRED=ON
         -S ${{ github.workspace }}
 
