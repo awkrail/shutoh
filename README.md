@@ -1,4 +1,8 @@
 # Shutoh
+
+[![Build](https://github.com/awkrail/shutoh/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/awkrail/shutoh/actions/workflows/cmake-multi-platform.yml)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+
 Shutoh (手刀, meaning karate chop in Japanese) is a fast and efficient scene detection tool implemented in C++20.
 Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shutoh aims to provide a powerful and flexible alternative with enhanced performance. The key features of Shutoh is threefold:
 - **Fast**: Shutoh leverages the speed of C++ for faster processing compared to PySceneDetect.
