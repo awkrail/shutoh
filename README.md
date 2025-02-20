@@ -10,16 +10,12 @@ Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shut
 - **Flexible**: Supports both rule-based and machine-learning-based approaches.
 
 ## Installation
-### Package manager
-```shell
-# Install dependency libraries
-sudo apt install libopencv-dev ffmpeg cmake
-# Debian
-sudo apt install shutoh
-```
 
 ### Build from Source
 Ensure that FFmpeg, OpenCV, and CMake are installed.
+```
+sudo apt install libopencv-dev ffmpeg cmake
+```
 To build `shutoh` with `cmake`, run:
 ```shell
 cmake -S . -B build
