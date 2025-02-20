@@ -20,9 +20,11 @@ FetchContent_Declare(
   GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
 FetchContent_MakeAvailable(fmt)
 
-find_package(OpenCV REQUIRED)
+if(WIN32)
+    set(OpenCV_DIR "C:/opencv-4.10.0/build")
+endif()
 
-# Tests
+find_package(OpenCV REQUIRED)
 file(GLOB TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
 
 add_executable(tests ${TEST_SOURCES})

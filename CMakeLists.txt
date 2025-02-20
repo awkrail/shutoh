@@ -28,6 +28,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
+if(WIN32)
+    set(OpenCV_DIR "C:/opencv-4.10.0/build")
+endif()
+
 find_package(OpenCV REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
