@@ -5,6 +5,7 @@ project(shutoh VERSION 0.1)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -27,10 +28,6 @@ FetchContent_Declare(
   GIT_TAG        v2.11.1
 )
 FetchContent_MakeAvailable(pybind11)
-
-if(WIN32)
-    set(OpenCV_DIR "C:/opencv-4.10.0/build")
-endif()
 
 find_package(OpenCV REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
