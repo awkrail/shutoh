@@ -89,6 +89,7 @@ jobs:
         -DCMAKE_CXX_STANDARD=20
         -DCMAKE_CXX_STANDARD_REQUIRED=ON
         -S ${{ github.workspace }}
+        ${{ matrix.os == 'windows-latest' && '-DOpenCV_DIR=C:/opencv-4.10.0/build' || '' }}
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
