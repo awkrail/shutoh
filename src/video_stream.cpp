@@ -92,7 +92,7 @@ WithError<VideoStream> VideoStream::initialize_video_stream(const std::filesyste
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::NoSuchFile, error_msg) };
     }
 
-    cv::VideoCapture cap(input_path);
+    cv::VideoCapture cap(input_path.string());
     if (!cap.isOpened()) {
         const std::string error_msg = "Failed to open the video: " + input_path.string();
         return WithError<VideoStream> { std::nullopt, Error(ErrorCode::FailedToOpenFile, error_msg) };
