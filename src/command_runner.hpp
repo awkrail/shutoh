@@ -14,7 +14,7 @@ struct Config;
 
 class CommandRunner {
     public:
-        CommandRunner(const Config& cfg, const std::vector<FrameTimeCodePair>& scene_list);
+        explicit CommandRunner(const Config& cfg, const std::vector<FrameTimeCodePair>& scene_list);
         WithError<void> execute(VideoStream& video) const;
 
     private:

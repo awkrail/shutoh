@@ -18,7 +18,7 @@ template <typename T> struct WithError;
 
 class SceneManager {
     public:
-        SceneManager(std::shared_ptr<BaseDetector> detector);
+        explicit SceneManager(std::shared_ptr<BaseDetector> detector);
         void detect_scenes(VideoStream& video);
         WithError<std::vector<FrameTimeCodePair>> get_scene_list() const;
 

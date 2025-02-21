@@ -11,8 +11,8 @@ template <typename T> struct WithError;
 
 class VideoSplitter {
     public:
-        VideoSplitter(const std::filesystem::path& output_dir, const std::string& output_filename, 
-                      const int32_t crf, const std::string& preset, const std::string& ffmpeg_args);
+        explicit VideoSplitter(const std::filesystem::path& output_dir, const std::string& output_filename, 
+                               const int32_t crf, const std::string& preset, const std::string& ffmpeg_args);
         void split_video(const std::filesystem::path& input_path,
                          const std::vector<FrameTimeCodePair>& scene_list) const;
 

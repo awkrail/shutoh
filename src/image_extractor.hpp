@@ -38,9 +38,9 @@ struct ResizedSize {
 
 class ImageExtractor {
     public:
-        ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, const int32_t num_images, 
-                       const int32_t frame_margin, const std::string& format, const int32_t quality, const std::optional<int32_t> width,
-                       const std::optional<int32_t> height, const std::optional<float> scale);
+        explicit ImageExtractor(const std::filesystem::path& output_dir, const std::string output_filename, const int32_t num_images, 
+                                const int32_t frame_margin, const std::string& format, const int32_t quality, const std::optional<int32_t> width,
+                                const std::optional<int32_t> height, const std::optional<float> scale);
         
         WithError<void> save_images(VideoStream& video, const std::vector<FrameTimeCodePair>& scene_list) const;
 

@@ -12,7 +12,7 @@ template <typename T> struct WithError;
 
 class VideoStream {
     public:
-        VideoStream(const std::string& input_path, const float framerate, cv::VideoCapture& cap);
+        explicit VideoStream(const std::string& input_path, const float framerate, cv::VideoCapture& cap);
         FrameTimeCode position() const;
         bool is_end_frame() const;
 

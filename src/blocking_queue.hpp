@@ -8,7 +8,7 @@
 template <typename T>
 class BlockingQueue {
     public:
-        BlockingQueue(size_t max_size) : max_size_{max_size} {}
+        explicit BlockingQueue(size_t max_size) : max_size_{max_size} {}
 
         void push(const T& item) {
             std::unique_lock<std::mutex> lock(mutex_);
