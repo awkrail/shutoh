@@ -6,25 +6,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-include(FetchContent)
-FetchContent_Declare(
-    argparse
-    GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-)
-FetchContent_MakeAvailable(argparse)
-
-include(FetchContent)
-FetchContent_Declare(
-  fmt
-  GIT_REPOSITORY https://github.com/fmtlib/fmt
-  GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
-FetchContent_MakeAvailable(fmt)
-
-if(WIN32)
-    set(OpenCV_DIR "C:/opencv-4.10.0/build")
-endif()
-
-find_package(OpenCV REQUIRED)
 file(GLOB TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
 
 add_executable(tests ${TEST_SOURCES})

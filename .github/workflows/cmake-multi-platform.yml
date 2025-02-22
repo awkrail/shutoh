@@ -87,6 +87,10 @@ jobs:
         ${{ matrix.os == 'windows-latest' && '-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake' || '' }}
         -S ${{ github.workspace }}
 
+    - name: Add shutoh.dll to PATH (Windows)
+      if: matrix.os == 'windows-latest'
+      run: echo "D:\a\shutoh\shutoh\build\Release" >> $GITHUB_PATH
+
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
