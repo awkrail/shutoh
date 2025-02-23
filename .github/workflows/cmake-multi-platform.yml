@@ -57,12 +57,12 @@ jobs:
       run: |
         sudo apt update
         sudo apt upgrade
-        sudo apt install -y libopencv-dev g++ clang
+        sudo apt install -y libopencv-dev g++ clang libfmt-dev
 
     - name: Install dependency libraries (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        brew install opencv gcc
+        brew install opencv gcc fmt
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

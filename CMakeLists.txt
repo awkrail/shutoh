@@ -16,13 +16,6 @@ FetchContent_MakeAvailable(argparse)
 
 include(FetchContent)
 FetchContent_Declare(
-  fmt
-  GIT_REPOSITORY https://github.com/fmtlib/fmt
-  GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
-FetchContent_MakeAvailable(fmt)
-
-include(FetchContent)
-FetchContent_Declare(
   pybind11
   GIT_REPOSITORY https://github.com/pybind/pybind11.git
   GIT_TAG        v2.11.1
@@ -30,6 +23,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(pybind11)
 
 find_package(OpenCV REQUIRED)
+find_package(fmt REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 # Library
