@@ -36,11 +36,8 @@ Save scenes as csv file:
 
 ## API
 ### Python
-I prepare Python wrapper for Shutoh. To use it, you first install PySceneDetect as:
-```
-pip install scenedetect
-```
-Then run the following python snipet.
+I prepare Python wrapper for Shutoh. To use it, run `pip install .` to install python wrapper. 
+Then run the following python code.
 ```python
 from libshutoh import detect, ContentDetector
 detector = ContentDetector.initialize_detector()
