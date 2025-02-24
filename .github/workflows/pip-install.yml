@@ -1,6 +1,6 @@
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: Build
+name: pip install
 
 on:
   push:
@@ -57,31 +57,32 @@ jobs:
       run: |
         sudo apt update
         sudo apt upgrade
-        sudo apt install -y libopencv-dev g++ clang libfmt-dev
+        sudo apt install -y libopencv-dev g++ clang libfmt-dev \
+          build-essential libbz2-dev libdb-dev libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
+          libncursesw5-dev libsqlite3-dev libssl-dev zlib1g-dev uuid-dev tk-dev
 
     - name: Install dependency libraries (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         brew install opencv gcc fmt
 
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_STANDARD=20
-        -DCMAKE_CXX_STANDARD_REQUIRED=ON
-        -S ${{ github.workspace }}
+    - name: Install Python (Ubuntu)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        wget https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tar.xz
+        tar xJf Python-3.13.0.tar.xz
+        cd Python-3.13.0
+        ./configure
+        make
+        sudo make install
 
-    - name: Build
-      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --verbose --parallel
+    - name: Install Python (Mac)
+      if: matrix.os == 'macos-latest'
+      run: brew install python
+
+    - name: Run setup.py
+      working-directory: ${{ github.workspace }}
+      run: pip install .
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure
+      run: python -c "import libshutoh; print(libshutoh.__version__)"

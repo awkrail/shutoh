@@ -73,7 +73,7 @@ int main() {
 ```
 To compile the code, run the following g++ command (replace `-I` and `-L` with your directory):
 ```
-g++ -std=c++20 -I/path/to/shutoh/include -I/usr/include/opencv4 main.cpp -L/path/to/shutoh/build -lopencv_core -lopencv_videoio -Wl,-rpath,/path/to/build -lshutoh_lib
+g++ -std=c++20 -I/path/to/shutoh/include -I/usr/include/opencv4 main.cpp -L/path/to/shutoh/build -lopencv_core -lopencv_videoio -lfmt -Wl,-rpath,/path/to/build -lshutoh_lib
 ```
 If you want to use Cmake, you can build `shutoh` with follwoing `CMakeLists.txt`:
 ```cmake

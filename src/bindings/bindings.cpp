@@ -47,6 +47,12 @@ auto _detect(const std::string& input_path, std::shared_ptr<BaseDetector> detect
 }
 
 PYBIND11_MODULE(libshutoh, m) {
+    m.doc() = "Shutoh - Yet another fast scene detector";
+
+    #ifdef SHUTOH_VERSION_INFO
+        m.attr("__version__") = SHUTOH_VERSION_INFO;
+    #endif
+
     bind_base_detector(m);
     bind_content_detector(m);
     bind_adaptive_detector(m);
