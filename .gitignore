@@ -39,3 +39,6 @@ build
 
 # vscode
 .vscode
+
+# python
+*.egg-info
