@@ -66,8 +66,7 @@ jobs:
       run: |
         brew install opencv gcc fmt
 
-    - name: Install Python (Ubuntu)
-      if: startsWith(matrix.os, 'ubuntu')
+    - name: Install Python
       run: |
         wget https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tar.xz
         tar xJf Python-3.13.0.tar.xz
@@ -75,10 +74,6 @@ jobs:
         ./configure
         make
         sudo make install
-
-    - name: Install Python (Mac)
-      if: matrix.os == 'macos-latest'
-      run: brew install python
 
     - name: Install Python libraries
       run: pip install scenedetect pybind11
