@@ -71,12 +71,15 @@ jobs:
     - name: Install Python libraries
       run: pip install scenedetect pybind11
 
-    - name: Check pybind11
-      run: python -c "import pybind11; print(pybind11.__version__)"
+    - name: Show pybind11 info
+      run: pip show pybind11
+
+    - name: Check Python sys.path
+      run: python -c "import sys; print('\n'.join(sys.path))"
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
-      run: pip install .
+      run: pip install --user .
 
     - name: Test
       run: python -c "import libshutoh; print(libshutoh.__version__)"
