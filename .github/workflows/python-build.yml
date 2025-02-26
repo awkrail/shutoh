@@ -49,14 +49,16 @@ jobs:
     - name: Python setup
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13'
+        python-version: 3.13
 
-    - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      id: strings
-      shell: bash
+    - name: Check python path and version
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        python --version
+        which pip
+        which python
+        python3 --version
+        which python3
+        which pip3
 
     - name: Install dendency libraries (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
