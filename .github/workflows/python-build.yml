@@ -72,8 +72,13 @@ jobs:
       run: |
         brew install opencv gcc fmt
 
+    - name: Debug Python environment
+      run: |
+        python3 -m site
+        echo $PYTHONPATH
+
     - name: Install Python libraries
-      run: pip install scenedetect pybind11
+      run: pip install scenedetect pybind11-global
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
