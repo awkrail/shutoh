@@ -1,4 +1,5 @@
 import glob
+import subprocess
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 
@@ -14,12 +15,21 @@ exclude_files = [
     "src/video_splitter.cpp"
 ]
 
+def get_include_path(pkg_name):
+    output = subprocess.run(["pkg-config", "--cflags", pkg_name], encoding="utf-8", capture_output=True, text=True).stdout
+    return output.strip().replace("-I", "")
+
+def get_library_path(pkg_name):
+    output = subprocess.run(["pkg-config", "--libs", pkg_name], encoding="utf-8", capture_output=True, text=True).stdout
+    lib_path = [x.replace("-L", "") for x in output.strip().split(" ") if x[:2] == "-L"]
+    return lib_path[0] if len(lib_path) != 0 else ""
+
 ext_modules = [
     Pybind11Extension(
         "libshutoh",
         sorted([x for x in glob.glob("src/**/*.cpp", recursive=True) if not x in exclude_files]),
-        include_dirs=["include/", "/usr/include/opencv4", "/usr/local/include/fmt"],
-        library_dirs=["/usr/local/lib"],
+        include_dirs=["include/", get_include_path("opencv4"), get_include_path("fmt")],
+        library_dirs=[get_library_path("fmt")],
         libraries=["opencv_core", "opencv_videoio", "fmt"],
         language="c++",
         cxx_std=20,
