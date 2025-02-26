@@ -24,6 +24,10 @@ def get_library_path(pkg_name):
     lib_path = [x.replace("-L", "") for x in output.strip().split(" ") if x[:2] == "-L"]
     return lib_path[0] if len(lib_path) != 0 else ""
 
+print(get_include_path("opencv4"))
+print(get_include_path("fmt") + "/fmt")
+print(get_library_path("fmt"))
+
 ext_modules = [
     Pybind11Extension(
         "libshutoh",
