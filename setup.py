@@ -1,5 +1,5 @@
 import glob
-import subprocess
+import platform
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 
@@ -15,14 +15,19 @@ exclude_files = [
     "src/video_splitter.cpp"
 ]
 
-def get_include_path(pkg_name):
-    output = subprocess.run(["pkg-config", "--cflags", pkg_name], encoding="utf-8", capture_output=True, text=True).stdout
-    return output.strip().replace("-I", "")
+system = platform.system()
 
-def get_library_path(pkg_name):
-    output = subprocess.run(["pkg-config", "--libs", pkg_name], encoding="utf-8", capture_output=True, text=True).stdout
-    lib_path = [x.replace("-L", "") for x in output.strip().split(" ") if x[:2] == "-L"]
-    return lib_path[0] if len(lib_path) != 0 else ""
+if system == "Linux":
+    include_dirs = ["include", "/usr/include/opencv4", "/usr/local/include/fmt"]
+    library_dirs = ["/usr/local/lib"]
+elif ststem == "Darwin":
+    # M1 Mac configuration
+    include_dirs = ["include", "/opt/homebrew/opt/opencv@4/include/opencv4", "/opt/homebrew/include"]
+    library_dirs = ["/opt/homebrew/lib"]
+else:
+    # windows, yet TBD
+    include_dirs = []
+    library_dirs = []
 
 print(get_include_path("opencv4"))
 print(get_include_path("fmt") + "/fmt")
@@ -32,8 +37,8 @@ ext_modules = [
     Pybind11Extension(
         "libshutoh",
         sorted([x for x in glob.glob("src/**/*.cpp", recursive=True) if not x in exclude_files]),
-        include_dirs=["include/", get_include_path("opencv4"), get_include_path("fmt") + "/fmt"],
-        library_dirs=[get_library_path("fmt")],
+        include_dirs=include_dirs,
+        library_dirs=library_dirs,
         libraries=["opencv_core", "opencv_videoio", "fmt"],
         language="c++",
         cxx_std=20,
