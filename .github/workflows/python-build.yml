@@ -77,7 +77,9 @@ jobs:
         sudo make install
 
     - name: Install Python libraries
-      run: pip install scenedetect pybind11
+      run: |
+        python -m pip install --upgrade pip
+        pip install scenedetect pybind11
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
