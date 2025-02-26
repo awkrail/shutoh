@@ -28,7 +28,7 @@ ext_modules = [
     Pybind11Extension(
         "libshutoh",
         sorted([x for x in glob.glob("src/**/*.cpp", recursive=True) if not x in exclude_files]),
-        include_dirs=["include/", get_include_path("opencv4"), get_include_path("fmt")],
+        include_dirs=["include/", get_include_path("opencv4"), get_include_path("fmt") + "/fmt"],
         library_dirs=[get_library_path("fmt")],
         libraries=["opencv_core", "opencv_videoio", "fmt"],
         language="c++",
