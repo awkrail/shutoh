@@ -29,10 +29,6 @@ else:
     include_dirs = []
     library_dirs = []
 
-print(get_include_path("opencv4"))
-print(get_include_path("fmt") + "/fmt")
-print(get_library_path("fmt"))
-
 ext_modules = [
     Pybind11Extension(
         "libshutoh",
