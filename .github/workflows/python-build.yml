@@ -46,6 +46,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
     - name: Install dendency libraries (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
@@ -60,25 +67,21 @@ jobs:
       run: |
         brew install opencv gcc fmt
 
-    - name: Install pyenv
+    - name: Install Python
       run: |
-        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-        echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-        source ~/.bashrc
+        wget https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tar.xz
+        tar xJf Python-3.13.0.tar.xz
+        cd Python-3.13.0
+        ./configure
+        make
+        sudo make install
 
-    - name: Install python
-      run: |
-        pyenv install 3.13.0
-        pyenv global 3.13.0
-
-    - name: Install python libraries
+    - name: Install Python libraries
       run: pip install scenedetect pybind11
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
-      run: pip install .
+      run: pip install --user .
 
     - name: Test
       run: python -c "import libshutoh; print(libshutoh.__version__)"
