@@ -51,15 +51,6 @@ jobs:
       with:
         python-version: 3.13
 
-    - name: Check python path and version
-      run: |
-        python --version
-        which pip
-        which python
-        python3 --version
-        which python3
-        which pip3
-
     - name: Install dendency libraries (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
@@ -78,7 +69,10 @@ jobs:
         echo $PYTHONPATH
 
     - name: Install Python libraries
-      run: pip install scenedetect pybind11-global
+      run: pip install scenedetect pybind11
+
+    - name: Check pybind11
+      run: python -c "import pybind11; print(pybind11.__version__)"
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
