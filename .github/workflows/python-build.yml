@@ -1,3 +1,4 @@
+
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: Python build
@@ -43,43 +44,41 @@ jobs:
             cpp_compiler: clang++
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Python setup
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.13
+    - uses: actions/checkout@v4
 
     - name: Install dendency libraries (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         sudo apt update
         sudo apt upgrade
-        sudo apt install -y libopencv-dev g++ clang libfmt-dev
+        sudo apt install -y libopencv-dev g++ clang libfmt-dev \
+          build-essential libbz2-dev libdb-dev libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
+          libncursesw5-dev libsqlite3-dev libssl-dev zlib1g-dev uuid-dev tk-dev
 
     - name: Install dependency libraries (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         brew install opencv gcc fmt
 
-    - name: Debug Python environment
+    - name: Install pyenv
       run: |
-        python3 -m site
-        echo $PYTHONPATH
+        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+        echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+        source ~/.bashrc
 
-    - name: Install Python libraries
+    - name: Install python
+      run: |
+        pyenv install 3.13.0
+        pyenv global 3.13.0
+
+    - name: Install python libraries
       run: pip install scenedetect pybind11
-
-    - name: Show pybind11 info
-      run: pip show pybind11
-
-    - name: Check Python sys.path
-      run: python -c "import sys; print('\n'.join(sys.path))"
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
-      run: python -m pip install .
+      run: pip install .
 
     - name: Test
       run: python -c "import libshutoh; print(libshutoh.__version__)"
