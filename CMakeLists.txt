@@ -39,6 +39,7 @@ else()
     "${shutoh_SOURCE_DIR}/src/detector/*.cpp"
     "${shutoh_SOURCE_DIR}/src/bindings/*.cpp"
   )
+  set(SKIP_TESTS TRUE)
 endif()
 add_library(shutoh SHARED ${LIB_SOURCES})
 target_compile_options(shutoh PRIVATE -O3 -Wall)
@@ -50,10 +51,12 @@ add_executable(shutoh_cli src/main.cpp)
 target_link_libraries(shutoh_cli PRIVATE shutoh)
 
 # Tests
-enable_testing()
-add_subdirectory(tests)
+if (NOT SKIP_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
 
-# Install
-install(TARGETS shutoh DESTINATION lib)
-install(TARGETS shutoh_cli DESTINATION bin)
-install(DIRECTORY include/ DESTINATION include)
+  # Install
+  install(TARGETS shutoh DESTINATION lib)
+  install(TARGETS shutoh_cli DESTINATION bin)
+  install(DIRECTORY include/ DESTINATION include)
+endif()
