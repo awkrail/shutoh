@@ -68,11 +68,13 @@ jobs:
         ./configure
         make
         sudo make install
+    
+    - name: Update Setuptools (Mac)
+      if: matrix.os == 'macos-latest'
+      run: pip install --upgrade setuptools wheel
 
     - name: Install Python libraries
-      run: |
-        pip install --upgrade --no-cache-dir setuptools wheel
-        pip install scenedetect pybind11
+      run: pip install scenedetect pybind11
 
     - name: Run setup.py
       working-directory: ${{ github.workspace }}
