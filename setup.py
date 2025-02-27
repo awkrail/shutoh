@@ -26,8 +26,8 @@ elif system == "Darwin":
     # M1 Mac configuration
     include_dirs = ["include", "/opt/homebrew/opt/opencv@4/include/opencv4", "/opt/homebrew/include"]
     library_dirs = ["/opt/homebrew/lib"]
-    extra_compile_args=["-mmacosx-version-min=10.15"]
-    extra_link_args=["-mmacosx-version-min=10.15"]
+    extra_compile_args=[]
+    extra_link_args=[]
 else:
     # windows, yet TBD
     include_dirs = []
@@ -43,6 +43,8 @@ ext_modules = [
         language="c++",
         cxx_std=20,
         define_macros=[("SHUTOH_VERSION_INFO", f'"{__version__}"')],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args
     ),
 ]
 
