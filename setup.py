@@ -20,10 +20,14 @@ system = platform.system()
 if system == "Linux":
     include_dirs = ["include", "/usr/include/opencv4", "/usr/local/include/fmt"]
     library_dirs = ["/usr/local/lib"]
+    extra_compile_args=["-mmacosx-version-min=10.15"]
+    extra_link_args=["-mmacosx-version-min=10.15"]
 elif system == "Darwin":
     # M1 Mac configuration
     include_dirs = ["include", "/opt/homebrew/opt/opencv@4/include/opencv4", "/opt/homebrew/include"]
     library_dirs = ["/opt/homebrew/lib"]
+    extra_compile_args=["-mmacosx-version-min=10.15"]
+    extra_link_args=["-mmacosx-version-min=10.15"]
 else:
     # windows, yet TBD
     include_dirs = []
