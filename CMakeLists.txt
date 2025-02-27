@@ -27,10 +27,19 @@ find_package(fmt REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 # Library
-file(GLOB LIB_SOURCES 
-  "${CMAKE_SOURCE_DIR}/src/*.cpp"
-  "${CMAKE_SOURCE_DIR}/src/detector/*.cpp"
-  "${CMAKE_SOURCE_DIR}/src/bindings/*.cpp")
+if (EXISTS "${CMAKE_SOURCE_DIR}/src")
+  file(GLOB LIB_SOURCES 
+    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/detector/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/bindings/*.cpp")
+else()
+  FetchContent_MakeAvailable(shutoh)
+  file(GLOB LIB_SOURCES
+    "${shutoh_SOURCE_DIR}/src/*.cpp"
+    "${shutoh_SOURCE_DIR}/src/detector/*.cpp"
+    "${shutoh_SOURCE_DIR}/src/bindings/*.cpp"
+  )
+endif()
 add_library(shutoh SHARED ${LIB_SOURCES})
 target_compile_options(shutoh PRIVATE -O3 -Wall)
 target_include_directories(shutoh PUBLIC include ${OpenCV_INCLUDE_DIRS} ${Python3_INCLUDE_DIRS})
