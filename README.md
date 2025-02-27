@@ -58,7 +58,7 @@ The simpletest code is as follow:
 #include "shutoh/detector/content_detector.hpp"
 
 int main() {
-    VideoStream video = VideoStream::initialize_video_stream("../video/input.mp4").value();
+    VideoStream video = VideoStream::initialize_video_stream("video/input.mp4").value();
     auto detector = ContentDetector::initialize_detector();
     SceneManager scene_manager = SceneManager(detector);
     scene_manager.detect_scenes(video);
@@ -76,32 +76,16 @@ To compile the code, run the following g++ command (replace `-I` and `-L` with y
 ```
 g++ -std=c++20 -I/path/to/shutoh/include -I/usr/include/opencv4 main.cpp -L/path/to/shutoh/build -lopencv_core -lopencv_videoio -lfmt -Wl,-rpath,/path/to/build -lshutoh_lib
 ```
-If you want to use Cmake, you can build `shutoh` with follwoing `CMakeLists.txt`:
+Or you can use for example FetchContent:
 ```cmake
-cmake_minimum_required(VERSION 3.14)
-
-project(shutoh VERSION 0.1)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set(SHUTOH_INCLUDE_DIR "/path/to/shutoh/include")
-set(SHUTOH_LIBRARY_DIR "/path/to/shutoh/build")
-
-find_package(OpenCV REQUIRED)
-include_directories(${SHUTOH_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
-
-# CLI
-add_executable(shutoh main.cpp)
-target_link_directories(shutoh PRIVATE ${SHUTOH_LIBRARY_DIR})
-target_link_libraries(shutoh PRIVATE shutoh_lib ${OpenCV_LIBS})
-set_target_properties(shutoh PROPERTIES BUILD_RPATH "${SHUTOH_LIBRARY_DIR}")
-```
-Then run:
-```shell
-cmake -S . -B build
-cmake --build build
+include(FetchContent)
+FetchContent_Declare(
+  shutoh
+  GIT_REPOSITORY https://github.com/awkrail/shutoh.git
+  GIT_TAG main
+)
+FetchContent_MakeAvailable(shutoh)
+target_link_libraries(YOUR_LIBRARY PUBLIC shutoh OTHER_LIBRARIES)
 ```
 
 ## Tests
@@ -118,6 +102,6 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 MIT License
 
 ## Contact
-Taichi Nishimura ([taichitary@gmail.com](taichitary@gmail.com))  
+Taichi Nishimura ([taichitary@gmail.com](taichitary@gmail.com))
 Copyright (C) 2024-2025 Taichi Nishimura.
 All rights reserved.
