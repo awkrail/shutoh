@@ -46,13 +46,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
     - name: Install dendency libraries (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
@@ -78,7 +71,6 @@ jobs:
 
     - name: Install Python libraries
       run: |
-        pip install --upgrade pip
         pip install --upgrade setuptools wheel
         pip install scenedetect pybind11
 
