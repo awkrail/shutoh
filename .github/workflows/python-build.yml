@@ -71,7 +71,7 @@ jobs:
 
     - name: Install Python libraries
       run: |
-        pip install --upgrade setuptools wheel
+        pip install --upgrade --no-cache-dir setuptools wheel
         pip install scenedetect pybind11
 
     - name: Run setup.py
