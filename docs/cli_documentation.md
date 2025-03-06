@@ -1,23 +1,24 @@
 # Shutoh CLI
 
 ## Quick start
-**Shutoh** performs video shot detection. Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), it aims to provide a powerful and comparable alternative with enhanced performance. Shutoh supports the three main commands implemented in PySceneDetect: `list-scenes`, `split-video`, and `save-images`.
+**Shutoh** is a fast video shot detection toolkit inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect).
+Shutoh supports the three main commands implemented in PySceneDetect: `list-scenes`, `split-video`, and `save-images`.
 
-Save scene information as csv file:
+Save scene information as a CSV file:
 ```
 shutoh -i input.mp4 -c list-scenes
 ```
-Split input video on each fast cut and save them as videos:
+Split the input video at each detected cut and save the segments as separate videos:
 ```
 shutoh -i input.mp4 -c split-video
 ```
-Save frames from each cut:
+Save frames from each detected shot:
 ```
 shutoh -i input.mp4 -c save-images
 ```
 
 ## Options
-Shutoh supports the above three commands with the five detectors. Detailed explainations about options are described below.
+Shutoh supports five different detectors and a variety of options. Detailed explanations of the available options are provided below.
 ```
 $shutoh --help
 Usage: shutoh [--help] [--version] --input VAR --command VAR [--output VAR] [--filename VAR] [--no_output_file] [--copy] [--crf VAR] [--preset VAR] [--ffmpeg_args VAR] [--num_images VAR] [--format VAR] [--quality VAR] [--compression VAR] [--frame_margin VAR] [--scale VAR] [--width VAR] [--height VAR] [--start VAR] [--end VAR] [--duration VAR] [--detector VAR] [--threshold VAR] [--min_scene_len VAR] [--window_width VAR] [--min_content_val VAR] [--dct_size VAR] [--lowpass VAR] [--bins VAR] [--fade_bias VAR]
@@ -58,9 +59,9 @@ Optional arguments:
 ### General options
 - `--help [-h]`: Show help messages
 - `--version [-v]`: Show version information
-- `--input [-i]`: Input video file path **(Required)**
+- `--input [-i]`: Path to the input video file. **(Required)**
 - `--command [-c]`: Command name: `list-scenes`, `split-video`, and `save-images` **(Required)**
-- `--output [-o]`: Output directory. If unset, working directory will be used.
+- `--output [-o]`: Directory to save output files (default: current directory).
 - `--filename`: Output filename format to save csv, images, and videos. You can use macros like $VIDEO_NAME, $SCENE_NUMBER, anad $IMAGE_NUMBER. Default: $VIDEO_NAME-scenes.csv (`list-scenes`), $VIDEO_NAME-scene-$SCENE_NUMBER (`split-video`), and $VIDEO_NAME-scene-$SCENE_NUMBER-$IMAGE_NUMBER (`save-images`).
 
 #### Examples
