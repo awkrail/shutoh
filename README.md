@@ -21,19 +21,24 @@ To build `shutoh` with `cmake`, run:
 ```shell
 cmake -S . -B build
 cmake --build build
-sudo make install
+sudo cmake --install build
+```
+If you got an error of loading shared libraries: libshutoh.so, please run the following command to add PATH (Linux):
+```
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ```
 
 ## Quick Start (Command Line)
 I focus on three commands: `split-video`, `list-scenes`, and `save-images`.
 Split an input video into cuts:
 ```
-./build/shutoh_cli -i video/input.mp4 -c split-video
+shutoh_cli -i video/input.mp4 -c split-video
 ```
 Save scenes as csv file:
 ```
-./build/shutoh_cli -i video/input.mp4 -c list-scenes
+shutoh_cli -i video/input.mp4 -c list-scenes
 ```
+See [documentation](docs/cli_documentation.md) for details.
 
 ## API
 ### Python
@@ -47,6 +52,7 @@ from libshutoh import detect, ContentDetector
 detector = ContentDetector.initialize_detector()
 scenes = detect('video/input.mp4', detector)
 ```
+See [API documentation](docs/api_documentation.md) for details.
 
 ### C++
 The simpletest code is as follow:
