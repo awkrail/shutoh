@@ -63,12 +63,102 @@ Optional arguments:
 - `--output [-o]`: Output directory. If unset, working directory will be used.
 - `--filename`: Output filename format to save csv, images, and videos. You can use macros like $VIDEO_NAME, $SCENE_NUMBER, anad $IMAGE_NUMBER. Default: $VIDEO_NAME-scenes.csv (`list-scenes`), $VIDEO_NAME-scene-$SCENE_NUMBER (`split-video`), and $VIDEO_NAME-scene-$SCENE_NUMBER-$IMAGE_NUMBER (`save-images`).
 
-**Example**
+#### Examples
 Save shots as csv with `scenes.csv` at `csv/` directory:
 ```
-shutoh -i video.mp4 -c list-scenes -o csv --filename scenes.csv
+shutoh -i input.mp4 -c list-scenes -o csv --filename scenes.csv
 ```
 Save frames from each shot as `frame_$SCENE_NUMBER_$IMAGE_NUMBER` at `frame/` directory:
 ```
-shutoh -i video.mp4 -c save-images -o frame --filename frame_$SCENE_NUMBER_$IMAGE_NUMBER
+shutoh -i input.mp4 -c save-images -o frame --filename frame_$SCENE_NUMBER_$IMAGE_NUMBER
 ```
+
+### Command-specific Options
+#### list-scenes
+- `--no_output_file`: Print scenes only without saving csv files. In this mode, output-related options (e.g., `--output`) are ignored.
+```
+$shutoh -i video.mp4 -c list-scenes --no_output_file
+scene_number,start_frame,start_time,end_frame,end_time
+0,0,00:00:00.000,64,00:00:02.135
+1,65,00:00:02.135,143,00:00:04.771
+2,144,00:00:04.771,194,00:00:06.473
+3,195,00:00:06.473,254,00:00:08.475
+4,255,00:00:08.475,314,00:00:10.477
+5,315,00:00:10.477,419,00:00:13.981
+6,420,00:00:13.981,628,00:00:20.954
+7,629,00:00:20.954,712,00:00:23.757
+8,713,00:00:23.757,809,00:00:26.993
+9,810,00:00:26.993,880,00:00:29.363
+10,881,00:00:29.363,965,00:00:32.199
+11,966,00:00:32.199,1125,00:00:37.537
+12,1126,00:00:37.537,1211,00:00:40.407
+13,1212,00:00:40.407,1250,00:00:41.708
+14,1251,00:00:41.708,1330,00:00:44.377
+15,1331,00:00:44.377,1391,00:00:46.412
+...
+```
+
+#### split-video
+- `--copy`: Copy instead of re-encoding (when saving, this will use `-copy` flag). Faster but less precise. [default: false]
+- `--crf`: Constant Rate Factor. It is related to video encoding quality from 0 to 100, where lower is high quality. 0 is lossless. See [here](https://trac.ffmpeg.org/wiki/Encode/H.264) for details. [default: 22]
+- `--preset`: Video compression quality. Choose one from ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow. See [here](https://trac.ffmpeg.org/wiki/Encode/H.264#a2.Chooseapresetandtune) for details [default: veryfast]
+- `--ffmpeg_args`: Codec arguments passed to FFmpeg when saving video shots. Use double quotes around arguments. Must specify at least audio/video codec. [default: "-c:a aac -map 0:v:0 -map 0:a? -sn"]
+
+##### Examples
+Change `--crf` into 30 and `--preset` into superfast:
+```
+shutoh -i input.mp4 -c split-video --crf 30 --preset superfast
+```
+Use `--copy`:
+```
+shutoh -i input.mp4 -c split-video --copy
+```
+
+#### save-images
+- `--num_images`: Number of images to generate per scene.Will always include start/end frame, unless -n=1,in which case the image will be the frame at the mid-point of the scene. [default: 3]
+- `--format`: Output format of saved images. Choose one from jpg, png, and webp. [default: jpg]
+- `--quality`: JPEG/WebP encoding quality, from 0 to 100. 100 is lossless. [default: 95]
+- `--compression`: PNG compression rate, from 0-9. Higher values produce smaller files but result in longer compression time. [default: 3]
+- `--frame_margin`: Number of frames to ignore at beginning/end of scenes when saving images.Controls temporal padding on scene boundaries. [default: 1]
+- `--width [-W]`: Width of images. If `-H/--height` is unset, height is computed by keeping the aspect ratio.
+- `--height [-H]`: Height of images. If `-W/--width` is unset, width is computed by keeping the aspect ratio.
+- `--scale`: Factor to scale images. Ignored if `-W/--width` or `-H/--height` is set.
+
+##### Examples
+Save 10 images from each cut:
+```
+shutoh -i input.mp4 -c save-images --num_images 10
+```
+Save images as webp format with quality = 85
+```
+shutoh -i input.mp4 -c save-images --format webp --quality 85
+```
+Resize images' width into 512
+```
+shutoh -i input.mp4 -c save-images --width 512
+```
+Rescale images into 3x
+```
+shutoh -i input.mp4 -c save-images --scale 3
+```
+
+### Detector-specific Options
+Detailed explainations about detectors are described in the [PySceneDetect documentation](https://www.scenedetect.com/cli/).
+
+Common parameters across the detectors are `--threshold` and `--min_scene_len`:
+- `--threshold`: Threshold for scene shot detection. Higher values ignore small changes of scenes in the video (default value is different between the detectors).
+- `--min_scene_len`: Minimum scene length (=#frames) in cuts. Higher values ignore abrupt cuts. [default: 15]
+
+#### Adaptive detector
+- `--window_width`: Size of sliding window (#frames) before/after to average together to detect deviations from the mean. [default: 2]
+- `--min_content_val`: Minimum threshold (int) that content_val must be over to register as a new scene. [default: 15]
+
+#### HashDetector
+- `--dct_size`: Square size of low frequency to use for the DCT. [default: 16]
+- `--lowpass`: How much high frequency to filter from the DCT. A value of 2 means keeping lower 1/2 frequency data. [default: 2]
+
+#### HistogramDetector
+- `--bins`: Number of bins to use for the histogram. [default: 256]
+
+#### ThresholdDetector
+- `--fade_bias`: Float between -1.0 and +1.0 that represents the percentage of timecode skew for the start of a scene [default: 0]
