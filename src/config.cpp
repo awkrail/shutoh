@@ -212,7 +212,7 @@ WithError<Config> _construct_config(argparse::ArgumentParser& program) {
 }
 
 WithError<Config> parse_args(int argc, char *argv[]) {
-    argparse::ArgumentParser program("shutoh");
+    argparse::ArgumentParser program("shutoh", "0.0.1");
 
     /* Mandatory */ 
     program.add_argument("-i", "--input")

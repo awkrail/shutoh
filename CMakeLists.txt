@@ -48,6 +48,7 @@ target_link_libraries(shutoh PUBLIC ${OpenCV_LIBS} fmt::fmt argparse pybind11::m
 
 # CLI
 add_executable(shutoh_cli src/main.cpp)
+set_target_properties(shutoh_cli PROPERTIES OUTPUT_NAME "shutoh")
 target_link_libraries(shutoh_cli PRIVATE shutoh)
 
 # Tests
