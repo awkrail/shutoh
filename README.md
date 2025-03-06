@@ -11,8 +11,6 @@ Inspired by [PySceneDetect](https://github.com/Breakthrough/PySceneDetect), Shut
 - **Flexible**: Supports both rule-based and machine-learning-based approaches.
 
 ## Installation
-
-### Build from Source
 Ensure that FFmpeg, OpenCV, and CMake are installed.
 ```
 sudo apt install libopencv-dev ffmpeg cmake
@@ -47,17 +45,35 @@ See [documentation](docs/cli_documentation.md) for details.
 
 ## API
 ### Python
-Install `libshutoh` by running:
+Install Shutoh by running:
 ```
 pip install git+https://github.com/awkrail/shutoh.git
 ```
 To detect scenes with `ContentDetector()`, run the following code:
 ```python
 from libshutoh import detect, ContentDetector
-detector = ContentDetector.initialize_detector()
+detector = ContentDetector.initialize_detector(threshold=27, min_scene_len=15)
 scenes = detect('video/input.mp4', detector)
+for i, scene in enumerate(scene_list):
+    print('Scene %2d: Start %s / Frame %d, End %s / Frame %d' % (
+        i+1,
+        scene[0].get_timecode(), scene[0].get_frames(),
+        scene[1].get_timecode(), scene[1].get_frames(),))
 ```
-See [Python API documentation](docs/python_documentation.md) for details.
+Using `scenedetect.split_video_ffmpeg`, we can also split the video into each scene:
+```python
+from libshutoh import detect, ContentDetector
+from scenedetect import split_video_ffmpeg
+detector = ContentDetector.initialize_detector(threshold=27, min_scene_len=15)
+scenes = detect('video/input.mp4', detector)
+split_video_ffmpeg('vide/input.mp4', scenes, show_progress=True)
+```
+If you want to use other detectors, replace the detector with the new one:
+```python
+from libshutoh import AdaptiveDetector
+detector = AdaptiveDetector.initialize_detector()
+```
+**Detector list:** AdaptiveDetector, ContentDetector, HashDetector, HistogramDetector, ThresholdDetector
 
 ### C++
 The simpletest code is as follow:
@@ -97,14 +113,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(shutoh)
 target_link_libraries(YOUR_LIBRARY PUBLIC shutoh OTHER_LIBRARIES)
-```
-See [C++ API documentation](docs/cpp_documentation.md) for details.
-
-## Tests
-Run test using `ctest`:
-```shell
-cd build
-ctest
 ```
 
 ## Contribution
