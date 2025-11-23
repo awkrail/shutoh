@@ -1,5 +1,7 @@
 # Shutoh
 
+Shutoh is WIP again (2025/11/23~)
+
 [![Build](https://github.com/awkrail/shutoh/actions/workflows/build.yml/badge.svg)](https://github.com/awkrail/shutoh/actions/workflows/build.yml)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
@@ -22,7 +24,7 @@ sudo cmake --install build
 shutoh --help
 ```
 
-## Quick Start (Command Line)
+## Quick Start
 I focus on three main commands: `split-video`, `list-scenes`, and `save-images`. 
 Save scene information (e.g., frame numbers and time) as csv file:
 ```

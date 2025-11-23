@@ -1,22 +1,23 @@
-#include "shutoh/video_stream.hpp"
-#include "shutoh/frame_timecode.hpp"
-#include "shutoh/scene_manager.hpp"
-#include "shutoh/frame_timecode_pair.hpp"
+//#include "shutoh/video_stream.hpp"
+//#include "shutoh/frame_timecode.hpp"
+//#include "shutoh/scene_manager.hpp"
+//#include "shutoh/frame_timecode_pair.hpp"
 
-#include "command_runner.hpp"
-#include "parameters.hpp"
-#include "config.hpp"
+//#include "command_runner.hpp"
+//#include "parameters.hpp"
+#include "config.h"
 
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-    const WithError<Config> opt_cfg = parse_args(argc, argv);
-    if (opt_cfg.has_error()) {
-        opt_cfg.error.show_error_msg();
+    Config cfg;
+    if (parse_args(cfg, argc, argv) != 0)
+    {
+        fprintf(stderr, "Failed to parse args. Abort.\n");
         return 1;
     }
-    Config cfg = opt_cfg.value();
 
+    /**
     WithError<VideoStream> opt_video = VideoStream::initialize_video_stream(cfg.input_path);
     if (opt_video.has_error()) {
         opt_video.error.show_error_msg();
@@ -48,4 +49,5 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     return 0;
+    **/
 }
